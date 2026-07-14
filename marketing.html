@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Marketing & Brand · Sydney Nguyen</title>
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-soft: #555;
+    --ink-faint: #888;
+    --rule: #ececec;
+    --frame-bg: #f6f5f3;
+    --max: 860px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--frame-bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Menubar ── */
+  .menubar {
+    position: fixed; top: 0; left: 0; right: 0; height: 58px;
+    background: rgba(246,245,243,0.88);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    display: flex; align-items: center;
+    padding: 0 24px; z-index: 1000;
+  }
+  .menubar-home { display: flex; align-items: center; text-decoration: none; color: #1a1a1a; }
+  .menubar-apple { width: 32px; height: 33px; object-fit: contain; flex-shrink: 0; }
+  .menubar-title { font-weight: 700; font-size: 20px; color: #1a1a1a; margin-left: 22px; white-space: nowrap; }
+  .menubar-sub { position: fixed; left: 253px; top: 18px; font-weight: 500; font-size: 16px; color: #696967; white-space: nowrap; z-index: 1001; }
+  .menubar-ticker {
+    position: fixed; left: 50%; top: 29px; transform: translate(-50%, -50%);
+    width: 400px; overflow: hidden; pointer-events: none; z-index: 1001;
+  }
+  .ticker-pill { overflow: hidden; white-space: nowrap; }
+  .ticker-track {
+    display: inline-block; white-space: nowrap; animation: ticker-scroll 32s linear infinite;
+    font-weight: 500; font-size: 13px; letter-spacing: 0.1px;
+    background: linear-gradient(90deg, #d44f70 0%, #c4880a 14%, #1fa8a0 28%, #8255cc 42%, #e05030 56%, #2e96cc 70%, #3aaa6a 84%, #d44f70 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .menubar-clock { font-weight: 500; font-size: 16px; color: #1a1a1a; white-space: nowrap; margin-left: auto; min-width: 157px; text-align: right; }
+
+  /* ── Custom cursor ── */
+  * { cursor: none !important; }
+  .cursor-dot {
+    width: 9px; height: 9px;
+    background: rgba(100,100,100,0.45);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(100,100,100,0.3);
+    border-radius: 50%; position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 999999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+    will-change: left, top;
+  }
+
+  /* ── Mobile override ── */
+  @media (max-width: 768px) {
+    * { cursor: auto !important; }
+    .cursor-dot { display: none !important; }
+    .menubar-ticker, .menubar-sub { display: none !important; }
+  }
+
+  /* ── Page layout ── */
+  .page-wrap {
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 98px 32px 80px;
+  }
+
+  /* ── Page header ── */
+  .pg-header {
+    margin-bottom: 48px;
+  }
+  .pg-header h1 {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .pg-header p {
+    font-size: 16px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ── LWB gallery sections ── */
+  .lwb-gallery { margin-top: 14px; }
+  .lwb-section { margin-top: 14px; }
+  .lwb-section:first-child { margin-top: 0; }
+  .lwb-section-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #bbb; margin-bottom: 8px;
+  }
+  .lwb-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+  /* ── Role cards ── */
+  .roles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .role-card {
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.05);
+    overflow: hidden;
+  }
+
+  .role-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px 24px 18px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .role-logo {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    background: #f0ede8;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    overflow: hidden;
+  }
+  .role-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
+  .role-meta { flex: 1; }
+  .role-company { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+  .role-title { font-size: 13px; color: var(--ink-soft); margin-bottom: 3px; }
+  .role-dates { font-size: 12px; color: var(--ink-faint); }
+
+  .role-body { padding: 20px 24px 24px; }
+  .role-blurb {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.65;
+    margin-bottom: 20px;
+  }
+
+  /* ── Image grid ── */
+  .img-section + .img-section { margin-top: 20px; }
+  .img-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #bbb; margin-bottom: 10px;
+  }
+  .img-grid { display: grid; gap: 8px; }
+
+  /* Instagram embed grid — masonry via CSS columns */
+  .ig-grid {
+    columns: 3;
+    column-gap: 6px;
+  }
+  .ig-cell {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #ede9e3;
+    cursor: pointer;
+    break-inside: avoid;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .ig-cell.sq  { aspect-ratio: 1 / 1; }
+  .ig-cell.pt  { aspect-ratio: 9 / 16; }
+  .ig-cell iframe {
+    position: absolute;
+    top: -56px;
+    left: 0;
+    width: 100%;
+    height: 600px;
+    border: none;
+    pointer-events: all;
+  }
+  .ig-cell.sq iframe { height: 460px; }
+  /* zoom-crop portrait iframes to remove pillarbox bars */
+  .ig-cell.pt iframe {
+    width: 160%;
+    left: -30%;
+    top: -56px;
+    height: 600px;
+  }
+  .ig-cell.img-cell img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+  }
+  .img-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .img-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .img-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  /* landscape slide cell */
+  .ig-cell.ld { aspect-ratio: 4 / 3; }
+  .ig-cell.ld iframe { height: 400px; }
+  /* LinkedIn embed */
+  .li-embed-row { display: flex; gap: 10px; margin-top: 12px; }
+  .li-embed {
+    flex: 1;
+    min-width: 0;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .li-embed iframe { width: 100%; border: none; display: block; border-radius: 12px; }
+
+  /* YouTube embed */
+  .yt-embed {
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .yt-embed iframe { width: 100%; height: 100%; border: none; display: block; }
+
+  .testimonial-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .testimonial-card {
+    background: #f5f2ee;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #4a4540;
+    font-style: italic;
+    position: relative;
+  }
+
+  /* ── Slideshow gallery ── */
+  .ig-slideshow { margin-top: 16px; }
+  .ss-slide { display: none; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .ss-slide.active { display: grid; }
+  .ss-controls { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; }
+  .ss-btn {
+    background: none; border: 1.5px solid #d0cbc5; border-radius: 50%;
+    width: 28px; height: 28px; font-size: 16px; line-height: 1;
+    cursor: pointer; color: #888; display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .ss-btn:hover { border-color: #888; color: #333; }
+  .ss-dots { display: flex; gap: 6px; align-items: center; }
+  .ss-dot { width: 6px; height: 6px; border-radius: 50%; background: #d0cbc5; transition: background 0.15s; }
+  .ss-dot.active { background: #888; }
+
+  .img-slot {
+    border-radius: 12px;
+    background: #ede9e3;
+    aspect-ratio: 1 / 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .img-slot.wide { aspect-ratio: 16 / 9; }
+  .img-slot.tall { aspect-ratio: 3 / 4; }
+  .img-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .img-slot::after {
+    content: attr(data-label);
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: #ccc;
+    text-align: center; padding: 10px; line-height: 1.3;
+  }
+
+  /* ── Link buttons ── */
+  .role-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .role-link-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 20px;
+    background: #f0ede8; font-size: 12.5px; font-weight: 600;
+    color: #444; text-decoration: none; transition: background 0.15s;
+    cursor: none !important;
+  }
+  .role-link-btn:hover { background: #e4e0da; }
+  .role-link-btn svg { flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cursor-dot"></div>
+
+<!-- Menubar -->
+<div class="menubar">
+  <a href="index.html" class="menubar-home">
+    <img src="assets/favicon.png" class="menubar-apple" alt="" />
+    <span class="menubar-title">sydney's desktop</span>
+  </a>
+  <div class="menubar-ticker" aria-hidden="true">
+    <div class="ticker-pill">
+      <div class="ticker-track">
+        <span>always creating&nbsp;&nbsp;·&nbsp;&nbsp;drinking a matcha&nbsp;&nbsp;·&nbsp;&nbsp;learning new ai skills&nbsp;&nbsp;·&nbsp;&nbsp;creating a figma prototype&nbsp;&nbsp;·&nbsp;&nbsp;planning my next 5k run&nbsp;&nbsp;·&nbsp;&nbsp;petting my cat&nbsp;&nbsp;·&nbsp;&nbsp;editing photos in lightroom&nbsp;&nbsp;·&nbsp;&nbsp;hiking a trail&nbsp;&nbsp;·&nbsp;&nbsp;</span><span>always creating&nbsp;&nbsp;·&nbsp;&nbsp;drinking a matcha&nbsp;&nbsp;·&nbsp;&nbsp;learning new ai skills&nbsp;&nbsp;·&nbsp;&nbsp;creating a figma prototype&nbsp;&nbsp;·&nbsp;&nbsp;planning my next 5k run&nbsp;&nbsp;·&nbsp;&nbsp;petting my cat&nbsp;&nbsp;·&nbsp;&nbsp;editing photos in lightroom&nbsp;&nbsp;·&nbsp;&nbsp;hiking a trail&nbsp;&nbsp;·&nbsp;&nbsp;</span>
+      </div>
+    </div>
+  </div>
+  <span class="menubar-clock" id="clock"></span>
+</div>
+<span class="menubar-sub">UX/UI  ·  SJSU Mdes</span>
+
+<!-- Page content -->
+<div class="page-wrap">
+
+  <div class="pg-header">
+    <h1>Marketing & Brand</h1>
+    <p>Content, campaigns, and visual assets across roles — from concept to final product.</p>
+  </div>
+
+  <div class="roles-list">
+
+    <!-- Little Wins Bakehouse -->
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-logo"><img src="assets/little wins bakehouse/logo-badge-tan.png" alt="Little Wins Bakehouse" /></div>
+        <div class="role-meta">
+          <div class="role-company">Little Wins Bakehouse</div>
+          <div class="role-title">Brand Designer & Photographer</div>
+          <div class="role-dates">Apr 2026 – Present</div>
+        </div>
+      </div>
+      <div class="role-body">
+        <p class="role-blurb">Designed the full brand identity for a San Francisco micro-bakery — logo system, stickers, business cards, and packaging. Created social media content including new flavor announcements and digital menus, and shot product photography for Instagram.</p>
+        <div class="lwb-gallery">
+          <div class="lwb-section">
+            <div class="lwb-section-label">Print & Packaging</div>
+            <div class="lwb-row">
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/business-card.png" alt="Business card" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/menu.png" alt="Printed menu" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/sticker.png" alt="Sticker design" loading="lazy" /></div>
+            </div>
+          </div>
+          <div class="lwb-section">
+            <div class="lwb-section-label">Social Media</div>
+            <div class="lwb-row">
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/1.png" alt="New flavor announcement" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/5.png" alt="New flavor announcement" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/7.png" alt="New flavor announcement" loading="lazy" /></div>
+            </div>
+          </div>
+          <div class="lwb-section">
+            <div class="lwb-section-label">Photography</div>
+            <div class="lwb-row">
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/cookie-stack-hand.jpg" alt="Cookie stack" style="object-position: center 60%;" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/flatlay-four-plates.jpg" alt="Flatlay cookies" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/matcha-cookies-tea.jpg" alt="Matcha cookies with tea" loading="lazy" /></div>
+            </div>
+          </div>
+        </div>
+        <div class="role-links">
+          <a href="https://www.littlewinsbakehouse.com/" target="_blank" class="role-link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            littlewinsbakehouse.com
+          </a>
+          <a href="https://www.instagram.com/littlewinsbakehouse/" target="_blank" class="role-link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            @littlewinsbakehouse
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- HALIENE / Next Step Management -->
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-logo"><img src="assets/thumbs/haliene icon.png" alt="HALIENE" /></div>
+        <div class="role-meta">
+          <div class="role-company">HALIENE · Next Step Management</div>
+          <div class="role-title">Social Media & Merch Designer · Content Creator</div>
+          <div class="role-dates">Sep 2023 – Dec 2024</div>
+        </div>
+      </div>
+      <div class="role-body">
+        <p class="role-blurb">Edited social media content and captured live footage at concerts and festivals across California. Designed custom merch — a jersey and pashmina — and traveled with the artist to document shows and behind-the-scenes moments.</p>
+        <div class="img-section">
+          <div class="ig-grid">
+            <div class="ig-cell pt img-cell"><img src="assets/thumbs/haliene jersey.png" alt="HALIENE jersey design" loading="lazy" /></div>
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/reel/CxI-gwzLzj7/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/reel/Cx_HXEXLHRY/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          </div>
+        </div>
+        <div class="role-links">
+          <a href="https://www.instagram.com/haliene/" target="_blank" class="role-link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            @haliene
+          </a>
+          <a href="https://www.haliene.com/" target="_blank" class="role-link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            haliene.com
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nora AI -->
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-logo"><img src="assets/icons/logo-nora-ai.png" alt="Nora AI" /></div>
+        <div class="role-meta">
+          <div class="role-company">Nora AI <span style="font-weight:400;color:#aaa;font-size:12px;">formerly InternGuys</span></div>
+          <div class="role-title">UX/UI & Marketing Intern</div>
+          <div class="role-dates">Jun 2024 – Nov 2024</div>
+        </div>
+      </div>
+      <div class="role-body">
+        <p class="role-blurb">Interned at Nora AI (formerly InternGuys) producing content across video, social, and events. Shot and edited a candidate tutorial video for YouTube, designed slide decks and social assets, and hosted a UCR collaboration workshop — reaching both student job-seekers and university audiences.</p>
+        <div class="yt-embed">
+          <iframe src="https://www.youtube.com/embed/dS3S4kLVpRo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="ig-grid">
+          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (1).png" alt="Nora AI slide deck" loading="lazy" /></div>
+          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (2).png" alt="Nora AI slide deck" loading="lazy" /></div>
+          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (3).png" alt="Nora AI slide deck" loading="lazy" /></div>
+          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (4).png" alt="Nora AI slide deck" loading="lazy" /></div>
+          <div class="ig-cell pt img-cell"><img src="assets/thumbs/Nora Story Post.png" alt="Nora AI story post" loading="lazy" /></div>
+        </div>
+        <div class="li-embed-row">
+          <div class="li-embed">
+            <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7225650999854579713" height="500" allowfullscreen loading="lazy" title="Nora AI LinkedIn post"></iframe>
+          </div>
+          <div class="li-embed">
+            <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7290913553295806464" height="500" allowfullscreen loading="lazy" title="Nora AI UCR Workshop post"></iframe>
+          </div>
+        </div>
+        <div class="role-links">
+          <a href="https://www.youtube.com/watch?v=dS3S4kLVpRo" target="_blank" class="role-link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96C1 8.12 1 12 1 12s0 3.88.46 5.58a2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96C23 15.88 23 12 23 12s0-3.88-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>
+            Watch Video
+          </a>
+          <a href="https://www.norahq.com/" target="_blank" class="role-link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            norahq.com
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Designer Drains -->
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-logo"><img src="assets/icons/logo-designer-drains.png" alt="Designer Drains" /></div>
+        <div class="role-meta">
+          <div class="role-company">Designer Drains</div>
+          <div class="role-title">Visual Design & Marketing Intern</div>
+          <div class="role-dates">Apr 2024 – Jun 2025</div>
+        </div>
+      </div>
+      <div class="role-body">
+        <p class="role-blurb">Designed marketing graphics, product photography, and brand assets. Rebuilt Amazon storefront UI and sent out monthly Mailchimp newsletters, driving a 20% increase in engagement.</p>
+        <div class="ig-slideshow" id="ss-dd">
+          <div class="ss-slide active">
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/C7wmzmPSghd/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/C8M7vSuuXKt/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/C7hX05svmIU/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          </div>
+          <div class="ss-slide">
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DJuNju2yUb6/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DJmfiLxq--p/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DIg9paJzV2l/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          </div>
+          <div class="ss-slide">
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DHglwPJPImh/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DHL_eY7N2wd/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DIUF5DYM4FA/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          </div>
+          <div class="ss-slide">
+            <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DHG18xHtuFQ/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell pt img-cell"><img src="assets/thumbs/designer drains mailchimp email.png" alt="Mailchimp email template" /></div>
+            <div class="ig-cell pt img-cell"><img src="assets/thumbs/designer drains amazon storefront.png" alt="Amazon storefront" /></div>
+          </div>
+          <div class="ss-controls">
+            <button onclick="prevSlide('ss-dd')" class="ss-btn">&#8249;</button>
+            <div class="ss-dots">
+              <span class="ss-dot active"></span>
+              <span class="ss-dot"></span>
+              <span class="ss-dot"></span>
+              <span class="ss-dot"></span>
+            </div>
+            <button onclick="nextSlide('ss-dd')" class="ss-btn">&#8250;</button>
+          </div>
+        </div>
+        <div class="role-links">
+          <a href="https://www.instagram.com/designer_drains/" target="_blank" class="role-link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            @designer_drains
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graduation Photography -->
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-logo"><img src="assets/thumbs/visualsbyskn icon.jpg" alt="visualsbyskn" /></div>
+        <div class="role-meta">
+          <div class="role-company">Freelance Photography</div>
+          <div class="role-title">Graduation Photographer · @visualsbyskn</div>
+          <div class="role-dates">May 2021 – Jun 2025</div>
+        </div>
+      </div>
+      <div class="role-body">
+        <p class="role-blurb">Built a client base of 150+ across California over 5 years, averaging 20–30 shoots per year through self-run Instagram marketing and word-of-mouth. Specializing in graduation and portrait photography with additional work in event and concert coverage — and grew a community of fellow photographers along the way.</p>
+        <div class="ig-slideshow" id="ss-photo">
+          <div class="ss-slide active">
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DZdms-xgQjU/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DKx9OIhSVrS/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CwMEmSAxj8w/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          </div>
+          <div class="ss-slide">
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DKx87f1SJEq/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DJVuzTiukIu/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DHj7Ck7yxmc/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          </div>
+          <div class="ss-slide">
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DET6o4PxGiv/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/C8vUgJMvixd/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/C8vUWRkvY49/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          </div>
+          <div class="ss-slide">
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/C8XhV_sJ2q0/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/C7H-2xyyTb6/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CRiHfgJNke7/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          </div>
+          <div class="ss-controls">
+            <button onclick="prevSlide('ss-photo')" class="ss-btn">&#8249;</button>
+            <div class="ss-dots">
+              <span class="ss-dot active"></span>
+              <span class="ss-dot"></span>
+              <span class="ss-dot"></span>
+              <span class="ss-dot"></span>
+            </div>
+            <button onclick="nextSlide('ss-photo')" class="ss-btn">&#8250;</button>
+          </div>
+        </div>
+        <div class="testimonial-grid">
+          <div class="testimonial-card">"Sydney did an amazing job taking grad photos for me and my boyfriend! She made us feel very comfortable and showed our awkward selves how to pose. She knew the best spots on campus and what lighting would look best. Would definitely recommend her for any future shoots!"</div>
+          <div class="testimonial-card">"Sydney was such an amazing photographer! She offered a lot of creative freedom while still giving insight and direction in order to get the perfect shot! She made me so comfortable and we shared a lot of laughs! The shoot turned out perfect and the photos looked natural and effortless!"</div>
+          <div class="testimonial-card">"Sydney goes above and beyond with guiding, inspiring, and creating perfect photo shots. Super friendly, super down to earth, and superb with the camera — I recommend nobody but her!"</div>
+          <div class="testimonial-card">"oh my goshhhh, these pictures are so beautiful!! thank you so much for your services and for making me feel so, so, so comfortable during the shoot! i truly enjoyed it!"</div>
+        </div>
+        <div class="role-links">
+          <a href="https://www.instagram.com/visualsbyskn" target="_blank" class="role-link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            @visualsbyskn
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alpha Phi Omega -->
+    <div class="role-card">
+      <div class="role-header">
+        <div class="role-logo"><img src="assets/icons/logo-alpha-phi-omega.png" alt="Alpha Phi Omega" /></div>
+        <div class="role-meta">
+          <div class="role-company">Alpha Phi Omega</div>
+          <div class="role-title">Historian / New Member Educator</div>
+          <div class="role-dates">Sep 2022 – Dec 2023</div>
+        </div>
+      </div>
+      <div class="role-body">
+        <p class="role-blurb">Served as chapter Historian for UCR's Alpha Phi Omega chapter — designed rush flyers, social media graphics, and event photography and videography. Created rush t-shirt designs for Spring and Fall 2023 and documented chapter life to grow our community presence on Instagram.</p>
+        <div class="li-embed-row">
+          <div class="yt-embed" style="flex:1;min-width:0;margin-top:0;">
+            <iframe src="https://www.youtube.com/embed/EPvWZpcKZ8s" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+          </div>
+          <div class="yt-embed" style="flex:1;min-width:0;margin-top:0;">
+            <iframe src="https://www.youtube.com/embed/yoV1roI498Q" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </div>
+        <div class="ig-slideshow" id="ss-apo">
+          <div class="ss-slide active">
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CyJ71I7PvyD/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CtKycc6vvq2/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CnVArS1yHrF/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          </div>
+          <div class="ss-slide">
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/Cq4LSQVI-dn/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+            <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CzMbqOFPWEj/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          </div>
+          <div class="ss-controls">
+            <button onclick="prevSlide('ss-apo')" class="ss-btn">&#8249;</button>
+            <div class="ss-dots">
+              <span class="ss-dot active"></span>
+              <span class="ss-dot"></span>
+            </div>
+            <button onclick="nextSlide('ss-apo')" class="ss-btn">&#8250;</button>
+          </div>
+        </div>
+        <div class="role-links">
+          <a href="https://www.instagram.com/apoucr/" target="_blank" class="role-link-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            @apoucr
+          </a>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<script>
+  // Clock
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+  }
+  updateClock(); setInterval(updateClock, 1000);
+
+  // Custom cursor
+  const dot = document.getElementById('cursor-dot');
+  document.addEventListener('mousemove', e => { dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px'; });
+
+  // Slideshow navigation
+  function _slideStep(id, dir) {
+    const ss = document.getElementById(id);
+    const slides = ss.querySelectorAll('.ss-slide');
+    const dots = ss.querySelectorAll('.ss-dot');
+    let i = [...slides].findIndex(s => s.classList.contains('active'));
+    slides[i].classList.remove('active');
+    dots[i].classList.remove('active');
+    i = (i + dir + slides.length) % slides.length;
+    slides[i].classList.add('active');
+    dots[i].classList.add('active');
+  }
+  function prevSlide(id) { _slideStep(id, -1); }
+  function nextSlide(id) { _slideStep(id, 1); }
+</script>
+</body>
+</html>

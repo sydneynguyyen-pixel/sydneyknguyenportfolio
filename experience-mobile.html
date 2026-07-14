@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Experience — Sydney Nguyen</title>
+  <link rel="icon" href="assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f4f1;
+      color: #1a1a1a;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    .mob-bar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center;
+      padding: 0 18px; height: 52px;
+      background: rgba(245,244,241,0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(0,0,0,0.07);
+    }
+    .mob-bar-logo { width: 26px; height: 26px; object-fit: contain; border-radius: 6px; }
+    .mob-bar-title { font-size: 14px; font-weight: 600; color: #1a1a1a; margin-left: 9px; flex: 1; }
+    .mob-hamburger { display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 36px; height: 36px; padding: 8px; background: none; border: none; outline: none; cursor: pointer; border-radius: 8px; -webkit-appearance: none; appearance: none; }
+    .mob-hamburger span { display: block; height: 2px; background: #1a1a1a; border-radius: 2px; }
+    .mob-drawer-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 199; backdrop-filter: blur(2px); }
+    .mob-drawer-backdrop.open { display: block; }
+    .mob-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 280px; background: #faf9f6; z-index: 200; transform: translateX(100%); transition: transform 0.28s cubic-bezier(0.32,0,0.16,1); display: flex; flex-direction: column; padding: 0 0 40px; box-shadow: -4px 0 32px rgba(0,0,0,0.12); }
+    .mob-drawer.open { transform: translateX(0); }
+    .mob-drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid rgba(0,0,0,0.07); }
+    .mob-drawer-identity { display: flex; align-items: center; gap: 11px; }
+    .mob-drawer-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .mob-drawer-name { font-size: 13.5px; font-weight: 700; color: #1a1a1a; margin-bottom: 1px; }
+    .mob-drawer-role { font-size: 11.5px; color: #999; }
+    .mob-drawer-close { width: 32px; height: 32px; border-radius: 8px; background: rgba(0,0,0,0.06); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #555; flex-shrink: 0; }
+    .mob-drawer-section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; padding: 20px 20px 8px; }
+    .mob-drawer-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+    .mob-drawer-link { display: flex; align-items: center; gap: 12px; padding: 13px 10px; border-radius: 12px; font-size: 14px; font-weight: 600; color: #1a1a1a; text-decoration: none; transition: background 0.15s; }
+    .mob-drawer-link svg { color: #888; flex-shrink: 0; }
+    .mob-drawer-link:hover { background: rgba(0,0,0,0.05); }
+    .mob-drawer-contact { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+    .mob-drawer-contact-link { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-radius: 12px; font-size: 13px; font-weight: 500; color: #555; text-decoration: none; transition: background 0.15s; }
+    .mob-drawer-contact-link svg { flex-shrink: 0; color: #bbb; }
+    .mob-drawer-contact-link:hover { background: rgba(0,0,0,0.05); color: #1a1a1a; }
+
+    .page-body { padding: 24px 18px 60px; }
+
+    .section-label {
+      font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #999;
+      margin: 28px 0 14px;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    /* Exp rows */
+    .exp-list { display: flex; flex-direction: column; }
+    .exp-item {
+      background: #fff; border-radius: 16px;
+      padding: 16px; margin-bottom: 10px;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .exp-item-header {
+      display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;
+    }
+    .exp-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      object-fit: contain; flex-shrink: 0;
+      background: #f0ede8; padding: 3px;
+    }
+    .exp-role { font-size: 13.5px; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; line-height: 1.35; }
+    .exp-date { font-size: 11.5px; color: #999; }
+    .exp-sub { font-size: 12px; color: #888; margin-bottom: 10px; font-style: italic; }
+    .exp-bullets { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .exp-bullets li {
+      font-size: 12.5px; color: #555; line-height: 1.55;
+      padding-left: 14px; position: relative;
+    }
+    .exp-bullets li::before {
+      content: '·'; position: absolute; left: 2px;
+      color: #bbb; font-size: 16px; line-height: 1.3;
+    }
+    .exp-metric {
+      display: inline-block; margin-top: 10px;
+      font-size: 11.5px; font-weight: 700;
+      background: #e6f4ed; color: #2d6644;
+      border-radius: 999px; padding: 3px 10px;
+    }
+
+    /* Edu rows */
+    .edu-list { display: flex; flex-direction: column; gap: 10px; }
+    .edu-item {
+      display: flex; align-items: center; gap: 12px;
+      background: #fff; border-radius: 16px; padding: 16px;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .edu-icon { width: 40px; height: 40px; border-radius: 10px; object-fit: contain; flex-shrink: 0; background: #f0ede8; padding: 3px; }
+    .edu-school { font-size: 13.5px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+    .edu-meta { font-size: 12px; color: #666; margin-bottom: 2px; }
+    .edu-detail { font-size: 11.5px; color: #999; }
+  </style>
+</head>
+<body>
+
+  <div class="mob-bar">
+    <a href="index.html" style="display:flex;align-items:center;text-decoration:none;color:inherit;flex:1;">
+      <img src="assets/favicon.png" class="mob-bar-logo" alt="" />
+      <span class="mob-bar-title">sydney's desktop</span>
+    </a>
+    <button class="mob-hamburger" onclick="mobDrawerOpen()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <div class="mob-drawer-backdrop" id="mob-drawer-backdrop" onclick="mobDrawerClose()"></div>
+  <div class="mob-drawer" id="mob-drawer">
+    <div class="mob-drawer-header">
+      <div class="mob-drawer-identity">
+        <img src="assets/profile pictures/pfp 1.jpg" class="mob-drawer-avatar" alt="" />
+        <div>
+          <div class="mob-drawer-name">Sydney Nguyen</div>
+          <div class="mob-drawer-role">UX/UI Designer</div>
+        </div>
+      </div>
+      <button class="mob-drawer-close" onclick="mobDrawerClose()" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="mob-drawer-section-label">Navigate</div>
+    <nav class="mob-drawer-nav">
+      <a href="about-mobile.html" class="mob-drawer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        About Me
+      </a>
+      <a href="experience-mobile.html" class="mob-drawer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        Experience &amp; Education
+      </a>
+      <a href="creative-mobile.html" class="mob-drawer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Creative
+      </a>
+      <a href="marketing-mobile.html" class="mob-drawer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Marketing & Design
+      </a>
+    </nav>
+    <div class="mob-drawer-section-label">Contact</div>
+    <div class="mob-drawer-contact">
+      <a href="mailto:sydney.nguyen01@sjsu.edu" class="mob-drawer-contact-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        sydney.nguyen01@sjsu.edu
+      </a>
+      <a href="https://www.linkedin.com/in/sydneyknguyen" target="_blank" class="mob-drawer-contact-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn ↗
+      </a>
+      <a href="assets/Sydney Nguyen Resume.pdf" target="_blank" class="mob-drawer-contact-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Resume ↗
+      </a>
+    </div>
+  </div>
+
+  <div class="page-body">
+
+    <div class="section-label">Experience</div>
+    <div class="exp-list">
+
+      <div class="exp-item">
+        <div class="exp-item-header">
+          <img src="assets/icons/logo-adobe.png" class="exp-icon" alt="Adobe" />
+          <div>
+            <div class="exp-role">UCR Student Ambassador @ Adobe</div>
+            <div class="exp-date">May 2024 – June 2025</div>
+          </div>
+        </div>
+        <ul class="exp-bullets">
+          <li>Promoted Adobe's tools through social media, campus events, and student organizations.</li>
+          <li>Organized workshops showcasing Adobe's software, reaching a wide student audience.</li>
+          <li>Fostered a community of student creators through collaboration and mentorship.</li>
+          <li>Gained hands-on experience with a global brand, sharpening communication and multitasking skills.</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-item-header">
+          <img src="assets/icons/logo-designer-drains.png" class="exp-icon" alt="Designer Drains" />
+          <div>
+            <div class="exp-role">Digital Design &amp; Marketing Intern @ Designer Drains</div>
+            <div class="exp-date">April 2024 – June 2025</div>
+          </div>
+        </div>
+        <p class="exp-sub">U.S. e-commerce retailer of handcrafted luxury shower drain covers.</p>
+        <ul class="exp-bullets">
+          <li>Redesigned product storefront UX in Figma, resulting in a 20% increase in page engagement.</li>
+          <li>Designed graphics and digital assets to support seasonal campaigns and brand growth.</li>
+          <li>Analyzed Google Analytics to identify drop-off points and optimize product page layouts.</li>
+          <li>Applied user-centered design to reduce friction between browsing and purchase intent.</li>
+        </ul>
+        <span class="exp-metric">Page Engagement ↑20%</span>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-item-header">
+          <img src="assets/icons/logo-nora-ai.png" class="exp-icon" alt="Nora AI" />
+          <div>
+            <div class="exp-role">Marketing and Design Intern @ Nora AI</div>
+            <div class="exp-date">June 2024 – November 2024</div>
+          </div>
+        </div>
+        <p class="exp-sub">Early-stage AI startup building voice-powered interview screening tools.</p>
+        <ul class="exp-bullets">
+          <li>Developed social media strategies to grow brand awareness on LinkedIn, Instagram, and campus.</li>
+          <li>Designed wireframes and visual layouts for the main marketing website in Figma.</li>
+          <li>Built Figma prototypes incorporating peer feedback to improve usability and flow clarity.</li>
+        </ul>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-item-header">
+          <img src="assets/icons/logo-alpha-phi-omega.png" class="exp-icon" alt="Alpha Phi Omega" />
+          <div>
+            <div class="exp-role">Historian &amp; Pledge Educator @ UCR Alpha Phi Omega</div>
+            <div class="exp-date">August 2022 – December 2023</div>
+          </div>
+        </div>
+        <ul class="exp-bullets">
+          <li>Designed digital content and graphics that boosted member engagement.</li>
+          <li>Led marketing initiatives promoting fraternity events and volunteering activities.</li>
+          <li>Created and led fraternity-wide events for leadership skills and team bonding.</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="section-label">Education</div>
+    <div class="edu-list">
+
+      <div class="edu-item">
+        <img src="assets/icons/new-sjsu-logo.png" class="edu-icon" alt="SJSU" />
+        <div>
+          <div class="edu-school">San José State University</div>
+          <div class="edu-meta">M.Des Experience Design · August 2025 – Present</div>
+          <div class="edu-detail">Expected Graduation: June 2027</div>
+        </div>
+      </div>
+
+      <div class="edu-item">
+        <img src="assets/icons/logo-ucr.png" class="edu-icon" alt="UCR" />
+        <div>
+          <div class="edu-school">University of California, Riverside</div>
+          <div class="edu-meta">B.A. Political Science · September 2021 – June 2025</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    function mobDrawerOpen() {
+      document.getElementById('mob-drawer').classList.add('open');
+      document.getElementById('mob-drawer-backdrop').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function mobDrawerClose() {
+      document.getElementById('mob-drawer').classList.remove('open');
+      document.getElementById('mob-drawer-backdrop').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  </script>
+
+</body>
+</html>

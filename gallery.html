@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Art + Design · Sydney Nguyen</title>
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f2ee;
+    --ink: #1a1a1a;
+    --ink-soft: #666;
+    --ink-faint: #999;
+    --glass-bg: rgba(255,255,255,0.55);
+    --radius: 14px;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Instrument Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .gl-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 56px;
+    background: rgba(245,242,238,0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .gl-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color 0.15s, transform 0.15s;
+  }
+  .gl-back:hover { color: var(--ink); transform: translateX(-2px); }
+  .gl-header-title {
+    font-size: 14px;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+
+  /* ── Hero ── */
+  .gl-hero {
+    padding: 56px 40px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .gl-hero h1 {
+    font-family: 'Lora', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 600;
+    font-style: italic;
+    line-height: 1.15;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .gl-hero p {
+    font-size: 15px;
+    color: var(--ink-soft);
+    max-width: 520px;
+    line-height: 1.65;
+  }
+
+  /* ── Section ── */
+  .gl-section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px 64px;
+  }
+  .gl-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+  }
+
+  /* ── Masonry grid ── */
+  .gl-grid {
+    columns: 3;
+    column-gap: 14px;
+  }
+  @media (max-width: 700px) { .gl-grid { columns: 2; } }
+  @media (max-width: 480px) { .gl-grid { columns: 1; } }
+
+  .gl-item {
+    break-inside: avoid;
+    margin-bottom: 14px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    background: #e8e4e0;
+  }
+  .gl-item img {
+    width: 100%;
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .gl-item:hover img { transform: scale(1.04); }
+  .gl-item-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.52) 0%, transparent 55%);
+    opacity: 0;
+    transition: opacity 0.25s;
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+    pointer-events: none;
+  }
+  .gl-item:hover .gl-item-overlay { opacity: 1; }
+  .gl-item-info { color: #fff; }
+  .gl-item-title { font-size: 12px; font-weight: 650; line-height: 1.3; }
+  .gl-item-meta  { font-size: 11px; opacity: 0.72; margin-top: 2px; }
+
+  /* ── Lightbox ── */
+  .gl-lightbox {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.22s;
+  }
+  .gl-lightbox.open { opacity: 1; pointer-events: all; }
+  .gl-lightbox img {
+    max-width: 90vw; max-height: 90vh;
+    border-radius: 10px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+    object-fit: contain;
+  }
+  .gl-lightbox-close {
+    position: absolute; top: 24px; right: 28px;
+    color: #fff; font-size: 28px; cursor: pointer; opacity: 0.7;
+    background: none; border: none; line-height: 1;
+  }
+  .gl-lightbox-close:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header class="gl-header">
+  <a href="index.html" class="gl-back">← Back to desktop</a>
+  <span class="gl-header-title">Art + Design</span>
+  <span></span>
+</header>
+
+<div class="gl-hero">
+  <h1>art & design.</h1>
+  <p>A mix of graphic design, illustration, and personal creative work — spanning branding, editorial, and digital art.</p>
+</div>
+
+<section class="gl-section" id="section-gd">
+  <div class="gl-section-label">Graphic Design</div>
+  <div class="gl-grid" id="grid-gd"></div>
+</section>
+
+<section class="gl-section" id="section-art">
+  <div class="gl-section-label">Illustration & Artwork</div>
+  <div class="gl-grid" id="grid-art"></div>
+</section>
+
+<!-- Lightbox -->
+<div class="gl-lightbox" id="gl-lightbox" onclick="closeLightbox(event)">
+  <button class="gl-lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="gl-lightbox-img" src="" alt="" />
+</div>
+
+<script>
+const GD = [
+  { img: 'assets/graphic design/gd-fall-rush.png',   title: 'UCR Alpha Phi Omega Rush Flyer',    meta: 'Illustrator, Photoshop · 2023' },
+  { img: 'assets/graphic design/gd-brochure.png',    title: 'Designer Drains Product Brochure',  meta: 'Illustrator, InDesign · 2025' },
+  { img: 'assets/graphic design/gd-spring-rush.png', title: 'UCR Alpha Phi Omega Rush Flyer',    meta: 'Illustrator, Photoshop · 2022' },
+  { img: 'assets/graphic design/gd-aspb.png',        title: 'UCR ASPB Spring Quarter Campaign',  meta: 'Illustrator · 2022' },
+  { img: 'assets/graphic design/gd-concert.png',     title: 'UCR ASPB Mock Concert Flyer',       meta: 'Illustrator · 2022' },
+];
+const ART = [
+  { img: 'assets/graphic design/art-music-album.png', title: 'Music Album Illustration',              meta: 'Procreate, Photoshop · 2025' },
+  { img: 'assets/graphic design/art-haliene.png',     title: 'Official Jersey for HALIENE Water EP',  meta: 'Illustrator · 2025' },
+  { img: 'assets/graphic design/art-tree.png',        title: 'Tree Illustration',                     meta: 'Procreate · 2025' },
+];
+
+function buildGrid(items, containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = items.map(item => `
+    <div class="gl-item" onclick="openLightbox('${item.img}')">
+      <img src="${item.img}" alt="${item.title}" loading="lazy" />
+      <div class="gl-item-overlay">
+        <div class="gl-item-info">
+          <div class="gl-item-title">${item.title}</div>
+          <div class="gl-item-meta">${item.meta}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+buildGrid(GD, 'grid-gd');
+buildGrid(ART, 'grid-art');
+
+function openLightbox(src) {
+  document.getElementById('gl-lightbox-img').src = src;
+  document.getElementById('gl-lightbox').classList.add('open');
+}
+function closeLightbox(e) {
+  if (!e || e.target !== document.getElementById('gl-lightbox-img')) {
+    document.getElementById('gl-lightbox').classList.remove('open');
+  }
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+</body>
+</html>

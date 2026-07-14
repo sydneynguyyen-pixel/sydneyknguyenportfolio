@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Local backup created during laptop/deploy sync — not part of the site
+_pre-sync-backup/
+
+# Editor / OS cruft
+Thumbs.db
+*.swp
+
+# Netlify local
+.netlify/

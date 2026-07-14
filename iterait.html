@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>iterait — UX Case Study · Sydney Nguyen</title>
+<link rel="icon" type="image/png" href="assets/favicon.png" />
+<meta name="description" content="iterait — a visual workflow system that transforms AI design chaos into clear, controllable progress. Case study by Sydney Nguyen." />
+<meta property="og:title" content="iterait — UX Case Study · Sydney Nguyen" />
+<meta property="og:description" content="Track, compare, and reuse iterations in AI-driven design workflows." />
+<meta property="og:image" content="assets/case studies/iterait/iterait cover image.png" />
+<meta property="og:type" content="article" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --ink-soft: #555;
+    --ink-faint: #888;
+    --accent: #0891a8;
+    --accent-light: #d9fcff;
+    --rule: #ececec;
+    --frame-bg: #f0fafb;
+    --max: 720px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background-color: #fbfbfa;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    padding-top: 70px;
+  }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+  /* ── Top bar ── */
+  .site-top { display: flex; justify-content: flex-end; padding-top: 28px; }
+  .site-top a {
+    font-size: 13.5px; font-weight: 500; color: #fff;
+    background: var(--accent); padding: 9px 18px; border-radius: 999px;
+    text-decoration: none; transition: background 0.15s;
+  }
+  .site-top a:hover { background: var(--ink); }
+
+  /* ── Header ── */
+  header { padding: 64px 0 0; }
+  .eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 20px; }
+  h1 { font-size: 32px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 36px; }
+
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px 48px;
+    padding: 20px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    margin-bottom: 56px;
+  }
+  .meta dt { color: var(--ink-faint); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+  .meta dd { color: var(--ink); font-size: 13.5px; }
+  .meta dd a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .meta dd a:hover { text-decoration: underline; }
+
+  /* ── Side TOC ── */
+  .toc { display: none; position: fixed; top: 140px; left: calc(50% - var(--max) / 2 - 190px); width: 150px; }
+  .toc-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 14px; }
+  .toc a { display: block; font-size: 13px; color: var(--ink-faint); text-decoration: none; padding: 5px 0 5px 14px; border-left: 2px solid var(--rule); transition: color 0.15s, border-color 0.15s; }
+  .toc a:hover { color: var(--ink); }
+  .toc a.active { color: var(--ink); border-left-color: var(--ink); font-weight: 500; }
+  @media (min-width: 1180px) { .toc { display: block; } }
+
+  .hero { width: 100%; border-radius: 12px; display: block; margin-bottom: 96px; }
+
+  /* ── Sections ── */
+  section { margin-bottom: 120px; }
+  h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 16px; scroll-margin-top: 40px; }
+  h3 { font-size: 13px; font-weight: 600; margin: 28px 0 8px; }
+  p { font-size: 13px; color: var(--ink-soft); margin-bottom: 14px; line-height: 1.65; text-wrap: pretty; }
+  h1, h2, h3 { text-wrap: balance; }
+  p strong { color: var(--ink); }
+  .lead { font-size: 14px; color: var(--ink); line-height: 1.65; margin-bottom: 14px; }
+
+  figure { margin: 48px 0; }
+  figure img, figure video { width: 100%; border-radius: 10px; display: block; }
+  figcaption { font-size: 12px; color: var(--ink-faint); margin-top: 10px; }
+
+  .framed { background: var(--frame-bg); border-radius: 12px; padding: 32px; }
+  .framed img, .framed video { border-radius: 8px; }
+
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
+
+  /* split text */
+  .jump { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 56px; }
+  .jump a { font-size: 13px; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent; }
+  .jump a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .split-text { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 32px 0; align-items: start; }
+  .split-accent p { color: var(--ink); font-weight: 500; font-size: 13px; margin-bottom: 0; }
+  .split-body p { margin-bottom: 0; }
+  @media (max-width: 640px) { .split-text { grid-template-columns: 1fr; gap: 12px; } }
+
+  /* principles */
+  .principle-grid { margin: 24px 0 0; }
+  .pcell { display: flex; align-items: baseline; gap: 24px; padding: 18px 0; border-top: 1px solid var(--rule); }
+  .pcell:last-child { border-bottom: 1px solid var(--rule); }
+  .pcell-n { font-size: 11px; font-weight: 500; color: var(--ink-faint); letter-spacing: 0.08em; flex-shrink: 0; width: 20px; }
+  .pcell-statement { font-size: 13px; color: var(--ink); line-height: 1.65; margin-bottom: 0; }
+
+  /* feature list */
+  .feature-list { margin: 24px 0; }
+  .feature-row {
+    display: flex; gap: 20px; align-items: baseline;
+    padding: 16px 0; border-top: 1px solid var(--rule);
+  }
+  .feature-row:last-child { border-bottom: 1px solid var(--rule); }
+  .feature-name { font-size: 13px; font-weight: 600; color: var(--ink); flex-shrink: 0; width: 180px; }
+  .feature-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+  @media (max-width: 600px) { .feature-row { flex-direction: column; gap: 4px; } .feature-name { width: auto; } }
+
+  /* role pill tags */
+  .role-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 32px; }
+  .role-tag {
+    font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 999px;
+    background: var(--accent-light); color: #006070;
+  }
+
+  /* two-up images */
+  .two-up { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 32px 0; }
+  .two-up figure { margin: 0; }
+  @media (max-width: 600px) { .two-up { grid-template-columns: 1fr; } }
+
+  /* video crop */
+  .video-crop { overflow: hidden; border-radius: 10px; line-height: 0; }
+  .video-crop video { width: 100%; display: block; transform: scale(1.015); transform-origin: top center; }
+
+  /* closing */
+  .closing-box {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+    background: var(--frame-bg); border-radius: 16px; padding: 36px;
+  }
+  @media (max-width: 640px) { .closing-box { grid-template-columns: 1fr; } }
+
+  /* footer */
+  footer { border-top: 1px solid var(--rule); padding: 56px 0 96px; }
+  footer p { margin-bottom: 24px; }
+  .btn { display: inline-block; background: var(--ink); color: #fff; font-size: 14px; font-weight: 500; text-decoration: none; padding: 12px 22px; border-radius: 999px; }
+  .btn:hover { background: var(--accent); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--rule); }
+  .btn-ghost:hover { background: var(--ink); color: #fff; }
+
+  /* ── Menubar ── */
+  .menubar {
+    position: fixed; top: 0; left: 0; width: 100%; height: 58px;
+    backdrop-filter: blur(18px) saturate(1.6); -webkit-backdrop-filter: blur(18px) saturate(1.6);
+    background: linear-gradient(-45deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0) 65%), rgba(255,255,255,0.69);
+    border-bottom: 1px solid rgba(255,255,255,0.55);
+    display: flex; align-items: center; padding: 0 17px; z-index: 1000;
+  }
+  .menubar-home { display: flex; align-items: center; text-decoration: none; color: #1a1a1a; }
+  .menubar-apple { width: 32px; height: 33px; object-fit: contain; flex-shrink: 0; }
+  .menubar-title { font-weight: 600; font-size: 20px; color: #1a1a1a; margin-left: 22px; white-space: nowrap; }
+  .menubar-sub { position: fixed; left: 253px; top: 18px; font-weight: 500; font-size: 16px; color: #696967; white-space: nowrap; z-index: 1001; }
+  .menubar-right { position: fixed; right: 28px; top: 0; height: 58px; display: flex; align-items: center; gap: 8px; z-index: 1001; }
+  .menubar-icon { height: 15px; width: auto; object-fit: contain; opacity: 0.9; }
+  .menubar-ticker { position: fixed; left: 50%; top: 29px; transform: translate(-50%, -50%); width: 400px; overflow: hidden; pointer-events: none; z-index: 1001; }
+  .ticker-pill { overflow: hidden; white-space: nowrap; }
+  .ticker-track {
+    display: inline-block; white-space: nowrap; animation: ticker-scroll 32s linear infinite;
+    font-weight: 500; font-size: 13px; letter-spacing: 0.1px;
+    background: linear-gradient(90deg, #d44f70 0%, #c4880a 14%, #1fa8a0 28%, #8255cc 42%, #e05030 56%, #2e96cc 70%, #3aaa6a 84%, #d44f70 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+  }
+  @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .menubar-clock { font-weight: 500; font-size: 16px; color: #1a1a1a; white-space: nowrap; margin-left: 4px; min-width: 157px; text-align: right; }
+
+  /* ── Cursor ── */
+  * { cursor: none !important; }
+  .cursor-dot {
+    width: 9px; height: 9px;
+    background: linear-gradient(-45deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 65%), rgba(8,145,168,0.55);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0,200,220,0.5); box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 50%; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 999999;
+    transform: translate(-50%,-50%); transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1); will-change: left, top;
+  }
+  body.cursor-hover .cursor-dot { transform: translate(-50%,-50%) scale(1.35); }
+  body.cursor-click .cursor-dot { transform: translate(-50%,-50%) scale(0.75); background: rgba(8,145,168,0.82); }
+  .cursor-sparkle { position: fixed; pointer-events: none; z-index: 99999; user-select: none; line-height: 1; animation: sparkle-pop 600ms ease-out forwards; }
+  @keyframes sparkle-pop {
+    0%   { opacity: 1; transform: scale(0.4) translate(0,0) rotate(0deg); }
+    50%  { opacity: 0.9; transform: scale(1.2) translate(calc(var(--tx)*0.6),calc(var(--ty)*0.6)) rotate(120deg); }
+    100% { opacity: 0; transform: scale(0.1) translate(var(--tx),var(--ty)) rotate(360deg); }
+  }
+
+  /* ── More Case Studies — small widget row ── */
+  .more-cs { margin: 48px 0 36px; }
+  .more-cs-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 14px; }
+  .more-cs-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .more-cs-card {
+    flex: 1 1 140px; max-width: 200px; text-decoration: none;
+    border: 1px solid var(--rule); border-radius: 14px; overflow: hidden;
+    background: #fff; display: block;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .more-cs-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0,0,0,0.1); }
+  .more-cs-thumb { width: 100%; height: 90px; overflow: hidden; background: var(--frame-bg); }
+  .more-cs-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .more-cs-body { padding: 10px 12px 12px; }
+  .more-cs-title { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+  .more-cs-desc { font-size: 11px; color: var(--ink-faint); line-height: 1.4; }
+  .mob-hamburger { display: none; }
+  .mob-drawer-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 199; backdrop-filter: blur(2px); }
+  .mob-drawer-backdrop.open { display: block; }
+  .mob-drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 280px; background: #faf9f6; z-index: 200; transform: translateX(100%); transition: transform 0.28s cubic-bezier(0.32,0,0.16,1); display: flex; flex-direction: column; padding: 0 0 40px; box-shadow: -4px 0 32px rgba(0,0,0,0.12); }
+  .mob-drawer.open { transform: translateX(0); }
+  .mob-drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid rgba(0,0,0,0.07); }
+  .mob-drawer-identity { display: flex; align-items: center; gap: 11px; }
+  .mob-drawer-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  .mob-drawer-name { font-size: 13.5px; font-weight: 700; color: #1a1a1a; margin-bottom: 1px; }
+  .mob-drawer-role { font-size: 11.5px; color: #999; }
+  .mob-drawer-close { width: 32px; height: 32px; border-radius: 8px; background: rgba(0,0,0,0.06); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #555; flex-shrink: 0; }
+  .mob-drawer-section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; padding: 20px 20px 8px; }
+  .mob-drawer-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+  .mob-drawer-link { display: flex; align-items: center; gap: 12px; padding: 13px 10px; border-radius: 12px; font-size: 14px; font-weight: 600; color: #1a1a1a; text-decoration: none; transition: background 0.15s; }
+  .mob-drawer-link svg { color: #888; flex-shrink: 0; }
+  .mob-drawer-link:hover { background: rgba(0,0,0,0.05); }
+  .mob-drawer-contact { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+  .mob-drawer-contact-link { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-radius: 12px; font-size: 13px; font-weight: 500; color: #555; text-decoration: none; transition: background 0.15s; }
+  .mob-drawer-contact-link svg { flex-shrink: 0; color: #bbb; }
+  .mob-drawer-contact-link:hover { background: rgba(0,0,0,0.05); color: #1a1a1a; }
+  @media (max-width: 768px) {
+    .mob-hamburger { display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 36px; height: 36px; padding: 8px; background: none; border: none; outline: none; cursor: pointer; border-radius: 8px; margin-left: auto; flex-shrink: 0; -webkit-appearance: none; appearance: none; }
+    .mob-hamburger span { display: block; height: 2px; background: #1a1a1a; border-radius: 2px; }
+    .menubar-ticker, .menubar-sub, .toc { display: none !important; }
+    * { cursor: auto !important; }
+    .cursor-dot { display: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="menubar">
+  <a href="index.html" class="menubar-home">
+    <img src="assets/favicon.png" class="menubar-apple" alt="" />
+    <span class="menubar-title">sydney's desktop</span>
+  </a>
+  <div class="menubar-ticker" aria-hidden="true">
+    <div class="ticker-pill">
+      <div class="ticker-track">
+        <span>always creating&nbsp;&nbsp;·&nbsp;&nbsp;drinking a matcha&nbsp;&nbsp;·&nbsp;&nbsp;learning new ai skills&nbsp;&nbsp;·&nbsp;&nbsp;creating a figma prototype&nbsp;&nbsp;·&nbsp;&nbsp;planning my next 5k run&nbsp;&nbsp;·&nbsp;&nbsp;petting my cat&nbsp;&nbsp;·&nbsp;&nbsp;editing photos in lightroom&nbsp;&nbsp;·&nbsp;&nbsp;hiking a trail&nbsp;&nbsp;·&nbsp;&nbsp;</span><span>always creating&nbsp;&nbsp;·&nbsp;&nbsp;drinking a matcha&nbsp;&nbsp;·&nbsp;&nbsp;learning new ai skills&nbsp;&nbsp;·&nbsp;&nbsp;creating a figma prototype&nbsp;&nbsp;·&nbsp;&nbsp;planning my next 5k run&nbsp;&nbsp;·&nbsp;&nbsp;petting my cat&nbsp;&nbsp;·&nbsp;&nbsp;editing photos in lightroom&nbsp;&nbsp;·&nbsp;&nbsp;hiking a trail&nbsp;&nbsp;·&nbsp;&nbsp;</span>
+      </div>
+    </div>
+  </div>
+  <button class="mob-hamburger" onclick="mobDrawerOpen()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<div class="mob-drawer-backdrop" id="mobBackdrop" onclick="mobDrawerClose()"></div>
+<div class="mob-drawer" id="mobDrawer">
+  <div class="mob-drawer-header">
+    <div class="mob-drawer-identity">
+      <img src="assets/avatar.png" class="mob-drawer-avatar" alt="Sydney">
+      <div>
+        <div class="mob-drawer-name">Sydney Nguyen</div>
+        <div class="mob-drawer-role">UX/UI Designer</div>
+      </div>
+    </div>
+    <button class="mob-drawer-close" onclick="mobDrawerClose()" aria-label="Close menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="mob-drawer-section-label">Navigate</div>
+  <div class="mob-drawer-nav">
+    <a href="about-mobile.html" class="mob-drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      About Me
+    </a>
+    <a href="experience-mobile.html" class="mob-drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      Experience
+    </a>
+    <a href="creative-mobile.html" class="mob-drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      Creative
+    </a>
+    <a href="marketing-mobile.html" class="mob-drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Marketing & Design
+    </a>
+  </div>
+  <div class="mob-drawer-section-label">Contact</div>
+  <div class="mob-drawer-contact">
+    <a href="mailto:sydney.nguyen01@sjsu.edu" class="mob-drawer-contact-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+      sydney.nguyen01@sjsu.edu
+    </a>
+    <a href="https://www.linkedin.com/in/sydneyknguyen/" target="_blank" class="mob-drawer-contact-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      LinkedIn
+    </a>
+    <a href="assets/sydney-nguyen-resume.pdf" target="_blank" class="mob-drawer-contact-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Resume
+    </a>
+  </div>
+</div>
+<span class="menubar-sub">UX/UI  ·  SJSU Mdes</span>
+
+<nav class="toc" aria-label="Table of contents">
+  <div class="toc-label">Contents</div>
+  <a href="#context">Context</a>
+  <a href="#my-role">My Role</a>
+  <a href="#process">Process</a>
+  <a href="#final-product">Final Product</a>
+  <a href="#reflection">Reflection</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="site-top">
+    <a href="https://iterait.vercel.app/" target="_blank">Live Demo ↗</a>
+  </div>
+
+  <header>
+    <img src="assets/case studies/iterait/iterait cover image.png" class="hero" alt="iterait" />
+
+    <div class="eyebrow">Case Study · iterait</div>
+    <h1>Designing a visual workflow system that turns AI design chaos into clear, controllable progress</h1>
+
+    <dl class="meta">
+      <div><dt>Role</dt><dd>UX/UI Designer, Brand Designer, Figma Prototyping, AI Prompting</dd></div>
+      <div><dt>Team</dt><dd>4 people</dd></div>
+      <div><dt>Context</dt><dd>SJHacks 2026 — 24-hour hackathon · <strong>Top 3 Finalist, Track 2: Digital Content Creation</strong></dd></div>
+      <div><dt>Links</dt><dd><a href="https://iterait.vercel.app/" target="_blank">Live Demo ↗</a> &nbsp;·&nbsp; <a href="https://github.com/cookiebytegirlie/iterait" target="_blank">GitHub ↗</a> &nbsp;·&nbsp; <a href="https://devpost.com/software/iterait" target="_blank">Devpost ↗</a></dd></div>
+    </dl>
+
+    <nav class="jump">
+      <a href="#context">Context</a>
+      <a href="#my-role">My Role</a>
+      <a href="#process">Process</a>
+      <a href="#final-product">Final Product</a>
+      <a href="#reflection">Reflection</a>
+    </nav>
+  </header>
+
+  <!-- ── Context ── -->
+  <section id="context">
+    <figure>
+      <img src="assets/case studies/iterait/context section image.png" loading="lazy" alt="iterait context" style="object-fit:cover; max-height:420px;" />
+    </figure>
+    <h2>Context</h2>
+    <p class="section-label">SJHacks 2026 · Track 2: Digital Content Creation</p>
+    <p class="lead" style="font-style:italic; color:var(--ink-faint); margin-bottom:4px;">"How can we empower digital artists to realize their creative vision fully?"</p>
+    <p style="font-style:italic; color:var(--ink-faint); margin-bottom:28px;">Enhance creativity, not replace it.</p>
+
+    <p class="lead">AI has dramatically accelerated interface design. Designers can now generate polished interfaces in seconds using tools like Claude, Cursor, Google Stitch, and Lovable. But while generation has become effortless, iteration remains fragmented.</p>
+
+    <div class="split-text">
+      <div class="split-accent">
+        <p>The faster AI let us create, the harder it became to manage what we created.</p>
+      </div>
+      <div class="split-body">
+        <p>Every prompt creates another version. Edits disappear into chat histories. Successful workflows are nearly impossible to reuse. As a team of designers vibecoding our own build, we hit this wall repeatedly — and we weren't alone. Traditional design tools give you version history, reusable components, and visual structure. AI tools often replace all of that with a long scroll of disconnected outputs.</p>
+      </div>
+    </div>
+
+    <figure>
+      <img src="assets/case studies/iterait/context section image 2.png" loading="lazy" alt="iterait — project overview" style="object-fit:cover; max-height:420px;" />
+    </figure>
+
+    <p>During SJHacks, we asked: <strong>What if AI-assisted design had the same level of control, visibility, and reusability designers already expect from tools like Figma?</strong> That question became iterait.</p>
+
+    <h3>The problem</h3>
+    <p>Existing AI tools prioritize generation over iteration. There's no standard way to compare versions, recover a direction you abandoned three prompts ago, or reuse a workflow that worked last week. Prompt engineering becomes repetitive. Creative flow gets interrupted by constantly rewriting the same instructions from scratch — not because the idea changed, but because there was nowhere to save it.</p>
+
+    <h3>Our approach</h3>
+    <p>We looked at what designers already trust — Figma, Adobe Creative Suite, Canva — and at what AI-native tools like Claude, Stitch, Lovable, and Cursor were missing. Rather than building another generator, we focused on the layer that didn't exist yet: the space between raw AI output and organized, usable design work.</p>
+  </section>
+
+  <!-- ── My Role ── -->
+  <section id="my-role">
+    <h2>My Role</h2>
+
+    <div class="role-tags">
+      <span class="role-tag">UX/UI Design</span>
+      <span class="role-tag">Brand Identity</span>
+      <span class="role-tag">Design System</span>
+      <span class="role-tag">Figma Prototyping</span>
+      <span class="role-tag">AI Prompting</span>
+    </div>
+
+    <p>Our team of four was entirely UX/UI by background — three designers and one "dev" vibecoding the build with AI tools, no formal engineers in the mix. I focused on the visual identity and core experience: I designed the logo, color scheme, and design system including reusable components, then built out the home page and Actions Library on top of it. I also helped with backend prompting in Claude — in a 24-hour sprint with a team this blended, the line between designer and collaborator gets blurry fast, and I leaned into it.</p>
+
+    <h3>Design principles</h3>
+    <div class="principle-grid">
+      <div class="pcell">
+        <div class="pcell-n">01</div>
+        <div class="pcell-statement">Make iteration visible.</div>
+      </div>
+      <div class="pcell">
+        <div class="pcell-n">02</div>
+        <div class="pcell-statement">Reduce repetitive prompting through reusable actions.</div>
+      </div>
+      <div class="pcell">
+        <div class="pcell-n">03</div>
+        <div class="pcell-statement">Preserve creative flow by integrating naturally into existing AI workflows.</div>
+      </div>
+      <div class="pcell">
+        <div class="pcell-n">04</div>
+        <div class="pcell-statement">Build a platform-agnostic experience that supports multiple AI tools.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Process ── -->
+  <section id="process">
+    <h2>Process</h2>
+    <p>Design and development happened at the same time — there was no handoff, just a shared doc and a countdown. We started by mapping what designers already understand: version history, layers, reusable components. Then we asked what those concepts would look like if they were built for an AI-native workflow instead of a file-based one.</p>
+    <p>I sketched flows and wireframes first, then locked in a design system before touching high-fidelity. That order mattered. Once the system existed, it gave the rest of the build a clear target instead of a moving one — I could keep iterating on interactions without second-guessing whether things would hold together visually. Building the system first was the only reason we shipped something coherent in 24 hours.</p>
+
+    <figure>
+      <img src="assets/case studies/iterait/figma file process iterait.png" loading="lazy" alt="Figma file showing iterait's design process" />
+      <figcaption>Building out the design system and reusable components to create cohesive screens in Figma before moving into a working prototype.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ── Final Product ── -->
+  <section id="final-product">
+    <h2>Final Product</h2>
+    <p class="lead">iterait is a visual workflow system that transforms AI design chaos into clear, controllable progress.</p>
+
+    <div class="feature-list">
+      <div class="feature-row">
+        <div class="feature-name">Organized Workspace</div>
+        <p class="feature-desc">View design files across AI platforms in one place, replacing scattered exports and chat histories.</p>
+      </div>
+      <div class="feature-row">
+        <div class="feature-name">Visual Version History</div>
+        <p class="feature-desc">Automatically track and compare design iterations side-by-side, so no promising direction gets buried.</p>
+      </div>
+      <div class="feature-row">
+        <div class="feature-name">Actions Library</div>
+        <p class="feature-desc">Save individual design changes as reusable actions instead of rewriting the same prompts over and over.</p>
+      </div>
+      <div class="feature-row">
+        <div class="feature-name">Action Chains</div>
+        <p class="feature-desc">Combine multiple actions into reusable workflows that execute with one click, compressing repetitive sequences.</p>
+      </div>
+      <div class="feature-row">
+        <div class="feature-name">Cross-platform Reuse</div>
+        <p class="feature-desc">Apply action chains across compatible AI tools while adapting them to different environments.</p>
+      </div>
+      <div class="feature-row">
+        <div class="feature-name">Privacy Controls</div>
+        <p class="feature-desc">Give designers control over what creative work is shared or kept private.</p>
+      </div>
+    </div>
+
+    <figure>
+      <div class="framed">
+        <div class="video-crop">
+          <video src="assets/case studies/iterait/iterait organize and compare.mp4" autoplay loop muted playsinline></video>
+        </div>
+      </div>
+      <figcaption>View files, see different versions, compare changes between them.</figcaption>
+    </figure>
+    <figure>
+      <div class="framed">
+        <div class="video-crop">
+          <video src="assets/case studies/iterait/iterait view changes.mp4" autoplay loop muted playsinline></video>
+        </div>
+      </div>
+      <figcaption>See exactly what changed between versions, read detailed notes, save a chain of actions to reuse later.</figcaption>
+    </figure>
+    <figure>
+      <div class="framed">
+        <div class="video-crop">
+          <video src="assets/case studies/iterait/iterait actions library.mp4" autoplay loop muted playsinline></video>
+        </div>
+      </div>
+      <figcaption>Browse saved actions, reuse one on a new platform, get a ready-to-paste prompt.</figcaption>
+    </figure>
+
+    <h3>Challenges</h3>
+    <p>The hardest design problem wasn't the interface — it was the data model. AI outputs bundle multiple changes into a single response, so isolating individual design decisions into discrete, reusable actions is genuinely tricky. We also had to resist overbuilding: the more powerful the system, the more it risks feeling like another tool to learn. The whole point was to reduce friction, not add it.</p>
+  </section>
+
+  <!-- ── Reflection ── -->
+  <section id="reflection" style="margin-bottom: 48px;">
+    <div class="closing-box">
+      <div>
+        <p class="lead">The hardest problem in AI-assisted design isn't generation anymore — it's what you do with what you made.</p>
+        <p>Speed without reflection isn't a creative advantage — it's just noise at scale. iterait reinforced something I'd been feeling for a while: what designers actually need from AI tools is memory, not more output. The ability to understand what you tried, why it didn't work, and what to carry forward. That's what good design tools have always done. AI is just catching up.</p>
+      </div>
+      <div>
+        <p class="lead">A 24-hour sprint will teach you exactly how much a design system is worth.</p>
+        <p>The answer is: everything. With nobody on the team formally trained in engineering, having the design system locked in early meant we always had a clear target to build toward instead of a moving one. It's the kind of leverage that's easy to skip when you're in a hurry, and the reason you should never skip it when you are.</p>
+        <p style="margin-top:14px;"><strong>Given more time:</strong> usability testing with professional designers · refining the Actions Library against real usage patterns · expanding into a live Figma + Claude plugin.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div style="display:flex; gap:20px; align-items:flex-start; margin-bottom:18px;">
+      <img id="footer-flip-img" src="assets/case studies/iterait/footer image 1.jpg" alt="Photos from the iterait hackathon team" style="width:120px; height:120px; object-fit:cover; border-radius:12px; display:block; flex-shrink:0;" />
+      <div>
+        <p style="font-size:13px; color:var(--ink-soft); line-height:1.75; margin-bottom:10px;">
+          Thank you to my fellow hackers and MDes besties <strong style="color:var(--ink);">Shreya, Michelle, and Basmah</strong> for creating this with me in the craziest, most sleepless 24 hours ever — so proud we made it as finalists.
+        </p>
+        <p style="font-size:13px; color:var(--ink-soft); line-height:1.75; margin-bottom:0;">
+          Thank you to <strong style="color:var(--ink);">San Jose State University</strong>, <strong style="color:var(--ink);">SJHacks</strong>, and <strong style="color:var(--ink);">Guildhouse</strong> for hosting.
+        </p>
+      </div>
+    </div>
+    <a href="https://iterait.vercel.app/" target="_blank" class="btn">Live Demo ↗</a>
+    <a href="https://github.com/cookiebytegirlie/iterait" target="_blank" class="btn" style="margin-left:10px;">View on GitHub →</a>
+    <a href="https://devpost.com/software/iterait" target="_blank" class="btn" style="margin-left:10px;">Devpost ↗</a>
+
+    <div class="more-cs">
+      <div class="more-cs-label">More Case Studies</div>
+      <div class="more-cs-row">
+        <a class="more-cs-card" href="room2talk.html">
+          <div class="more-cs-thumb"><img src="assets/case studies/room2talk/r2t-hero.png" alt="room2talk" loading="lazy" /></div>
+          <div class="more-cs-body">
+            <div class="more-cs-title">room2talk</div>
+            <div class="more-cs-desc">Reflection-based card experience for intergenerational communication.</div>
+          </div>
+        </a>
+        <a class="more-cs-card" href="voqa.html">
+          <div class="more-cs-thumb"><img src="assets/case studies/voqa/voqa-thumb.png" alt="VOQA" loading="lazy" /></div>
+          <div class="more-cs-body">
+            <div class="more-cs-title">VOQA</div>
+            <div class="more-cs-desc">Making museum experiences more inclusive and accessible.</div>
+          </div>
+        </a>
+        <a class="more-cs-card" href="soundbite.html">
+          <div class="more-cs-thumb"><img src="assets/soundbite/6.png" alt="soundbite" loading="lazy" /></div>
+          <div class="more-cs-body">
+            <div class="more-cs-title">soundbite</div>
+            <div class="more-cs-desc">Snack and sound pairings for immersive, mood-based audio experiences.</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  const tocLinks = document.querySelectorAll('.toc a');
+  const sections = [...tocLinks].map(a => document.querySelector(a.getAttribute('href')));
+  function updateToc() {
+    const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 50;
+    let current = sections[0];
+    for (const s of sections) {
+      if (s && s.getBoundingClientRect().top <= window.innerHeight * 0.35) current = s;
+    }
+    if (atBottom) current = sections[sections.length - 1];
+    tocLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + current?.id));
+  }
+  window.addEventListener('scroll', updateToc, { passive: true });
+  setInterval(updateToc, 400);
+  updateToc();
+
+  function updateClock() {
+    const now = new Date();
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let hours = now.getHours();
+    const mins = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    const el = document.getElementById('clock');
+    if (el) el.textContent = `${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()}   ${hours}:${mins} ${ampm}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+
+  (function() {
+    const dot = document.getElementById('cursor-dot');
+    if (!dot) return;
+    document.addEventListener('mousemove', e => { dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px'; });
+    const SEL = 'a, button, [onclick]';
+    document.addEventListener('mouseover', e => { if (e.target.closest(SEL)) document.body.classList.add('cursor-hover'); });
+    document.addEventListener('mouseout',  e => { if (e.target.closest(SEL)) document.body.classList.remove('cursor-hover'); });
+    document.addEventListener('mousedown', () => document.body.classList.add('cursor-click'));
+    document.addEventListener('mouseup',   () => document.body.classList.remove('cursor-click'));
+  })();
+
+  (function() {
+    const COLORS = ['#d9fcff','#80d5cf','#a8e6ef','#c3b1e1','#87ceeb','#b8f0f0','#5cc8d8'];
+    const SHAPES = ['✦','✧','★','◆','✿','⬥','✺','⟡'];
+    let lastTime = 0;
+    document.addEventListener('mousemove', e => {
+      const now = Date.now();
+      if (now - lastTime < 30) return;
+      lastTime = now;
+      if (Math.random() > 0.55) return;
+      const el = document.createElement('span');
+      el.className = 'cursor-sparkle';
+      el.textContent = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+      const tx = (Math.random() - 0.5) * 36, ty = -(Math.random() * 28 + 10);
+      const size = Math.random() * 14 + 9, dur = Math.random() * 300 + 500;
+      el.style.cssText = `left:${e.clientX}px;top:${e.clientY}px;color:${COLORS[Math.floor(Math.random()*COLORS.length)]};font-size:${size}px;--tx:${tx}px;--ty:${ty}px;animation-duration:${dur}ms;`;
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove(), { once: true });
+    });
+  })();
+
+  (function() {
+    const img = document.getElementById('footer-flip-img');
+    if (!img) return;
+    const photos = ['footer image 1.jpg', 'footer image 2.JPEG', 'footer image 3.jpg', 'footer image 4.JPEG']
+      .map(name => `assets/case studies/iterait/${name}`);
+    let i = 0;
+    setInterval(() => {
+      i = (i + 1) % photos.length;
+      img.src = photos[i];
+    }, 400);
+  })();
+</script>
+<script>
+function mobDrawerOpen() {
+  document.getElementById('mobDrawer').classList.add('open');
+  document.getElementById('mobBackdrop').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function mobDrawerClose() {
+  document.getElementById('mobDrawer').classList.remove('open');
+  document.getElementById('mobBackdrop').classList.remove('open');
+  document.body.style.overflow = '';
+}
+</script>
+</body>
+</html>

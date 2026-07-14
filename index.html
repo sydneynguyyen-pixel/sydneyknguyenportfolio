@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sydney Nguyen — UX/UI Designer</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ── DESKTOP CANVAS ─────────────────────────────────── -->
+<div id="desktop-canvas">
+
+  <!-- Background -->
+  <div class="desktop-bg"></div>
+
+  <!-- ── MENU BAR ──────────────────────────────────────── -->
+  <div class="menubar">
+    <img src="assets/favicon.png" class="menubar-apple" alt="" />
+    <span class="menubar-title">sydney's desktop</span>
+
+    <!-- ── Ticker — looping activity string ──────────────── -->
+    <div class="menubar-ticker" aria-hidden="true">
+      <div class="ticker-pill">
+        <div class="ticker-track">
+          <span>always creating&nbsp;&nbsp;·&nbsp;&nbsp;drinking a matcha&nbsp;&nbsp;·&nbsp;&nbsp;learning new ai skills&nbsp;&nbsp;·&nbsp;&nbsp;creating a figma prototype&nbsp;&nbsp;·&nbsp;&nbsp;planning my next 5k run&nbsp;&nbsp;·&nbsp;&nbsp;petting my cat&nbsp;&nbsp;·&nbsp;&nbsp;editing photos in lightroom&nbsp;&nbsp;·&nbsp;&nbsp;hiking a trail&nbsp;&nbsp;·&nbsp;&nbsp;</span><span>always creating&nbsp;&nbsp;·&nbsp;&nbsp;drinking a matcha&nbsp;&nbsp;·&nbsp;&nbsp;learning new ai skills&nbsp;&nbsp;·&nbsp;&nbsp;creating a figma prototype&nbsp;&nbsp;·&nbsp;&nbsp;planning my next 5k run&nbsp;&nbsp;·&nbsp;&nbsp;petting my cat&nbsp;&nbsp;·&nbsp;&nbsp;editing photos in lightroom&nbsp;&nbsp;·&nbsp;&nbsp;hiking a trail&nbsp;&nbsp;·&nbsp;&nbsp;</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="menubar-right">
+      <div id="sticker-peeker" onclick="toggleStickerWindow()" title="sticker sheet!">
+        <img src="assets/stickers/cat wave.png" alt="stickers" />
+      </div>
+    </div>
+
+  </div>
+  <span class="menubar-sub">UX/UI  ·  SJSU Mdes</span>
+
+  <!-- ── CASE STUDIES — top strip ─────────────────────────── -->
+  <div class="cs-zone">
+    <div class="cs-inline-grid" id="cs-inline-grid"><!-- built by JS --></div>
+  </div>
+
+  <!-- ── ART RING — animated orbit with profile center ──────── -->
+  <div class="ring-section" id="ring-section">
+    <div class="ring-drag-zone" id="ring-drag-zone"></div>
+    <div class="ring-stage" id="ring-stage"><!-- built by JS --></div>
+    <div class="ring-center">
+      <div class="ring-photo">
+        <img src="assets/profile pictures/pfp 1.jpg" alt="Sydney Nguyen" />
+      </div>
+      <div class="ring-name">Sydney Nguyen</div>
+      <div class="ring-tagline">designing experiences that help people connect, understand, and feel less alone</div>
+      <div class="ring-otw"><span class="peeker-pulse"></span>open to work</div>
+    </div>
+  </div>
+
+  <!-- ── BOTTOM LEFT — music player + bio ──────────────────── -->
+  <div class="bl-zone">
+    <div class="bl-action-stack">
+      <div class="bl-icon-row">
+        <a href="mailto:sydney.nguyen01@sjsu.edu" class="bottom-icon-btn" title="Email">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/sydneyknguyen" target="_blank" class="bottom-icon-btn" title="LinkedIn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        </a>
+        <a href="assets/Sydney Nguyen Resume.pdf" target="_blank" class="pf-link pf-link-resume bl-resume-link">Resume ↗</a>
+      </div>
+      <div id="about-peeker" onclick="toggleAboutPanel()">
+        <span class="peeker-pulse"></span>
+        <span class="resume-peeker-label">About Me</span>
+        <span class="resume-peeker-arrow" id="about-peeker-arrow">↑</span>
+      </div>
+      <div id="resume-peeker" onclick="toggleResumePanel()">
+        <span class="peeker-pulse"></span>
+        <span class="resume-peeker-label">Experience &amp; Education</span>
+        <span class="resume-peeker-arrow" id="resume-peeker-arrow">↑</span>
+      </div>
+    </div>
+    <div class="cdplayer" id="cdplayer">
+      <div class="cdp-top">
+        <div class="cdp-art-wrap" id="cdp-disc">
+          <div id="cdp-disc-color" class="cdp-art-inner">
+            <img class="cdp-art-img" id="cdp-disc-art" src="assets/music/song 5 cover.png" alt="" />
+          </div>
+          <div class="cdp-waveform" id="cdp-waveform">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+        <div class="cdp-meta">
+          <div class="cdp-track-name" id="cdp-track-name">悲しい夢</div>
+          <div class="cdp-track-artist" id="cdp-track-artist">tavc city pop</div>
+          <div class="cdp-track-dots">
+            <button class="cdp-td active" id="cdp-td-0" onclick="cdpSelectTrack(0)">1</button>
+            <button class="cdp-td" id="cdp-td-1" onclick="cdpSelectTrack(1)">2</button>
+            <button class="cdp-td" id="cdp-td-2" onclick="cdpSelectTrack(2)">3</button>
+            <button class="cdp-td" id="cdp-td-3" onclick="cdpSelectTrack(3)">4</button>
+            <button class="cdp-td" id="cdp-td-4" onclick="cdpSelectTrack(4)">5</button>
+          </div>
+        </div>
+      </div>
+      <div class="cdp-time-row">
+        <span id="cdp-time-cur">0:00</span>
+        <div class="cdp-progress-wrap"><div class="cdp-progress-fill" id="cdp-progress-fill"></div></div>
+        <span id="cdp-time-total">–:––</span>
+      </div>
+      <div class="cdp-bottom">
+        <div class="cdp-controls">
+          <button class="cdp-ctrl-btn" onclick="cdpPrev()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+          </button>
+          <button class="cdp-ctrl-btn cdp-play-btn" id="cdp-play-btn" onclick="cdpTogglePlay()">
+            <svg class="cdp-icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="cdp-ctrl-btn" onclick="cdpNext()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18 14.5 12 6 6v12zM16 6h2v12h-2z"/></svg>
+          </button>
+        </div>
+        <input type="range" class="cdp-vol-slider" min="0" max="1" step="0.01" value="1" oninput="bgAudio.volume=this.value" />
+      </div>
+      <div id="cdp-tonearm" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ── BOTTOM RIGHT — other projects ──────────────────────── -->
+  <div class="br-zone">
+    <a class="side-work-item side-work-mktg" href="marketing.html">
+      <div class="side-work-text">
+        <div class="side-work-name">Marketing & Brand</div>
+        <div class="side-work-tags"><span class="swt">Photography</span><span class="swt">Content Strategy</span><span class="swt">Brand</span></div>
+        <div class="side-work-desc">Campaigns, brand assets & content across 6 roles</div>
+        <div class="side-work-mktg-imgs">
+          <div class="side-work-mktg-img"><img src="assets/thumbs/haliene desktop thumbnail.png" alt="HALIENE" loading="lazy" /></div>
+          <div class="side-work-mktg-img"><img src="assets/thumbs/nora dekstop thumbnail.png" alt="Nora AI" loading="lazy" /></div>
+          <div class="side-work-mktg-img"><img src="assets/little wins bakehouse/New Flavor Announcements/5.png" alt="Little Wins Bakehouse" loading="lazy" /></div>
+          <div class="side-work-mktg-img"><img src="assets/thumbs/ph-DZdms-xgQjU.jpg" alt="Photography" loading="lazy" /></div>
+          <div class="side-work-mktg-img"><img src="assets/thumbs/apo desktop thumbnail.png" alt="APO" loading="lazy" /></div>
+        </div>
+      </div>
+      <span class="side-work-arrow">↗</span>
+    </a>
+    <div class="port-section-label">Other Projects</div>
+    <div class="side-works-list">
+      <a class="side-work-item" href="https://www.zarabrotherstravel.com/" target="_blank">
+        <div class="side-work-text">
+          <div class="side-work-name">Zara Brothers Travel</div>
+          <div class="side-work-tags"><span class="swt">Web Design</span><span class="swt">Wix</span></div>
+          <div class="side-work-desc">Travel agency website designed in Wix</div>
+        </div>
+        <span class="side-work-arrow">↗</span>
+        <div class="side-work-cd">
+          <div class="side-work-cd-grooves"></div>
+          <div class="side-work-cd-label"><img src="assets/icons/zara brothers travel.avif" alt="" loading="lazy" /></div>
+          <div class="side-work-cd-hole"></div>
+        </div>
+      </a>
+      <a class="side-work-item" href="https://www.behance.net/gallery/220421801/Sunright-Tea-Studio-UXUI-Case-Study" target="_blank">
+        <div class="side-work-text">
+          <div class="side-work-name">Sunright Tea Studio</div>
+          <div class="side-work-tags"><span class="swt">UX/UI</span><span class="swt">Mobile</span></div>
+          <div class="side-work-desc">Mobile ordering experience for a boba tea shop</div>
+        </div>
+        <span class="side-work-arrow">↗</span>
+        <div class="side-work-cd">
+          <div class="side-work-cd-grooves"></div>
+          <div class="side-work-cd-label"><img src="assets/icons/sunright-thumb.png" alt="" loading="lazy" /></div>
+          <div class="side-work-cd-hole"></div>
+        </div>
+      </a>
+      <a class="side-work-item" href="https://www.figma.com/deck/3zplTzhPjCf7GXCt6mZaHF/Moove-Slide-Deck?node-id=1-259&amp;t=Rtj5TUFG31wYuwHL-1&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank">
+        <div class="side-work-text">
+          <div class="side-work-name">moove</div>
+          <div class="side-work-tags"><span class="swt">UX/UI</span><span class="swt">Health &amp; Wellness</span></div>
+          <div class="side-work-desc">Mobility and flexibility app with daily check-ins, adaptive routines, and goal-based progress</div>
+        </div>
+        <span class="side-work-arrow">↗</span>
+        <div class="side-work-cd">
+          <div class="side-work-cd-grooves"></div>
+          <div class="side-work-cd-label"><img src="assets/icons/moove-thumb.webp" alt="" loading="lazy" /></div>
+          <div class="side-work-cd-hole"></div>
+        </div>
+      </a>
+      <a class="side-work-item" href="https://www.figma.com/proto/MDJjsmm2Hyi5fHFBFJLIBn/m3-past-present-future-site?node-id=1-2&amp;t=km5SQGWGHu2ioRcs-1&amp;scaling=contain&amp;content-scaling=fixed&amp;page-id=0%3A1&amp;starting-point-node-id=1%3A2&amp;show-proto-sidebar=1" target="_blank">
+        <div class="side-work-text">
+          <div class="side-work-name">Past/Present/Future</div>
+          <div class="side-work-tags"><span class="swt">Speculative Design</span></div>
+          <div class="side-work-desc">Speculative design visualizing technology from my grandparents' time to my future grandchild's</div>
+        </div>
+        <span class="side-work-arrow">↗</span>
+        <div class="side-work-cd">
+          <div class="side-work-cd-grooves"></div>
+          <div class="side-work-cd-label"><img src="assets/icons/ppf-thumb.png" alt="" loading="lazy" /></div>
+          <div class="side-work-cd-hole"></div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+</div><!-- /desktop-canvas -->
+
+<!-- Custom cursor -->
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- ── RING TOOLTIP (follows cursor) ─────────────────────── -->
+<div class="ring-tooltip-global" id="ring-tooltip">
+  <div class="ring-tt-title" id="ring-tt-title"></div>
+  <div class="ring-tt-meta" id="ring-tt-meta"></div>
+</div>
+
+<!-- ── RING LIGHTBOX ──────────────────────────────────────── -->
+<div class="ring-lightbox" id="ring-lightbox" onclick="closeRingLightbox(event)">
+  <button class="ring-lb-close" onclick="closeRingLightbox()">✕</button>
+  <img id="ring-lb-img" src="" alt="" />
+  <div class="ring-lb-info">
+    <div class="ring-lb-title" id="ring-lb-title"></div>
+    <div class="ring-lb-meta" id="ring-lb-meta"></div>
+  </div>
+</div>
+
+<!-- ── EXPERIENCE / EDUCATION PANEL — expands upward ─────── -->
+<div id="resume-panel" class="resume-panel">
+  <div class="resume-panel-inner">
+
+    <h3 class="resume-subheading">Experience</h3>
+
+    <div class="exp-row" onclick="toggleExp(this)">
+      <div class="exp-header">
+        <img src="assets/icons/logo-adobe.png" class="org-icon" alt="Adobe" />
+        <div class="exp-info">
+          <div class="exp-company">UCR Student Ambassador @ Adobe</div>
+          <div class="exp-role">May 2024 – June 2025</div>
+        </div>
+        <span class="exp-chevron">⌄</span>
+      </div>
+      <div class="exp-body">
+        <ul class="exp-bullets">
+          <li>Promoted Adobe's tools through social media, campus events, and student organizations.</li>
+          <li>Organized workshops showcasing Adobe's software, reaching a wide student audience.</li>
+          <li>Fostered a community of student creators through collaboration and mentorship.</li>
+          <li>Gained hands-on experience with a global brand, sharpening communication and multitasking skills.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="resume-inner-divider"></div>
+
+    <div class="exp-row" onclick="toggleExp(this)">
+      <div class="exp-header">
+        <img src="assets/icons/logo-designer-drains.png" class="org-icon" alt="Designer Drains" />
+        <div class="exp-info">
+          <div class="exp-company">Digital Design &amp; Marketing Intern @ Designer Drains</div>
+          <div class="exp-role">April 2024 – June 2025</div>
+        </div>
+        <span class="exp-chevron">⌄</span>
+      </div>
+      <div class="exp-body">
+        <p class="exp-sub">U.S. e-commerce retailer of handcrafted luxury shower drain covers.</p>
+        <ul class="exp-bullets">
+          <li>Redesigned product storefront UX in Figma, resulting in a 20% increase in page engagement.</li>
+          <li>Designed graphics and digital assets to support seasonal campaigns and brand growth.</li>
+          <li>Analyzed Google Analytics to identify drop-off points and optimize product page layouts.</li>
+          <li>Applied user-centered design to reduce friction between browsing and purchase intent.</li>
+        </ul>
+        <div class="exp-metrics"><span class="exp-metric green">Page Engagement ↑20%</span></div>
+      </div>
+    </div>
+    <div class="resume-inner-divider"></div>
+
+    <div class="exp-row" onclick="toggleExp(this)">
+      <div class="exp-header">
+        <img src="assets/icons/logo-nora-ai.png" class="org-icon" alt="Nora AI" />
+        <div class="exp-info">
+          <div class="exp-company">Marketing and Design Intern @ Nora AI</div>
+          <div class="exp-role">June 2024 – November 2024</div>
+        </div>
+        <span class="exp-chevron">⌄</span>
+      </div>
+      <div class="exp-body">
+        <p class="exp-sub">Early-stage AI startup building voice-powered interview screening tools.</p>
+        <ul class="exp-bullets">
+          <li>Developed social media strategies to grow brand awareness on LinkedIn, Instagram, and campus.</li>
+          <li>Designed wireframes and visual layouts for the main marketing website in Figma.</li>
+          <li>Built Figma prototypes incorporating peer feedback to improve usability and flow clarity.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="resume-inner-divider"></div>
+
+    <div class="exp-row" onclick="toggleExp(this)">
+      <div class="exp-header">
+        <img src="assets/icons/logo-alpha-phi-omega.png" class="org-icon" alt="Alpha Phi Omega" />
+        <div class="exp-info">
+          <div class="exp-company">Historian &amp; Pledge Educator @ UCR Alpha Phi Omega</div>
+          <div class="exp-role">August 2022 – December 2023</div>
+        </div>
+        <span class="exp-chevron">⌄</span>
+      </div>
+      <div class="exp-body">
+        <ul class="exp-bullets">
+          <li>Designed digital content and graphics that boosted member engagement.</li>
+          <li>Led marketing initiatives promoting fraternity events and volunteering activities.</li>
+          <li>Created and led fraternity-wide events for leadership skills and team bonding.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="resume-section-divider"></div>
+    <h3 class="resume-subheading">Education</h3>
+
+    <div class="edu-row">
+      <img src="assets/icons/new-sjsu-logo.png" class="org-icon" alt="SJSU" />
+      <div class="edu-info">
+        <div class="edu-school">San José State University</div>
+        <div class="edu-meta">M.Des Experience Design <span class="exp-dot">·</span> August 2025 – Present</div>
+        <div class="edu-detail">Expected Graduation: June 2027</div>
+      </div>
+    </div>
+    <div class="edu-row" style="margin-top:12px">
+      <img src="assets/icons/logo-ucr.png" class="org-icon" alt="UCR" />
+      <div class="edu-info">
+        <div class="edu-school">University of California, Riverside</div>
+        <div class="edu-meta">B.A. Political Science <span class="exp-dot">·</span> September 2021 – June 2025</div>
+      </div>
+    </div>
+
+    <div class="resume-section-divider"></div>
+    <h3 class="resume-subheading">Skills / Tools</h3>
+    <div class="skills-wrap">
+      <span class="skill-chip">UX/UI</span><span class="skill-chip">UX Research</span><span class="skill-chip">Wireframing &amp; Prototyping</span>
+      <span class="skill-chip">Visual Design</span><span class="skill-chip">Motion &amp; Video Editing</span>
+      <span class="skill-chip">Social Media</span>
+    </div>
+    <div class="skills-wrap">
+      <span class="skill-chip"><img src="assets/icons/icon-figma.png" class="skill-chip-icon skill-chip-icon-crop" alt="" />Figma</span>
+      <span class="skill-chip"><img src="assets/icons/figjam.jpg" class="skill-chip-icon" alt="" />FigJam</span>
+      <span class="skill-chip"><img src="assets/icons/miro.png" class="skill-chip-icon" alt="" />Miro</span>
+      <span class="skill-chip"><img src="assets/icons/Adobe_Illustrator_CC_icon.svg.png" class="skill-chip-icon" alt="" />Illustrator</span>
+      <span class="skill-chip"><img src="assets/icons/Adobe_Photoshop_CC_icon.svg.png" class="skill-chip-icon" alt="" />Photoshop</span>
+      <span class="skill-chip"><img src="assets/icons/procreate-logo_480x480.webp" class="skill-chip-icon" alt="" />Procreate</span>
+      <span class="skill-chip"><img src="assets/icons/canva-3d-icon-free-png.webp" class="skill-chip-icon skill-chip-icon-crop" alt="" />Canva</span>
+      <span class="skill-chip"><img src="assets/icons/lovable icon.png" class="skill-chip-icon" alt="" />Lovable</span>
+      <span class="skill-chip"><img src="assets/icons/claude icon.png" class="skill-chip-icon" alt="" />Claude</span>
+      <span class="skill-chip"><img src="assets/icons/runway icon.png" class="skill-chip-icon" alt="" />Runway</span>
+      <span class="skill-chip"><img src="assets/icons/Capcut-icon.svg.png" class="skill-chip-icon" alt="" />CapCut</span>
+      <span class="skill-chip"><img src="assets/icons/final cut pro.png" class="skill-chip-icon" alt="" />Final Cut Pro</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── ABOUT ME PANEL — expands upward ───────────────────── -->
+<div id="about-panel" class="about-panel">
+  <div class="resume-panel-inner">
+    <div class="about-card-header">
+      <div class="about-card-avatar"><img src="assets/profile pictures/pfp 1.jpg" alt="Sydney Nguyen" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" /></div>
+      <div class="about-card-identity">
+        <div class="about-card-name">Sydney Nguyen</div>
+        <div class="about-card-location">📍 San Jose, CA</div>
+      </div>
+    </div>
+    <div class="about-chunk">
+      <div class="about-chunk-img"><img src="assets/icons/about me image icon 1.png" alt="" /></div>
+      <p class="about-chunk-text">I'm a <strong>Master of Design</strong> student in Experience Design at San José State University, focused on designing experiences that help people connect, understand each other, and feel a little less alone.</p>
+    </div>
+
+    <div class="about-chunk">
+      <div class="about-chunk-img"><img src="assets/icons/about me image icon 2.png" alt="" /></div>
+      <p class="about-chunk-text">My path wasn't linear — I started as a Political Science major at UC Riverside before realizing I wanted to design solutions through art, not politics. I taught myself UX/UI outside of class until it became my graduate focus.</p>
+    </div>
+
+    <div class="about-chunk">
+      <div class="about-chunk-img"><img src="assets/icons/about me image icon 3.png" alt="" /></div>
+      <p class="about-chunk-text">I keep pushing myself past what I already know — competing in hackathons, going to conferences, picking up new mediums in class, and building projects alongside classmates.</p>
+    </div>
+
+    <p class="about-card-closing">Looking ahead, I'm designing at the intersection of human-centered craft and emerging tech — building experiences that feel immersive, intuitive, and genuinely delightful.</p>
+
+    <div class="about-fact-grid">
+      <div class="about-fact">
+        <div class="about-fact-img"><img src="assets/photography/photo-canyon.jpg" alt="" /></div>
+        <div class="about-fact-caption">
+          <div class="about-fact-title">Outdoors</div>
+          <div class="about-fact-sub">Running, camping, swimming, skiing — whatever gets me outside.</div>
+        </div>
+      </div>
+      <div class="about-fact">
+        <div class="about-fact-img"><img src="assets/icons/minecraft photo.jpg" alt="" /></div>
+        <div class="about-fact-caption">
+          <div class="about-fact-title">Gaming</div>
+          <div class="about-fact-sub">Minecraft, osu!, Tomodachi Life, Pokopia.</div>
+        </div>
+      </div>
+      <div class="about-fact">
+        <div class="about-fact-img"><img src="assets/photography/ph-sunset.png" alt="" /></div>
+        <div class="about-fact-caption">
+          <div class="about-fact-title">Photography</div>
+          <div class="about-fact-sub">I shoot on the side — good practice for composition off-screen.</div>
+        </div>
+      </div>
+      <div class="about-fact">
+        <div class="about-fact-img"><img src="assets/photography/photo-cat.jpg" alt="" /></div>
+        <div class="about-fact-caption">
+          <div class="about-fact-title">Asuna</div>
+          <div class="about-fact-sub">My cat has sat through more design reviews than most classmates.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── STICKER WINDOW ─────────────────────────────────────── -->
+<div class="overlay-window sticker-overlay" id="sticker-overlay">
+  <div class="window-chrome">
+    <div class="traffic-lights-wrap" onclick="toggleStickerWindow()">
+      <span class="tl-dot tl-red"></span>
+      <span class="tl-dot tl-yellow"></span>
+      <span class="tl-dot tl-green"></span>
+    </div>
+    <div class="chrome-title">sticker sheet ✦</div>
+  </div>
+  <div class="sticker-sheet-body">
+    <p class="sticker-hint">click a sticker to place it on your desktop :]  •  double-click to remove</p>
+    <div class="sticker-grid" id="sticker-grid">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- OVERLAYS                                               -->
+<!-- ══════════════════════════════════════════════════════ -->
+
+<div class="overlay-backdrop" id="backdrop" onclick="closeAllOverlays()"></div>
+
+<!-- ── MINECRAFT SCREENSHOTS OVERLAY ──────────────────── -->
+<div class="overlay-window" id="overlay-minecraft">
+  <div class="window-chrome">
+    <div class="traffic-lights-wrap" onclick="closeOverlay('minecraft')">
+      <span class="tl-dot tl-red"></span>
+      <span class="tl-dot tl-yellow"></span>
+      <span class="tl-dot tl-green"></span>
+    </div>
+    <div class="chrome-title">minecraft screenshots</div>
+  </div>
+  <div class="mc-body">
+    <div class="mc-header">
+      <img src="assets/icons/minecraft icon.png" alt="" />
+      <span class="mc-header-title">my screenshots</span>
+      <span class="mc-header-sub">3 images</span>
+    </div>
+    <div class="mc-grid">
+      <div class="mc-shot" onclick="openMcLightbox('assets/minecraft-screenshot-1.jpg')">
+        <img src="assets/minecraft-screenshot-1.jpg" alt="Screenshot 1" />
+        <div class="mc-shot-label">screenshot 1</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/minecraft-screenshot-2.jpg')">
+        <img src="assets/minecraft-screenshot-2.jpg" alt="Screenshot 2" />
+        <div class="mc-shot-label">screenshot 2</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/minecraft-screenshot-3.PNG')">
+        <img src="assets/minecraft-screenshot-3.PNG" alt="Screenshot 3" />
+        <div class="mc-shot-label">screenshot 3</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Minecraft lightbox -->
+<div class="mc-lightbox" id="mc-lightbox" onclick="closeMcLightbox()">
+  <img id="mc-lightbox-img" src="" alt="" />
+</div>
+
+<!-- ── SCHOOL FOLDER OVERLAY ───────────────────────────── -->
+<div class="overlay-window" id="overlay-school">
+  <div class="window-chrome">
+    <div class="traffic-lights-wrap" onclick="closeOverlay('school')">
+      <span class="tl-dot tl-red"></span>
+      <span class="tl-dot tl-yellow"></span>
+      <span class="tl-dot tl-green"></span>
+    </div>
+    <div class="chrome-title">school 🎓</div>
+  </div>
+  <div class="mc-body">
+    <div class="mc-header">
+      <img src="assets/folder-school.svg" alt="" />
+      <span class="mc-header-title">masters program memories</span>
+      <span class="mc-header-sub">9 photos</span>
+    </div>
+    <div class="mc-grid mc-grid-school">
+      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-1.jpg')">
+        <img src="assets/other pictures/school-screenshot-1.jpg" alt="" />
+        <div class="mc-shot-label">school memory 1</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-2.jpg')">
+        <img src="assets/other pictures/school-screenshot-2.jpg" alt="" />
+        <div class="mc-shot-label">school memory 2</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-3.jpg')">
+        <img src="assets/other pictures/school-screenshot-3.jpg" alt="" />
+        <div class="mc-shot-label">school memory 3</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-4.jpg')">
+        <img src="assets/other pictures/school-screenshot-4.jpg" alt="" />
+        <div class="mc-shot-label">school memory 4</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-5.jpg')">
+        <img src="assets/other pictures/school-screenshot-5.jpg" alt="" />
+        <div class="mc-shot-label">school memory 5</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-6.jpg')">
+        <img src="assets/other pictures/school-screenshot-6.jpg" alt="" />
+        <div class="mc-shot-label">school memory 6</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-7.jpg')">
+        <img src="assets/other pictures/school-screenshot-7.jpg" alt="" />
+        <div class="mc-shot-label">school memory 7</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-8.jpg')">
+        <img src="assets/other pictures/school-screenshot-8.jpg" alt="" />
+        <div class="mc-shot-label">school memory 8</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-9.jpg')">
+        <img src="assets/other pictures/school-screenshot-9.jpg" alt="" />
+        <div class="mc-shot-label">school memory 9</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CAT FOLDER OVERLAY ──────────────────────────────── -->
+<div class="overlay-window" id="overlay-cat">
+  <div class="window-chrome">
+    <div class="traffic-lights-wrap" onclick="closeOverlay('cat')">
+      <span class="tl-dot tl-red"></span>
+      <span class="tl-dot tl-yellow"></span>
+      <span class="tl-dot tl-green"></span>
+    </div>
+    <div class="chrome-title">cat :3</div>
+  </div>
+  <div class="mc-body" style="background:#fff8f9;">
+    <div class="mc-header">
+      <img src="assets/folder-cat.svg" alt="" />
+      <span class="mc-header-title">asuna 🤍</span>
+      <span class="mc-header-sub">5 photos</span>
+    </div>
+    <div class="mc-grid mc-grid-cat">
+      <div class="mc-shot" onclick="openMcLightbox('assets/photography/photo-cat.jpg')">
+        <img src="assets/photography/photo-cat.jpg" alt="Asuna" />
+        <div class="mc-shot-label">my beautiful baby asuna :3</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/cat-screenshot-1.jpg')">
+        <img src="assets/cat-screenshot-1.jpg" alt="Asuna" />
+        <div class="mc-shot-label">asuna 🐱</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/cat-screenshot-2.jpg')">
+        <img src="assets/cat-screenshot-2.jpg" alt="Asuna" />
+        <div class="mc-shot-label">asuna 🐱</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/cat-screenshot-3.jpg')">
+        <img src="assets/cat-screenshot-3.jpg" alt="Asuna" />
+        <div class="mc-shot-label">asuna 🐱</div>
+      </div>
+      <div class="mc-shot" onclick="openMcLightbox('assets/cat-screenshot-4.jpg')">
+        <img src="assets/cat-screenshot-4.jpg" alt="Asuna" />
+        <div class="mc-shot-label">asuna 🐱</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── CREATIVE OVERLAY ───────────────────────────────── -->
+<div class="overlay-window cr-overlay" id="overlay-creative">
+
+  <!-- Left sidebar: Favorites + tabs -->
+  <div class="cr-left">
+    <div class="cr-tl-row">
+      <div class="traffic-lights-wrap" onclick="closeOverlay('creative')">
+        <span class="tl-dot tl-red"></span>
+        <span class="tl-dot tl-yellow"></span>
+        <span class="tl-dot tl-green"></span>
+      </div>
+    </div>
+    <div class="cr-fav-label">Favorites</div>
+    <div class="cr-tabs">
+      <div class="cr-tab cr-tab-active" id="tab-graphic" onclick="switchCreativeTab('graphic')">Graphic Design</div>
+      <div class="cr-tab" id="tab-artwork" onclick="switchCreativeTab('artwork')">Artwork</div>
+      <div class="cr-tab" id="tab-photo" onclick="switchCreativeTab('photo')">Photography</div>
+    </div>
+  </div>
+
+  <!-- Right area: chrome bar + content -->
+  <div class="cr-right">
+
+    <!-- Chrome bar -->
+    <div class="cr-chrome">
+      <div class="cr-nav">
+        <span class="cr-arrow cr-arrow-inactive">&#8249;</span>
+        <span class="cr-arrow cr-arrow-inactive">&#8250;</span>
+      </div>
+      <div class="cr-chrome-title" id="creative-title">Graphic Design</div>
+    </div>
+
+    <!-- File list + preview -->
+    <div class="cr-body">
+      <div class="cr-file-list" id="creative-files"><!-- JS --></div>
+      <div class="cr-preview" id="creative-preview"><!-- JS --></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MOBILE VIEW  (hidden above 768px)
+     ══════════════════════════════════════════════════════════ -->
+<div id="mobile-view">
+
+  <!-- Top bar -->
+  <div class="mob-bar">
+    <img src="assets/favicon.png" class="mob-bar-logo" alt="" />
+    <span class="mob-bar-title">sydney's desktop</span>
+    <button class="mob-hamburger" onclick="mobDrawerOpen()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <!-- Drawer backdrop -->
+  <div class="mob-drawer-backdrop" id="mob-drawer-backdrop" onclick="mobDrawerClose()"></div>
+
+  <!-- Sidebar drawer -->
+  <div class="mob-drawer" id="mob-drawer">
+    <div class="mob-drawer-header">
+      <div class="mob-drawer-identity">
+        <img src="assets/profile pictures/pfp 1.jpg" class="mob-drawer-avatar" alt="" />
+        <div>
+          <div class="mob-drawer-name">Sydney Nguyen</div>
+          <div class="mob-drawer-role">UX/UI Designer</div>
+        </div>
+      </div>
+      <button class="mob-drawer-close" onclick="mobDrawerClose()" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="mob-drawer-section-label">Navigate</div>
+    <nav class="mob-drawer-nav">
+      <a href="about-mobile.html" class="mob-drawer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        About Me
+      </a>
+      <a href="experience-mobile.html" class="mob-drawer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        Experience &amp; Education
+      </a>
+      <a href="creative-mobile.html" class="mob-drawer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Creative
+      </a>
+      <a href="marketing-mobile.html" class="mob-drawer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Marketing & Brand
+      </a>
+    </nav>
+
+    <div class="mob-drawer-section-label">Contact</div>
+    <div class="mob-drawer-contact">
+      <a href="mailto:sydney.nguyen01@sjsu.edu" class="mob-drawer-contact-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        sydney.nguyen01@sjsu.edu
+      </a>
+      <a href="https://www.linkedin.com/in/sydneyknguyen" target="_blank" class="mob-drawer-contact-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn ↗
+      </a>
+      <a href="assets/Sydney Nguyen Resume.pdf" target="_blank" class="mob-drawer-contact-link">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Resume ↗
+      </a>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="mob-hero">
+    <img src="assets/profile pictures/pfp 1.jpg" class="mob-avatar" alt="Sydney Nguyen" />
+    <h1 class="mob-name">Sydney Nguyen</h1>
+    <p class="mob-tagline">designing experiences that help people connect, understand, and feel less alone</p>
+    <div class="mob-otw"><span class="peeker-pulse"></span>open to work</div>
+  </div>
+
+  <!-- Case Studies -->
+  <div class="mob-section">
+    <p class="mob-section-label">Case Studies</p>
+    <div class="mob-cs-list">
+
+      <a class="mob-cs-card" href="voqa.html">
+        <div class="mob-cs-thumb" style="background:#e5f2ea;">
+          <img src="assets/case studies/voqa/voqa-thumb.png" alt="VOQA" />
+        </div>
+        <div class="mob-cs-body">
+          <div class="mob-cs-tags">
+            <span class="mob-tag" style="background:#d4edda;color:#2d6644;">Mobile App</span>
+            <span class="mob-tag" style="background:#d4edda;color:#2d6644;">Accessibility</span>
+            <span class="mob-tag-meta">Team</span>
+          </div>
+          <div class="mob-cs-title">VOQA</div>
+          <div class="mob-cs-desc">Making museum experiences more inclusive and accessible through audio.</div>
+        </div>
+      </a>
+
+      <a class="mob-cs-card" href="iterait.html">
+        <div class="mob-cs-thumb" style="background:#e6eef8;">
+          <img src="assets/case studies/iterait/iterait cover image.png" alt="iterait" />
+        </div>
+        <div class="mob-cs-body">
+          <div class="mob-cs-tags">
+            <span class="mob-tag" style="background:#dce8f5;color:#2a4d7a;">AI</span>
+            <span class="mob-tag" style="background:#dce8f5;color:#2a4d7a;">Software</span>
+            <span class="mob-tag-meta">Solo</span>
+          </div>
+          <div class="mob-cs-title">iterait</div>
+          <div class="mob-cs-desc">Track, compare, and reuse iterations in AI-driven design workflows.</div>
+        </div>
+      </a>
+
+      <a class="mob-cs-card" href="room2talk.html">
+        <div class="mob-cs-thumb" style="background:#fdf0f3;">
+          <img src="assets/case studies/room2talk/r2t-hero.png" alt="room2talk" />
+        </div>
+        <div class="mob-cs-body">
+          <div class="mob-cs-tags">
+            <span class="mob-tag" style="background:#fce0e8;color:#7a2c47;">Thesis</span>
+            <span class="mob-tag" style="background:#fce0e8;color:#7a2c47;">Web-Game</span>
+            <span class="mob-tag-meta">Solo</span>
+          </div>
+          <div class="mob-cs-title">room2talk</div>
+          <div class="mob-cs-desc">Reflection-based card experience for intergenerational communication.</div>
+        </div>
+      </a>
+
+      <a class="mob-cs-card" href="soundbite.html">
+        <div class="mob-cs-thumb" style="background:#fdf5e6;">
+          <img src="assets/soundbite/6.png" alt="soundbite" />
+        </div>
+        <div class="mob-cs-body">
+          <div class="mob-cs-tags">
+            <span class="mob-tag" style="background:#FFF0C4;color:#7a5010;">Concept</span>
+            <span class="mob-tag" style="background:#FFF0C4;color:#7a5010;">Sensory Design</span>
+            <span class="mob-tag-meta">Solo</span>
+          </div>
+          <div class="mob-cs-title">soundbite</div>
+          <div class="mob-cs-desc">Snack and sound pairings for immersive, mood-based audio experiences.</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+
+
+  <!-- Other Projects -->
+  <div class="mob-section">
+    <p class="mob-section-label">Other Projects</p>
+    <div class="mob-other-list">
+      <a class="mob-other-item" href="https://www.behance.net/gallery/220421801/Sunright-Tea-Studio-UXUI-Case-Study" target="_blank">
+        <img src="assets/icons/sunright-thumb.png" class="mob-other-thumb" alt="" />
+        <div class="mob-other-body">
+          <div class="mob-other-title">Sunright Tea Studio</div>
+          <div class="mob-other-tags"><span class="mob-tag">UX/UI</span><span class="mob-tag">Mobile</span></div>
+          <div class="mob-other-desc">Mobile ordering experience for a boba tea shop</div>
+        </div>
+        <span class="mob-other-arrow">↗</span>
+      </a>
+      <a class="mob-other-item" href="https://www.figma.com/deck/3zplTzhPjCf7GXCt6mZaHF/Moove-Slide-Deck?node-id=1-259&t=Rtj5TUFG31wYuwHL-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1" target="_blank">
+        <img src="assets/icons/moove-thumb.webp" class="mob-other-thumb" alt="" />
+        <div class="mob-other-body">
+          <div class="mob-other-title">moove</div>
+          <div class="mob-other-tags"><span class="mob-tag">UX/UI</span><span class="mob-tag">Health &amp; Wellness</span></div>
+          <div class="mob-other-desc">Mobility and flexibility app with adaptive routines</div>
+        </div>
+        <span class="mob-other-arrow">↗</span>
+      </a>
+      <a class="mob-other-item" href="https://www.figma.com/proto/MDJjsmm2Hyi5fHFBFJLIBn/m3-past-present-future-site?node-id=1-2&t=km5SQGWGHu2ioRcs-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=1" target="_blank">
+        <img src="assets/icons/ppf-thumb.png" class="mob-other-thumb" alt="" />
+        <div class="mob-other-body">
+          <div class="mob-other-title">Past / Present / Future</div>
+          <div class="mob-other-tags"><span class="mob-tag">Speculative Design</span></div>
+          <div class="mob-other-desc">Technology visualized across three generations</div>
+        </div>
+        <span class="mob-other-arrow">↗</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="mob-footer">
+    <div class="mob-footer-copy">Sydney Nguyen · UX/UI · SJSU MDes</div>
+  </footer>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
