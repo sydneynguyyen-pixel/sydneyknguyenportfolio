@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Alpha Phi Omega placeholder">
+  <rect width="600" height="600" fill="#ECEAE6"/>
+  <g fill="none" stroke="#D2CEC8" stroke-width="2">
+    <path d="M0 0 L600 600 M600 0 L0 600"/>
+  </g>
+  <text x="300" y="292" font-family="Manrope, Helvetica, Arial, sans-serif" font-size="30" font-weight="500" fill="#9A948C" text-anchor="middle">Alpha Phi Omega</text>
+  <text x="300" y="330" font-family="Manrope, Helvetica, Arial, sans-serif" font-size="20" font-weight="400" fill="#B4AEA6" text-anchor="middle">placeholder — swap me</text>
+</svg>

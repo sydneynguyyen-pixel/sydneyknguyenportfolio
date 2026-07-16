@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Resume · Sydney Nguyen</title>
+<link rel="icon" type="image/png" href="assets/favicon.webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Mynerve&display=swap" rel="stylesheet" />
+<script src="nav.js"></script>
+<script src="hand-frame.js"></script>
+<style>
+  :root {
+    --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-hand: 'Mynerve', var(--font-sans);
+    --ink: #1a1a1a;
+    --ink-soft: #555;
+    --ink-faint: #888;
+    --rule: #ececec;
+    --frame-bg: #f6f5f3;
+    --max: 860px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-sans);
+    color: var(--ink);
+    background: var(--frame-bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Top nav is injected by the shared nav.js. */
+
+  /* ── Custom cursor ── */
+  * { cursor: none !important; }
+  .cursor-dot {
+    width: 9px; height: 9px;
+    background: rgba(100,100,100,0.45);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(100,100,100,0.3);
+    border-radius: 50%; position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 999999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+    will-change: left, top;
+  }
+
+  /* ── Mobile override ── */
+  @media (max-width: 768px) {
+    * { cursor: auto !important; }
+    .cursor-dot { display: none !important; }
+  }
+
+  /* ── Page layout ── */
+  .page-wrap {
+    position: relative;   /* positioning context for margin doodles */
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+
+  /* ── Page header ── */
+  .pg-header {
+    margin-bottom: 48px;
+  }
+  .pg-header h1 {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .pg-header p {
+    font-size: 16px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+  /* Primary pill button — same language as the site's .btn. */
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--ink); color: #fff;
+    font-size: 14px; font-weight: 500; text-decoration: none;
+    padding: 12px 22px; border-radius: 999px;
+    margin-top: 18px;
+    transition: background 0.15s, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  .btn:hover { background: #333; transform: translateY(-1px); }
+
+  /* ── Content sits straight on the page — no card box anymore. ── */
+  .role-card {
+    background: none;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+  .role-body { padding: 0; }
+
+  /* ── Org logos ── the wobbly ink border is drawn by hand-frame.js;
+     each logo is wrapped in a <figure class="hand-frame">. Keep them from
+     shrinking inside the flex rows. --w on the figure fixes the box size. */
+  .exp-header > .hand-frame,
+  .edu-row > .hand-frame { flex-shrink: 0; }
+  /* Logos are app icons — keep the corners squarer (~22%) than the default
+     14px rounding so they don't read as circles at this small size. The ink
+     stroke's traced radius is matched via data-r="9" on each figure. */
+  .exp-header > .hand-frame > img,
+  .edu-row > .hand-frame > img { border-radius: 9px; }
+
+  /* ── Section headings + dividers ──
+     Headings are hand-lettered (Mynerve) and trailed by a filled brush
+     stroke that runs out to the content edge, differentiating sections. */
+  .resume-heading-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 4px;
+    margin-bottom: 18px;
+  }
+  .resume-subheading {
+    font-family: var(--font-hand);
+    font-weight: 400;
+    font-size: 23px;
+    color: var(--ink);
+    letter-spacing: 0;
+    white-space: nowrap;
+  }
+  .brush-rule {
+    flex: 1;
+    display: block;
+    height: 7px;
+    color: var(--ink);
+  }
+  .brush-rule svg { display: block; width: 100%; height: 100%; }
+  .resume-inner-divider {
+    height: 1px;
+    background: rgba(0,0,0,0.06);
+    margin: 0;
+  }
+
+  /* ── Experience rows ── */
+  .exp-row { overflow: hidden; }
+  .exp-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 4px;
+    cursor: pointer;
+  }
+  .exp-info { flex: 1; }
+  .exp-company { font-weight: 600; font-size: 14px; color: #1a1a1a; }
+  .exp-role    { font-family: var(--font-hand); font-size: 14px; color: #777; margin-top: 3px; }
+  .exp-dot     { margin: 0 4px; }
+  .exp-chevron { font-size: 18px; color: #ccc; transition: transform 0.25s; user-select: none; flex-shrink: 0; }
+  .exp-row.exp-open .exp-chevron { transform: rotate(180deg); }
+
+  .exp-body {
+    padding: 0 4px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+  }
+  .exp-row.exp-open .exp-body {
+    max-height: 600px;
+    padding: 0 4px 18px;
+  }
+  .exp-sub {
+    font-size: 12.5px;
+    color: #aaa;
+    font-style: italic;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .exp-bullets {
+    list-style: disc;
+    padding-left: 18px;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+  .exp-bullets li + li { margin-top: 4px; }
+
+  /* Metric badges */
+  .exp-metrics { display: flex; flex-wrap: wrap; gap: 8px; }
+  .exp-metric {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+  .exp-metric.green  { background: #e6f9ee; color: #1a8a52; }
+  .exp-metric.blue   { background: #e8f0ff; color: #3060c8; }
+  .exp-metric.purple { background: #f0ebff; color: #7040c0; }
+
+  /* ── Education rows ── */
+  .edu-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 8px 4px;
+  }
+  .edu-info { flex: 1; }
+  .edu-school { font-weight: 600; font-size: 14px; color: #1a1a1a; }
+  .edu-meta   { font-size: 12px; color: #999; margin-top: 2px; }
+  .edu-detail { font-family: var(--font-hand); font-size: 13px; color: #999; margin-top: 3px; }
+
+  /* ── Skills ── */
+  .skills-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .skills-wrap + .skills-wrap {
+    margin-top: 10px;
+  }
+  .skill-chip {
+    position: relative;   /* anchors the hand-frame ink stroke overlay */
+    padding: 6px 14px;
+    background: #f4f4f2;
+    backdrop-filter: none;
+    border: 1px solid rgba(0,0,0,0.07);
+    box-shadow: none;
+    border-radius: 20px;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: #555;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .skill-chip-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 5px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+  .skill-chip-icon-crop {
+    width: 18px;
+    height: 18px;
+    object-fit: cover;
+    transform: scale(1.35);
+  }
+
+  /* ── Resume cat — a two-frame hover flip in the top-right margin.
+     Sleeps by default; on hover it hard-cuts to the awake frame (no
+     cross-fade — a dissolve would ghost the ink). Both frames are the
+     same 1382×834 export cropped from a shared canvas, so the cat sits
+     in the same spot in both and never jumps. The container reserves
+     its box via aspect-ratio so nothing shifts between states, and
+     both <img> are in the DOM so the awake frame is preloaded.
+     The hit target is the cat's box, not the page top. Hidden ≤1080px
+     like the other margin doodles, so on phones it's simply absent;
+     any touch device that does show it just stays asleep (no hover). */
+  .resume-cat {
+    position: absolute;
+    z-index: 1;
+    aspect-ratio: 1382 / 834;   /* reserve size so states don't shift */
+    opacity: 0.9;
+    user-select: none;
+    /* width + right/top come from the inline style on the element */
+  }
+  .resume-cat img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    transition: none;   /* guarantee a hard cut — never a cross-fade */
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+  /* Awake frame sits on top, hidden until hover. No transition anywhere
+     on these, so the swap is an instant two-frame flip, not a fade. */
+  .resume-cat .cat-awake { opacity: 0; }
+  .resume-cat:hover .cat-sleep { opacity: 0; }
+  .resume-cat:hover .cat-awake { opacity: 1; }
+  /* Reduced motion: stay asleep, never wake on hover. */
+  @media (prefers-reduced-motion: reduce) {
+    .resume-cat:hover .cat-sleep { opacity: 1; }
+    .resume-cat:hover .cat-awake { opacity: 0; }
+  }
+  /* Collapse the margin on narrow screens, matching the doodle system. */
+  @media (max-width: 1080px) {
+    .resume-cat { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cursor-dot"></div>
+
+<!-- Menubar -->
+<!-- Top nav injected by shared nav.js -->
+
+<!-- Page content -->
+<div class="page-wrap">
+
+  <!-- Margin doodle — Asuna curled up in the top-right whitespace beside
+       the header. Purely decorative; clears the heading and the download
+       button. Sleeps by default, wakes on hover (two-frame flip). Both
+       frames are preloaded and share dimensions so she doesn't jump. -->
+  <div class="resume-cat" style="right:8px; top:105px; width:112px;" aria-hidden="true">
+    <img class="cat-sleep" src="assets/resume cat sleep.webp" alt="" width="1382" height="834" />
+    <img class="cat-awake" src="assets/resume cat awake.webp" alt="" width="1382" height="834" />
+  </div>
+
+  <div class="pg-header">
+    <h1>Resume</h1>
+    <a class="btn" href="assets/sydney nguyen resume.pdf" target="_blank" rel="noopener noreferrer" download>Download Resume (PDF) ↗</a>
+  </div>
+
+  <div class="role-card">
+    <div class="role-body">
+
+      <div class="resume-heading-row">
+        <h3 class="resume-subheading">experience</h3>
+        <span class="brush-rule"><svg viewBox="0 0 320 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 7 C44 4 120 4.4 180 4.2 C240 4 292 4.9 318 5.6 L318 7.6 C292 8.4 240 9.1 180 9.1 C120 9.1 44 9.6 2 7 Z"/></svg></span>
+      </div>
+
+      <div class="exp-row" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <figure class="hand-frame" data-r="9" data-seed="3" style="--w:40px; --ar:1/1;"><img src="assets/icons/logo-adobe.webp" alt="Adobe" /></figure>
+          <div class="exp-info">
+            <div class="exp-company">UCR Student Ambassador @ Adobe</div>
+            <div class="exp-role">May 2024 – June 2025</div>
+          </div>
+          <span class="exp-chevron">⌄</span>
+        </div>
+        <div class="exp-body">
+          <ul class="exp-bullets">
+            <li>Promoted Adobe's tools through social media, campus events, and student organizations.</li>
+            <li>Organized workshops showcasing Adobe's software, reaching a wide student audience.</li>
+            <li>Fostered a community of student creators through collaboration and mentorship.</li>
+            <li>Gained hands-on experience with a global brand, sharpening communication and multitasking skills.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="resume-inner-divider"></div>
+
+      <div class="exp-row" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <figure class="hand-frame" data-r="9" data-seed="7" style="--w:40px; --ar:1/1;"><img src="assets/icons/logo-designer-drains.webp" alt="Designer Drains" /></figure>
+          <div class="exp-info">
+            <div class="exp-company">Digital Design &amp; Marketing Intern @ Designer Drains</div>
+            <div class="exp-role">April 2024 – June 2025</div>
+          </div>
+          <span class="exp-chevron">⌄</span>
+        </div>
+        <div class="exp-body">
+          <p class="exp-sub">U.S. e-commerce retailer of handcrafted luxury shower drain covers.</p>
+          <ul class="exp-bullets">
+            <li>Redesigned product storefront UX in Figma, resulting in a 20% increase in page engagement.</li>
+            <li>Designed graphics and digital assets to support seasonal campaigns and brand growth.</li>
+            <li>Analyzed Google Analytics to identify drop-off points and optimize product page layouts.</li>
+            <li>Applied user-centered design to reduce friction between browsing and purchase intent.</li>
+          </ul>
+          <div class="exp-metrics"><span class="exp-metric green">Page Engagement ↑20%</span></div>
+        </div>
+      </div>
+      <div class="resume-inner-divider"></div>
+
+      <div class="exp-row" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <figure class="hand-frame" data-r="9" data-seed="12" style="--w:40px; --ar:1/1;"><img src="assets/icons/logo-nora-ai.webp" alt="Nora AI" /></figure>
+          <div class="exp-info">
+            <div class="exp-company">Marketing and Design Intern @ Nora AI</div>
+            <div class="exp-role">June 2024 – November 2024</div>
+          </div>
+          <span class="exp-chevron">⌄</span>
+        </div>
+        <div class="exp-body">
+          <p class="exp-sub">Early-stage AI startup building voice-powered interview screening tools.</p>
+          <ul class="exp-bullets">
+            <li>Developed social media strategies to grow brand awareness on LinkedIn, Instagram, and campus.</li>
+            <li>Designed wireframes and visual layouts for the main marketing website in Figma.</li>
+            <li>Built Figma prototypes incorporating peer feedback to improve usability and flow clarity.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="resume-inner-divider"></div>
+
+      <div class="exp-row" onclick="toggleExp(this)">
+        <div class="exp-header">
+          <figure class="hand-frame" data-r="9" data-seed="18" style="--w:40px; --ar:1/1;"><img src="assets/icons/logo-alpha-phi-omega.webp" alt="Alpha Phi Omega" /></figure>
+          <div class="exp-info">
+            <div class="exp-company">Historian &amp; Pledge Educator @ UCR Alpha Phi Omega</div>
+            <div class="exp-role">August 2022 – December 2023</div>
+          </div>
+          <span class="exp-chevron">⌄</span>
+        </div>
+        <div class="exp-body">
+          <ul class="exp-bullets">
+            <li>Designed digital content and graphics that boosted member engagement.</li>
+            <li>Led marketing initiatives promoting fraternity events and volunteering activities.</li>
+            <li>Created and led fraternity-wide events for leadership skills and team bonding.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="resume-heading-row" style="margin-top:36px">
+        <h3 class="resume-subheading">education</h3>
+        <span class="brush-rule"><svg viewBox="0 0 320 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 7.4 C50 4.6 128 5 190 4.8 C248 4.6 296 5.3 318 6 L318 7.9 C296 8.7 248 9.3 190 9.3 C128 9.3 50 9.7 2 7.4 Z"/></svg></span>
+      </div>
+
+      <div class="edu-row">
+        <figure class="hand-frame" data-r="9" data-seed="23" style="--w:40px; --ar:1/1;"><img src="assets/icons/new-sjsu-logo.webp" alt="SJSU" /></figure>
+        <div class="edu-info">
+          <div class="edu-school">San José State University</div>
+          <div class="edu-meta">M.Des Experience Design <span class="exp-dot">·</span> August 2025 – Present</div>
+          <div class="edu-detail">Expected Graduation: June 2027</div>
+        </div>
+      </div>
+      <div class="edu-row" style="margin-top:12px">
+        <figure class="hand-frame" data-r="9" data-seed="29" style="--w:40px; --ar:1/1;"><img src="assets/icons/logo-ucr.webp" alt="UCR" /></figure>
+        <div class="edu-info">
+          <div class="edu-school">University of California, Riverside</div>
+          <div class="edu-meta">B.A. Political Science <span class="exp-dot">·</span> September 2021 – June 2025</div>
+        </div>
+      </div>
+
+      <div class="resume-heading-row" style="margin-top:36px">
+        <h3 class="resume-subheading">skills + tools</h3>
+        <span class="brush-rule"><svg viewBox="0 0 320 14" preserveAspectRatio="none" aria-hidden="true"><path d="M2 6.6 C46 4 122 4.5 184 4.3 C244 4.1 294 4.8 318 5.5 L318 7.5 C294 8.3 244 8.9 184 8.9 C122 8.9 46 9.5 2 6.6 Z"/></svg></span>
+      </div>
+      <div class="skills-wrap">
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="31">UX/UI</span><span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="34">UX Research</span><span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="37">Wireframing &amp; Prototyping</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="41">Visual Design</span><span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="44">Motion &amp; Video Editing</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="47">Social Media</span>
+      </div>
+      <div class="skills-wrap">
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="51"><img src="assets/icons/icon-figma.webp" class="skill-chip-icon skill-chip-icon-crop" alt="" />Figma</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="54"><img src="assets/icons/figjam.webp" class="skill-chip-icon" alt="" />FigJam</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="57"><img src="assets/icons/miro.webp" class="skill-chip-icon" alt="" />Miro</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="61"><img src="assets/icons/Adobe_Illustrator_CC_icon.svg.webp" class="skill-chip-icon" alt="" />Illustrator</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="64"><img src="assets/icons/Adobe_Photoshop_CC_icon.svg.webp" class="skill-chip-icon" alt="" />Photoshop</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="67"><img src="assets/icons/procreate-logo_480x480.webp" class="skill-chip-icon" alt="" />Procreate</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="71"><img src="assets/icons/canva-3d-icon-free-png.webp" class="skill-chip-icon skill-chip-icon-crop" alt="" />Canva</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="74"><img src="assets/icons/lovable icon.webp" class="skill-chip-icon" alt="" />Lovable</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="77"><img src="assets/icons/claude icon.webp" class="skill-chip-icon" alt="" />Claude</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="81"><img src="assets/icons/runway icon.webp" class="skill-chip-icon" alt="" />Runway</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="84"><img src="assets/icons/Capcut-icon.svg.webp" class="skill-chip-icon" alt="" />CapCut</span>
+        <span class="skill-chip hand-frame hand-frame--inline" data-r="pill" data-seed="87"><img src="assets/icons/final cut pro.webp" class="skill-chip-icon" alt="" />Final Cut Pro</span>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Custom cursor
+  const dot = document.getElementById('cursor-dot');
+  document.addEventListener('mousemove', e => { dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px'; });
+
+  // Experience accordion toggle
+  function toggleExp(el) {
+    el.classList.toggle('exp-open');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sydney Nguyen — hand-drawn accent reskin (prototype v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Mynerve&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#f2f2f0;                 /* your actual background */
+    --ink:#121212;
+    --ink-soft:#6a6a66;
+    --sans:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    --hand:'Mynerve',var(--sans);
+    --glass-bg:rgba(255,255,255,0.82);
+    --glass-blur:blur(18px) saturate(1.6);
+    --glass-border:1px solid rgba(255,255,255,0.75);
+    --glass-shadow:0 4px 20px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:var(--sans);}
+  html,body{height:100%;}
+  body{background:var(--bg);color:var(--ink);overflow:hidden;}
+
+  /* ── Menubar (your glass style) ── */
+  .menubar{position:fixed;top:0;left:0;right:0;height:44px;z-index:10;
+    display:flex;align-items:center;justify-content:space-between;padding:0 20px;
+    background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+    border-bottom:var(--glass-border);box-shadow:var(--glass-shadow);}
+  .mb-left{display:flex;align-items:center;gap:10px;}
+  .mb-mark{width:22px;height:22px;}
+  .mb-name{font-size:14px;font-weight:600;letter-spacing:.1px;}
+  .mb-right{display:flex;align-items:center;gap:20px;}
+  .mb-link{font-size:12.5px;font-weight:500;color:var(--ink-soft);}
+  .mb-time{font-size:12.5px;font-weight:500;color:var(--ink-soft);}
+
+  /* ── Hero ── */
+  .stage{position:fixed;inset:44px 0 0 0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;z-index:5;}
+  .avatar{width:118px;height:118px;margin-bottom:18px;}
+  .avatar svg{width:100%;height:100%;}
+
+  .name{font-size:min(8.5vw,72px);font-weight:600;letter-spacing:-1.4px;line-height:1;}
+  /* one subtle hand-drawn touch: neat underline swash under the name */
+  .name-wrap{position:relative;display:inline-block;}
+  .name-swash{position:absolute;left:-2%;right:-2%;bottom:-14px;width:104%;height:14px;}
+
+  .tagline{max-width:500px;font-size:15px;font-weight:300;line-height:1.55;color:var(--ink-soft);margin-top:26px;}
+
+  .otw{display:inline-flex;align-items:center;gap:8px;margin-top:26px;
+    font-family:var(--hand);font-size:16px;padding:8px 18px;border-radius:22px;
+    background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+    border:var(--glass-border);box-shadow:var(--glass-shadow);}
+  .otw .dot{width:8px;height:8px;border-radius:50%;background:#3ecf7e;box-shadow:0 0 0 3px rgba(62,207,126,.22);}
+
+  /* ── Floating case-study widget — clean card, keeps its color ── */
+  .cs-card{position:fixed;right:60px;top:120px;width:224px;z-index:6;
+    background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+    border:var(--glass-border);box-shadow:var(--glass-shadow);border-radius:18px;padding:12px 12px 14px;}
+  .cs-shot{height:148px;border-radius:11px;overflow:hidden;position:relative;
+    background:linear-gradient(150deg,#ff8a5c 0%,#ff5c86 48%,#8b5cf6 100%);}
+  .cs-shot .ui{position:absolute;inset:0;padding:15px;display:flex;flex-direction:column;gap:8px;}
+  .cs-shot .bar{height:9px;border-radius:5px;background:rgba(255,255,255,.9);}
+  .cs-shot .bar.s{width:52%;}.cs-shot .bar.m{width:78%;}
+  .cs-shot .chip{margin-top:auto;align-self:flex-start;font-size:10px;font-weight:600;
+    color:#7a2ce0;background:#fff;padding:4px 10px;border-radius:20px;}
+  .cs-cap{display:flex;align-items:center;justify-content:space-between;margin-top:11px;padding:0 3px;}
+  .cs-cap .t{font-size:15px;font-weight:600;}
+  .cs-cap .m{font-size:11px;color:var(--ink-soft);}
+
+  /* ── Dock (your glass dock) with neat line-art icons ── */
+  .dock{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:8;
+    display:flex;align-items:flex-end;gap:24px;padding:10px 22px;border-radius:24px;
+    background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+    border:var(--glass-border);box-shadow:var(--glass-shadow);}
+  .dock-item{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;
+    transition:transform .18s cubic-bezier(.34,1.56,.64,1);}
+  .dock-item:hover{transform:translateY(-7px);}
+  .dock-item svg{width:36px;height:36px;}
+  .dock-item .lbl{font-size:10.5px;font-weight:500;color:var(--ink-soft);opacity:0;transition:opacity .18s;}
+  .dock-item:hover .lbl{opacity:1;}
+
+  .scroll{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);z-index:5;
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    font-size:11px;color:var(--ink-soft);}
+  .scroll svg{width:16px;height:22px;animation:bob 1.8s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+
+  .footnote{position:fixed;bottom:8px;left:14px;font-size:10.5px;color:#b5b5af;z-index:9;}
+
+  /* clean, single-weight line art — NO wobble filter */
+  .ln{fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+  .ln-thin{fill:none;stroke:var(--ink);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;}
+</style>
+</head>
+<body>
+
+<!-- ── MENUBAR ── -->
+<div class="menubar">
+  <div class="mb-left">
+    <svg class="mb-mark" viewBox="0 0 40 40">
+      <circle class="ln" cx="20" cy="20" r="15"/>
+      <path class="ln" d="M14.5 18c1.2 1.3 2.6 1.3 3.8 0M21.7 18c1.2 1.3 2.6 1.3 3.8 0"/>
+      <path class="ln" d="M15.5 25c2.2 2.3 6.8 2.3 9 0"/>
+    </svg>
+    <span class="mb-name">Sydney Nguyen</span>
+  </div>
+  <div class="mb-right">
+    <span class="mb-link">Work</span>
+    <span class="mb-link">About</span>
+    <span class="mb-link">Contact</span>
+    <span class="mb-time">Wed 9:41</span>
+  </div>
+</div>
+
+<!-- ── HERO ── -->
+<div class="stage">
+  <div class="avatar">
+    <svg viewBox="0 0 118 118">
+      <circle class="ln" cx="59" cy="59" r="46"/>
+      <path class="ln" d="M46 54c1.7 1.9 4 1.9 5.7 0M66 54c1.7 1.9 4 1.9 5.7 0"/>
+      <path class="ln" d="M48 72c5 5 17 5 22 0"/>
+      <path class="ln-thin" d="M32 44c6-11 48-11 54 0"/>
+    </svg>
+  </div>
+
+  <div class="name-wrap">
+    <h1 class="name">Sydney Nguyen</h1>
+    <!-- subtle hand-drawn underline swash, single clean stroke -->
+    <svg class="name-swash" viewBox="0 0 300 14" preserveAspectRatio="none">
+      <path class="ln-thin" d="M4 9c60-6 232-6 292 0"/>
+    </svg>
+  </div>
+
+  <p class="tagline">designing experiences that help people connect, understand, and feel less alone</p>
+
+  <span class="otw"><span class="dot"></span>open to work</span>
+</div>
+
+<!-- ── FLOATING CASE-STUDY WIDGET (keeps its color) ── -->
+<div class="cs-card">
+  <div class="cs-shot">
+    <div class="ui">
+      <div class="bar m"></div><div class="bar s"></div><div class="bar m"></div>
+      <span class="chip">Case Study →</span>
+    </div>
+  </div>
+  <div class="cs-cap"><span class="t">Room2Talk</span><span class="m">UX · 2025</span></div>
+</div>
+
+<!-- ── SCROLL HINT ── -->
+<div class="scroll">
+  scroll
+  <svg viewBox="0 0 16 22"><path class="ln-thin" d="M8 3v14M8 17l-5-5M8 17l5-5"/></svg>
+</div>
+
+<!-- ── DOCK with neat hand-drawn line icons ── -->
+<div class="dock">
+  <div class="dock-item">
+    <svg viewBox="0 0 40 40"><path class="ln" d="M5 13c0-2 1-3 3-3h8l3 4h13c2 0 3 1 3 3v14c0 2-1 3-3 3H8c-2 0-3-1-3-3z"/></svg>
+    <span class="lbl">Case Studies</span>
+  </div>
+  <div class="dock-item">
+    <svg viewBox="0 0 40 40"><path class="ln" d="M11 5h13l6 6v24H11z"/><path class="ln-thin" d="M24 5v6h6M15 20h11M15 26h11"/></svg>
+    <span class="lbl">Resume</span>
+  </div>
+  <div class="dock-item">
+    <svg viewBox="0 0 40 40"><rect class="ln" x="6" y="6" width="28" height="28" rx="5"/><path class="ln-thin" d="M13 17v11M13 13v.4M20 28v-7M27 28v-4c0-3-4-4-6-1"/></svg>
+    <span class="lbl">LinkedIn</span>
+  </div>
+  <div class="dock-item">
+    <svg viewBox="0 0 40 40"><path class="ln" d="M6 11c0-2 1-3 3-3h22c2 0 3 1 3 3v18c0 2-1 3-3 3H9c-2 0-3-1-3-3z"/><path class="ln-thin" d="M7 12l13 10 13-10"/></svg>
+    <span class="lbl">Contact</span>
+  </div>
+  <div class="dock-item">
+    <svg viewBox="0 0 40 40"><path class="ln" d="M20 6c9 0 14 6 14 13 0 5-4 7-8 7h-3c-2 0-3 2-2 4 1 3-1 4-3 4-8 0-12-6-12-14C6 12 12 6 20 6z"/><circle class="ln-thin" cx="14" cy="17" r="1.5"/><circle class="ln-thin" cx="20" cy="13" r="1.5"/><circle class="ln-thin" cx="26" cy="17" r="1.5"/></svg>
+    <span class="lbl">Fun</span>
+  </div>
+</div>
+
+<div class="footnote">prototype v2 — your base kept, hand-drawn line icons + one swash added</div>
+
+</body>
+</html>

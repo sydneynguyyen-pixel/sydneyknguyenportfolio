@@ -4,205 +4,326 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sydney Nguyen — UX/UI Designer</title>
-  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="icon" type="image/png" href="assets/favicon.webp" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Mynerve&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <script src="nav.js"></script>
+  <script src="doodles.js"></script>
 </head>
 <body>
 
-<!-- ── DESKTOP CANVAS ─────────────────────────────────── -->
+<!-- ── BOOT LOADER — timed load screen, plays once per session ──────────
+     A short "booting up…" beat with the munching avatar, then it resolves
+     and the hero comes in as normal. This is a beat, not a gate: it auto-
+     dismisses after a fixed hold — no scroll/click required. -->
+<div id="intro-overlay" aria-hidden="true">
+  <div class="boot-stage">
+    <div class="boot-avatar">
+      <img id="boot-avatar-img" src="assets/icons/sydney center icon munching.webp" alt="" />
+    </div>
+    <div class="boot-tagline">
+      <!-- Hidden sizer reserves the width of the longest string so the line
+           never shifts as dots are added (same trick as the hero name). -->
+      <span class="boot-tagline-sizer" aria-hidden="true">booting up...</span>
+      <span class="boot-tagline-live">booting up<span class="boot-tagline-dots"></span></span>
+    </div>
+  </div>
+</div>
+<script>
+  // Self-contained boot logic — kept inline (right after the markup) so a
+  // returning session or reduced-motion visitor never sees a flash of the
+  // loader before an end-of-body script could run. Purely additive.
+  (function () {
+    var overlay = document.getElementById('intro-overlay');
+    if (!overlay) return;
+
+    // ── Tunables ──────────────────────────────────────────────
+    var BOOT_HOLD_MS   = 3040; // munch beat shown before the sequence resolves
+    var MUNCH_FRAME_MS = 380;  // hard cut between the two munch frames
+    var ELLIPSIS_MS    = 400;  // per step of "booting up." → ".." → "..."
+    var SETTLE_MS      = 260;  // hold on the closed frame before it fades
+    var FADE_MS        = 700;  // overlay fade-out (matches the CSS transition)
+
+    var SEEN_KEY = 'sydney_intro_seen';
+    var MUNCH = 'assets/icons/sydney center icon munching.webp';   // closed / chewing
+    var OPEN  = 'assets/icons/sydney center icon open mouth.webp'; // open
+    var CYCLE_FIRST = 'assets/icons/center-icon.webp';             // hero cycle's 1st frame
+
+    var seen = false;
+    try { seen = sessionStorage.getItem(SEEN_KEY) === '1'; } catch (e) {}
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Skip entirely: already seen this session, or reduced motion → straight
+    // to the hero (static avatar, no munch, no tagline).
+    if (seen || reduce) {
+      if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
+      return; // no boot → the hero avatar cycle starts on its own (script.js)
+    }
+
+    // Fresh session with motion: play the boot once, then remember.
+    try { sessionStorage.setItem(SEEN_KEY, '1'); } catch (e) {}
+    // Hold the hero avatar cycle until we hand off, so it starts clean (script.js).
+    window.__introBootActive = true;
+
+    var img  = document.getElementById('boot-avatar-img');
+    var dots = overlay.querySelector('.boot-tagline-dots');
+    var munchTimer = null, ellipsisTimer = null, holdTimer = null, doneTimer = null;
+
+    // Munch: hard cut between the two frames (NOT a cross-fade).
+    var mouthOpen = false;
+    function munchStep() {
+      mouthOpen = !mouthOpen;
+      img.src = mouthOpen ? OPEN : MUNCH;
+      munchTimer = setTimeout(munchStep, MUNCH_FRAME_MS);
+    }
+
+    // Tagline ellipsis: 1 → 2 → 3 dots on a loop. Same self-scheduling
+    // setTimeout pattern as the hero typing animation — no library.
+    var n = 0;
+    function ellipsisStep() {
+      n = (n % 3) + 1;
+      dots.textContent = Array(n + 1).join('.');
+      ellipsisTimer = setTimeout(ellipsisStep, ELLIPSIS_MS);
+    }
+
+    function cleanup() {
+      clearTimeout(munchTimer); clearTimeout(ellipsisTimer);
+      clearTimeout(holdTimer);  clearTimeout(doneTimer);
+    }
+
+    function resolve() {
+      // Land on the closed frame so it flows into the cycle's first image.
+      clearTimeout(munchTimer); munchTimer = null;
+      img.src = MUNCH;
+      // Brief hold on the closed frame smooths the handoff, then fade it all out.
+      holdTimer = setTimeout(function () {
+        clearTimeout(ellipsisTimer); ellipsisTimer = null;
+        overlay.classList.add('intro-dismissed'); // fades overlay + tagline
+        // Hand off: let the hero avatar cycle begin at its first frame now.
+        window.__introBootActive = false;
+        document.dispatchEvent(new Event('intro:done'));
+        doneTimer = setTimeout(function () {
+          if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, FADE_MS);
+      }, SETTLE_MS);
+    }
+
+    function start() {
+      overlay.classList.add('boot-playing');
+      munchStep();
+      ellipsisStep();
+      // Fixed hold regardless of how fast assets loaded — a beat, not a gate.
+      holdTimer = setTimeout(resolve, BOOT_HOLD_MS);
+    }
+
+    // Preload both munch frames + the hero cycle's first image before starting,
+    // so there's never a blank frame mid-sequence. Fall back to a hard start if
+    // decoding stalls, so the loader can't hang.
+    var need = [MUNCH, OPEN, CYCLE_FIRST], loaded = 0, started = false;
+    function begin() { if (!started) { started = true; start(); } }
+    need.forEach(function (src) {
+      var im = new Image();
+      im.onload = im.onerror = function () { if (++loaded === need.length) begin(); };
+      im.src = src;
+    });
+    setTimeout(begin, 400); // safety: never wait more than 400ms on preloads
+
+    window.addEventListener('pagehide', cleanup, { once: true });
+  })();
+</script>
+
+<!-- ── DESKTOP CANVAS — now a normal scrolling page ─────── -->
 <div id="desktop-canvas">
 
-  <!-- Background -->
+  <!-- Background (fixed, fills viewport while scrolling) -->
   <div class="desktop-bg"></div>
 
-  <!-- ── MENU BAR ──────────────────────────────────────── -->
-  <div class="menubar">
-    <img src="assets/favicon.png" class="menubar-apple" alt="" />
-    <span class="menubar-title">sydney's desktop</span>
+  <!-- ── Top nav is injected by the shared nav.js (single implementation) ── -->
+  <!-- ══════════════════════════════════════════════════════
+       HERO — first viewport. Animated art ring wrapping a large
+       profile photo + name. CD player + sticker are playful
+       accents (wrapped in .hero-accents so they're easy to delete).
+       ══════════════════════════════════════════════════════ -->
+  <section class="hero-section" id="home">
 
-    <!-- ── Ticker — looping activity string ──────────────── -->
-    <div class="menubar-ticker" aria-hidden="true">
-      <div class="ticker-pill">
-        <div class="ticker-track">
-          <span>always creating&nbsp;&nbsp;·&nbsp;&nbsp;drinking a matcha&nbsp;&nbsp;·&nbsp;&nbsp;learning new ai skills&nbsp;&nbsp;·&nbsp;&nbsp;creating a figma prototype&nbsp;&nbsp;·&nbsp;&nbsp;planning my next 5k run&nbsp;&nbsp;·&nbsp;&nbsp;petting my cat&nbsp;&nbsp;·&nbsp;&nbsp;editing photos in lightroom&nbsp;&nbsp;·&nbsp;&nbsp;hiking a trail&nbsp;&nbsp;·&nbsp;&nbsp;</span><span>always creating&nbsp;&nbsp;·&nbsp;&nbsp;drinking a matcha&nbsp;&nbsp;·&nbsp;&nbsp;learning new ai skills&nbsp;&nbsp;·&nbsp;&nbsp;creating a figma prototype&nbsp;&nbsp;·&nbsp;&nbsp;planning my next 5k run&nbsp;&nbsp;·&nbsp;&nbsp;petting my cat&nbsp;&nbsp;·&nbsp;&nbsp;editing photos in lightroom&nbsp;&nbsp;·&nbsp;&nbsp;hiking a trail&nbsp;&nbsp;·&nbsp;&nbsp;</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="menubar-right">
-      <div id="sticker-peeker" onclick="toggleStickerWindow()" title="sticker sheet!">
-        <img src="assets/stickers/cat wave.png" alt="stickers" />
-      </div>
-    </div>
-
-  </div>
-  <span class="menubar-sub">UX/UI  ·  SJSU Mdes</span>
-
-  <!-- ── CASE STUDIES — top strip ─────────────────────────── -->
-  <div class="cs-zone">
-    <div class="cs-inline-grid" id="cs-inline-grid"><!-- built by JS --></div>
-  </div>
-
-  <!-- ── ART RING — animated orbit with profile center ──────── -->
-  <div class="ring-section" id="ring-section">
-    <div class="ring-drag-zone" id="ring-drag-zone"></div>
-    <div class="ring-stage" id="ring-stage"><!-- built by JS --></div>
-    <div class="ring-center">
-      <div class="ring-photo">
-        <img src="assets/profile pictures/pfp 1.jpg" alt="Sydney Nguyen" />
-      </div>
-      <div class="ring-name">Sydney Nguyen</div>
-      <div class="ring-tagline">designing experiences that help people connect, understand, and feel less alone</div>
-      <div class="ring-otw"><span class="peeker-pulse"></span>open to work</div>
-    </div>
-  </div>
-
-  <!-- ── BOTTOM LEFT — music player + bio ──────────────────── -->
-  <div class="bl-zone">
-    <div class="bl-action-stack">
-      <div class="bl-icon-row">
-        <a href="mailto:sydney.nguyen01@sjsu.edu" class="bottom-icon-btn" title="Email">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-        </a>
-        <a href="https://www.linkedin.com/in/sydneyknguyen" target="_blank" class="bottom-icon-btn" title="LinkedIn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-        </a>
-        <a href="assets/Sydney Nguyen Resume.pdf" target="_blank" class="pf-link pf-link-resume bl-resume-link">Resume ↗</a>
-      </div>
-      <div id="about-peeker" onclick="toggleAboutPanel()">
-        <span class="peeker-pulse"></span>
-        <span class="resume-peeker-label">About Me</span>
-        <span class="resume-peeker-arrow" id="about-peeker-arrow">↑</span>
-      </div>
-      <div id="resume-peeker" onclick="toggleResumePanel()">
-        <span class="peeker-pulse"></span>
-        <span class="resume-peeker-label">Experience &amp; Education</span>
-        <span class="resume-peeker-arrow" id="resume-peeker-arrow">↑</span>
-      </div>
-    </div>
-    <div class="cdplayer" id="cdplayer">
-      <div class="cdp-top">
-        <div class="cdp-art-wrap" id="cdp-disc">
-          <div id="cdp-disc-color" class="cdp-art-inner">
-            <img class="cdp-art-img" id="cdp-disc-art" src="assets/music/song 5 cover.png" alt="" />
-          </div>
-          <div class="cdp-waveform" id="cdp-waveform">
-            <span></span><span></span><span></span><span></span><span></span>
+    <!-- ── ART RING — animated orbit with profile center ──── -->
+    <div class="ring-section" id="ring-section">
+      <div class="ring-drag-zone" id="ring-drag-zone"></div>
+      <div class="ring-stage" id="ring-stage"><!-- built by JS --></div>
+      <div class="ring-center">
+        <div class="ring-photo ring-icon">
+          <img src="assets/icons/center-icon.webp" alt="Sydney Nguyen" />
+          <!-- Hover speech bubble (desktop only; hover doesn't fire on touch).
+               Text filled + cycled by JS. pointer-events:none so it never
+               intercepts a tap on the avatar. -->
+          <div class="avatar-bubble hand-bubble" aria-hidden="true">
+            <svg class="avatar-bubble-shape" viewBox="0 0 204 66" fill="none" aria-hidden="true"><path d="M15 3 Q102 1.5 189 3 Q201.5 3.5 201.5 15.5 Q202.5 27 201 39.5 Q201 51 188.5 52 Q154 52.6 116.5 52.4 Q110 62 104 64 Q98.5 60.5 93.5 52.2 Q54 52.7 15.5 52 Q2.5 51.5 2.8 39.5 Q1.8 27 3 15.5 Q3 3.5 15 3 Z" fill="#fff" stroke="#1a1a1a" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
+            <span class="avatar-bubble-text"></span>
           </div>
         </div>
-        <div class="cdp-meta">
-          <div class="cdp-track-name" id="cdp-track-name">悲しい夢</div>
-          <div class="cdp-track-artist" id="cdp-track-artist">tavc city pop</div>
-          <div class="cdp-track-dots">
-            <button class="cdp-td active" id="cdp-td-0" onclick="cdpSelectTrack(0)">1</button>
-            <button class="cdp-td" id="cdp-td-1" onclick="cdpSelectTrack(1)">2</button>
-            <button class="cdp-td" id="cdp-td-2" onclick="cdpSelectTrack(2)">3</button>
-            <button class="cdp-td" id="cdp-td-3" onclick="cdpSelectTrack(3)">4</button>
-            <button class="cdp-td" id="cdp-td-4" onclick="cdpSelectTrack(4)">5</button>
-          </div>
+        <div class="ring-name" aria-hidden="true">
+          <!-- Hidden sizers reserve the width/height of the widest phrase so
+               the ring never reflows as the text cycles. -->
+          <span class="rn-sizer">sydney nguyen</span>
+          <span class="rn-sizer">product designer</span>
+          <span class="rn-sizer">ux/ui</span>
+          <span class="rn-sizer">mdes @ sjsu</span>
+          <span class="rn-sizer">creative thinker</span>
+          <span class="rn-sizer">matcha lover</span>
+          <span class="rn-live"><span class="rn-text"></span><span class="rn-cursor" aria-hidden="true"></span></span>
         </div>
+        <span class="sr-only">Sydney Nguyen</span>
+        <div class="ring-tagline">designing experiences that help people connect, understand, and feel less alone</div>
+        <div class="ring-otw"><span class="peeker-pulse"></span>open to work</div>
       </div>
-      <div class="cdp-time-row">
-        <span id="cdp-time-cur">0:00</span>
-        <div class="cdp-progress-wrap"><div class="cdp-progress-fill" id="cdp-progress-fill"></div></div>
-        <span id="cdp-time-total">–:––</span>
-      </div>
-      <div class="cdp-bottom">
-        <div class="cdp-controls">
-          <button class="cdp-ctrl-btn" onclick="cdpPrev()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
-          </button>
-          <button class="cdp-ctrl-btn cdp-play-btn" id="cdp-play-btn" onclick="cdpTogglePlay()">
-            <svg class="cdp-icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-          </button>
-          <button class="cdp-ctrl-btn" onclick="cdpNext()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18 14.5 12 6 6v12zM16 6h2v12h-2z"/></svg>
-          </button>
-        </div>
-        <input type="range" class="cdp-vol-slider" min="0" max="1" step="0.01" value="1" oninput="bgAudio.volume=this.value" />
-      </div>
-      <div id="cdp-tonearm" style="display:none"></div>
     </div>
-  </div>
 
-  <!-- ── BOTTOM RIGHT — other projects ──────────────────────── -->
-  <div class="br-zone">
-    <a class="side-work-item side-work-mktg" href="marketing.html">
-      <div class="side-work-text">
-        <div class="side-work-name">Marketing & Brand</div>
-        <div class="side-work-tags"><span class="swt">Photography</span><span class="swt">Content Strategy</span><span class="swt">Brand</span></div>
-        <div class="side-work-desc">Campaigns, brand assets & content across 6 roles</div>
-        <div class="side-work-mktg-imgs">
-          <div class="side-work-mktg-img"><img src="assets/thumbs/haliene desktop thumbnail.png" alt="HALIENE" loading="lazy" /></div>
-          <div class="side-work-mktg-img"><img src="assets/thumbs/nora dekstop thumbnail.png" alt="Nora AI" loading="lazy" /></div>
-          <div class="side-work-mktg-img"><img src="assets/little wins bakehouse/New Flavor Announcements/5.png" alt="Little Wins Bakehouse" loading="lazy" /></div>
-          <div class="side-work-mktg-img"><img src="assets/thumbs/ph-DZdms-xgQjU.jpg" alt="Photography" loading="lazy" /></div>
-          <div class="side-work-mktg-img"><img src="assets/thumbs/apo desktop thumbnail.png" alt="APO" loading="lazy" /></div>
-        </div>
-      </div>
-      <span class="side-work-arrow">↗</span>
-    </a>
-    <div class="port-section-label">Other Projects</div>
-    <div class="side-works-list">
-      <a class="side-work-item" href="https://www.zarabrotherstravel.com/" target="_blank">
-        <div class="side-work-text">
-          <div class="side-work-name">Zara Brothers Travel</div>
-          <div class="side-work-tags"><span class="swt">Web Design</span><span class="swt">Wix</span></div>
-          <div class="side-work-desc">Travel agency website designed in Wix</div>
-        </div>
-        <span class="side-work-arrow">↗</span>
-        <div class="side-work-cd">
-          <div class="side-work-cd-grooves"></div>
-          <div class="side-work-cd-label"><img src="assets/icons/zara brothers travel.avif" alt="" loading="lazy" /></div>
-          <div class="side-work-cd-hole"></div>
-        </div>
-      </a>
-      <a class="side-work-item" href="https://www.behance.net/gallery/220421801/Sunright-Tea-Studio-UXUI-Case-Study" target="_blank">
-        <div class="side-work-text">
-          <div class="side-work-name">Sunright Tea Studio</div>
-          <div class="side-work-tags"><span class="swt">UX/UI</span><span class="swt">Mobile</span></div>
-          <div class="side-work-desc">Mobile ordering experience for a boba tea shop</div>
-        </div>
-        <span class="side-work-arrow">↗</span>
-        <div class="side-work-cd">
-          <div class="side-work-cd-grooves"></div>
-          <div class="side-work-cd-label"><img src="assets/icons/sunright-thumb.png" alt="" loading="lazy" /></div>
-          <div class="side-work-cd-hole"></div>
-        </div>
-      </a>
-      <a class="side-work-item" href="https://www.figma.com/deck/3zplTzhPjCf7GXCt6mZaHF/Moove-Slide-Deck?node-id=1-259&amp;t=Rtj5TUFG31wYuwHL-1&amp;scaling=min-zoom&amp;content-scaling=fixed&amp;page-id=0%3A1" target="_blank">
-        <div class="side-work-text">
-          <div class="side-work-name">moove</div>
-          <div class="side-work-tags"><span class="swt">UX/UI</span><span class="swt">Health &amp; Wellness</span></div>
-          <div class="side-work-desc">Mobility and flexibility app with daily check-ins, adaptive routines, and goal-based progress</div>
-        </div>
-        <span class="side-work-arrow">↗</span>
-        <div class="side-work-cd">
-          <div class="side-work-cd-grooves"></div>
-          <div class="side-work-cd-label"><img src="assets/icons/moove-thumb.webp" alt="" loading="lazy" /></div>
-          <div class="side-work-cd-hole"></div>
-        </div>
-      </a>
-      <a class="side-work-item" href="https://www.figma.com/proto/MDJjsmm2Hyi5fHFBFJLIBn/m3-past-present-future-site?node-id=1-2&amp;t=km5SQGWGHu2ioRcs-1&amp;scaling=contain&amp;content-scaling=fixed&amp;page-id=0%3A1&amp;starting-point-node-id=1%3A2&amp;show-proto-sidebar=1" target="_blank">
-        <div class="side-work-text">
-          <div class="side-work-name">Past/Present/Future</div>
-          <div class="side-work-tags"><span class="swt">Speculative Design</span></div>
-          <div class="side-work-desc">Speculative design visualizing technology from my grandparents' time to my future grandchild's</div>
-        </div>
-        <span class="side-work-arrow">↗</span>
-        <div class="side-work-cd">
-          <div class="side-work-cd-grooves"></div>
-          <div class="side-work-cd-label"><img src="assets/icons/ppf-thumb.png" alt="" loading="lazy" /></div>
-          <div class="side-work-cd-hole"></div>
-        </div>
-      </a>
+    <!-- Scroll nudge — bottom-center, below the "open to work" pill. Absolutely
+         positioned so it never touches the arc / name / avatar. Fades in ~1s
+         after load, bobs gently, and fades away for good on first scroll (JS).
+         pointer-events:none — it's an indicator, not a button. -->
+    <div class="scroll-indicator" id="scroll-indicator" aria-hidden="true">
+      <span class="scroll-nudge">
+        <span class="scroll-nudge-arrow">↓</span>
+        <span class="scroll-nudge-text">welcome to my world</span>
+        <span class="scroll-nudge-arrow">↓</span>
+      </span>
     </div>
-  </div>
+
+  </section><!-- /.hero-section -->
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 1 — CASE STUDIES  (moved from the old top strip)
+       ══════════════════════════════════════════════════════ -->
+  <section class="page-section" id="work">
+    <div class="section-inner">
+      <h2 class="section-heading" data-reveal>Case Studies</h2>
+      <div class="cs-zone">
+        <div class="cs-inline-grid" id="cs-inline-grid"><!-- built by JS --></div>
+      </div>
+      <!-- Margin doodle — a little plant in the LEFT gutter of the content
+           column. It lives inside .section-inner (position:relative) and is
+           offset one gutter to the left of the content, so it sits in the
+           margin beside the work and stays a fixed distance from it at every
+           width instead of drifting to the viewport edge. Swap in doodles.js. -->
+      <div class="doodle" data-doodle="plant" style="left: calc(-1 * var(--page-gutter)); bottom: 24px; width: 84px;"></div>
+      <!-- Shooting star — top-RIGHT margin, level with the heading. Mirror of
+           the plant: offset one gutter past the content's right edge. -->
+      <div class="doodle" data-doodle="star" style="right: calc(-1 * var(--page-gutter)); top: -12px; width: 118px;"></div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       SECTION 2 — ARCHIVE OF WORK  (stack browser)
+       Four stacks — Design / Marketing & Branding / Photo & Video /
+       Art & Graphic Design — built by initStacks() in script.js from the
+       STACKS data model there (edit content in one place). Each pile's TOP
+       card is a swappable cover asset; the under-layers behind it are pulled
+       from the stack's OWN item images (real work, not neutral fills), so
+       adding/changing items updates the pile automatically. Click a stack →
+       it spills its items as a wrapping GRID directly below the single row.
+       Marketing/Art/Photo items carry data-mkw-open and reuse the existing
+       #mkw-panels modal system; Design items are external links (↗).
+       At ≤720px the row degrades to a 2×2 and the grid inserts row-aware
+       (between the rows for a top stack, below for a bottom one) — handled
+       purely in CSS via the .stacks[data-active-row] hook.
+       ══════════════════════════════════════════════════════ -->
+  <section class="page-section" id="marketing">
+    <div class="section-inner">
+      <h2 class="section-heading">Archive</h2>
+      <!-- Margin doodles for the Archive row, all anchored to .section-inner
+           so they track the content column, never the viewport edge. -->
+      <!-- Butterfly — in the whitespace band above the heading, right of centre. -->
+      <div class="doodle" data-doodle="butterfly" style="left: 70%; top: -48px; width: 90px;"></div>
+      <!-- Coffee cup — left margin, beside the stack cards. -->
+      <div class="doodle" data-doodle="coffee" style="left: calc(-1 * var(--page-gutter)); bottom: 20px; width: 100px;"></div>
+      <!-- Pen pot — right margin, mirroring the coffee cup. -->
+      <div class="doodle" data-doodle="pens" style="right: calc(-1 * var(--page-gutter)); bottom: 15px; width: 84px;"></div>
+      <!-- One row of four. The 4 .stack elements are injected by initStacks()
+           BEFORE the drawer, so the drawer stays the last grid child (it opens
+           full-width below the row). -->
+      <div class="stacks" id="stacks">
+        <div class="stack-drawer" id="stack-drawer" aria-live="polite"><!-- item grid --></div>
+      </div>
+    </div>
+  </section>
 
 </div><!-- /desktop-canvas -->
+
+<!-- ── MUSIC PLAYER POPUP — hidden by default; opened by #music-peeker.
+     Anchored above the bottom-right corner controls, above page content
+     but below the sticky nav. Dismiss: button, outside click, or ✕. ──── -->
+<div class="cdplayer" id="cdplayer">
+  <button class="cdp-close" onclick="closeMusicPopup()" title="close" aria-label="Close music player">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="cdp-top">
+    <div class="cdp-art-wrap" id="cdp-disc">
+      <div id="cdp-disc-color" class="cdp-art-inner">
+        <img class="cdp-art-img" id="cdp-disc-art" src="assets/music/song 5 cover.webp" alt="" />
+      </div>
+      <div class="cdp-waveform" id="cdp-waveform">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="cdp-meta">
+      <div class="cdp-track-name" id="cdp-track-name">悲しい夢</div>
+      <div class="cdp-track-artist" id="cdp-track-artist">tavc city pop</div>
+      <div class="cdp-track-dots">
+        <button class="cdp-td active" id="cdp-td-0" onclick="cdpSelectTrack(0)">1</button>
+        <button class="cdp-td" id="cdp-td-1" onclick="cdpSelectTrack(1)">2</button>
+        <button class="cdp-td" id="cdp-td-2" onclick="cdpSelectTrack(2)">3</button>
+        <button class="cdp-td" id="cdp-td-3" onclick="cdpSelectTrack(3)">4</button>
+        <button class="cdp-td" id="cdp-td-4" onclick="cdpSelectTrack(4)">5</button>
+      </div>
+    </div>
+  </div>
+  <div class="cdp-time-row">
+    <span id="cdp-time-cur">0:00</span>
+    <div class="cdp-progress-wrap"><div class="cdp-progress-fill" id="cdp-progress-fill"></div></div>
+    <span id="cdp-time-total">–:––</span>
+  </div>
+  <div class="cdp-bottom">
+    <div class="cdp-controls">
+      <button class="cdp-ctrl-btn" onclick="cdpPrev()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="cdp-ctrl-btn cdp-play-btn" id="cdp-play-btn" onclick="cdpTogglePlay()">
+        <svg class="cdp-icon-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+      <button class="cdp-ctrl-btn" onclick="cdpNext()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18 14.5 12 6 6v12zM16 6h2v12h-2z"/></svg>
+      </button>
+    </div>
+    <input type="range" class="cdp-vol-slider" min="0" max="1" step="0.01" value="1" oninput="bgAudio.volume=this.value" />
+  </div>
+  <div id="cdp-tonearm" style="display:none"></div>
+</div>
+
+<!-- ── CORNER CONTROLS — fixed matching pair: music popup + sticker sheet ──── -->
+<div class="corner-controls" id="corner-controls">
+  <button id="music-peeker" class="corner-peeker" onclick="toggleMusicPopup(event)" title="music player" aria-label="Music player" aria-expanded="false">
+    <!-- Hand-drawn beamed pair of notes — matches the marginal doodles' pen
+         (loose single line, round caps). Outline only, no fill. -->
+    <svg class="fab-doodle" viewBox="1 4 56 60" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <!-- stems -->
+      <path d="M23 51 L23 16" />
+      <path d="M53 45 L53 10" />
+      <!-- double beam, rising to the right -->
+      <path d="M23 16 L53 10" />
+      <path d="M23 24 L53 18" />
+      <!-- note heads, slanted, outline only -->
+      <ellipse cx="15" cy="55" rx="9" ry="6.5" transform="rotate(-20 15 55)" />
+      <ellipse cx="45" cy="49" rx="9" ry="6.5" transform="rotate(-20 45 49)" />
+    </svg>
+  </button>
+  <div id="sticker-peeker" class="corner-peeker" onclick="toggleStickerWindow()" title="sticker sheet!">
+    <img src="assets/stickers/cat wave.webp" alt="stickers" />
+  </div>
+</div>
 
 <!-- Custom cursor -->
 <div class="cursor-dot" id="cursor-dot"></div>
@@ -221,196 +342,6 @@
   <div class="ring-lb-info">
     <div class="ring-lb-title" id="ring-lb-title"></div>
     <div class="ring-lb-meta" id="ring-lb-meta"></div>
-  </div>
-</div>
-
-<!-- ── EXPERIENCE / EDUCATION PANEL — expands upward ─────── -->
-<div id="resume-panel" class="resume-panel">
-  <div class="resume-panel-inner">
-
-    <h3 class="resume-subheading">Experience</h3>
-
-    <div class="exp-row" onclick="toggleExp(this)">
-      <div class="exp-header">
-        <img src="assets/icons/logo-adobe.png" class="org-icon" alt="Adobe" />
-        <div class="exp-info">
-          <div class="exp-company">UCR Student Ambassador @ Adobe</div>
-          <div class="exp-role">May 2024 – June 2025</div>
-        </div>
-        <span class="exp-chevron">⌄</span>
-      </div>
-      <div class="exp-body">
-        <ul class="exp-bullets">
-          <li>Promoted Adobe's tools through social media, campus events, and student organizations.</li>
-          <li>Organized workshops showcasing Adobe's software, reaching a wide student audience.</li>
-          <li>Fostered a community of student creators through collaboration and mentorship.</li>
-          <li>Gained hands-on experience with a global brand, sharpening communication and multitasking skills.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="resume-inner-divider"></div>
-
-    <div class="exp-row" onclick="toggleExp(this)">
-      <div class="exp-header">
-        <img src="assets/icons/logo-designer-drains.png" class="org-icon" alt="Designer Drains" />
-        <div class="exp-info">
-          <div class="exp-company">Digital Design &amp; Marketing Intern @ Designer Drains</div>
-          <div class="exp-role">April 2024 – June 2025</div>
-        </div>
-        <span class="exp-chevron">⌄</span>
-      </div>
-      <div class="exp-body">
-        <p class="exp-sub">U.S. e-commerce retailer of handcrafted luxury shower drain covers.</p>
-        <ul class="exp-bullets">
-          <li>Redesigned product storefront UX in Figma, resulting in a 20% increase in page engagement.</li>
-          <li>Designed graphics and digital assets to support seasonal campaigns and brand growth.</li>
-          <li>Analyzed Google Analytics to identify drop-off points and optimize product page layouts.</li>
-          <li>Applied user-centered design to reduce friction between browsing and purchase intent.</li>
-        </ul>
-        <div class="exp-metrics"><span class="exp-metric green">Page Engagement ↑20%</span></div>
-      </div>
-    </div>
-    <div class="resume-inner-divider"></div>
-
-    <div class="exp-row" onclick="toggleExp(this)">
-      <div class="exp-header">
-        <img src="assets/icons/logo-nora-ai.png" class="org-icon" alt="Nora AI" />
-        <div class="exp-info">
-          <div class="exp-company">Marketing and Design Intern @ Nora AI</div>
-          <div class="exp-role">June 2024 – November 2024</div>
-        </div>
-        <span class="exp-chevron">⌄</span>
-      </div>
-      <div class="exp-body">
-        <p class="exp-sub">Early-stage AI startup building voice-powered interview screening tools.</p>
-        <ul class="exp-bullets">
-          <li>Developed social media strategies to grow brand awareness on LinkedIn, Instagram, and campus.</li>
-          <li>Designed wireframes and visual layouts for the main marketing website in Figma.</li>
-          <li>Built Figma prototypes incorporating peer feedback to improve usability and flow clarity.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="resume-inner-divider"></div>
-
-    <div class="exp-row" onclick="toggleExp(this)">
-      <div class="exp-header">
-        <img src="assets/icons/logo-alpha-phi-omega.png" class="org-icon" alt="Alpha Phi Omega" />
-        <div class="exp-info">
-          <div class="exp-company">Historian &amp; Pledge Educator @ UCR Alpha Phi Omega</div>
-          <div class="exp-role">August 2022 – December 2023</div>
-        </div>
-        <span class="exp-chevron">⌄</span>
-      </div>
-      <div class="exp-body">
-        <ul class="exp-bullets">
-          <li>Designed digital content and graphics that boosted member engagement.</li>
-          <li>Led marketing initiatives promoting fraternity events and volunteering activities.</li>
-          <li>Created and led fraternity-wide events for leadership skills and team bonding.</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="resume-section-divider"></div>
-    <h3 class="resume-subheading">Education</h3>
-
-    <div class="edu-row">
-      <img src="assets/icons/new-sjsu-logo.png" class="org-icon" alt="SJSU" />
-      <div class="edu-info">
-        <div class="edu-school">San José State University</div>
-        <div class="edu-meta">M.Des Experience Design <span class="exp-dot">·</span> August 2025 – Present</div>
-        <div class="edu-detail">Expected Graduation: June 2027</div>
-      </div>
-    </div>
-    <div class="edu-row" style="margin-top:12px">
-      <img src="assets/icons/logo-ucr.png" class="org-icon" alt="UCR" />
-      <div class="edu-info">
-        <div class="edu-school">University of California, Riverside</div>
-        <div class="edu-meta">B.A. Political Science <span class="exp-dot">·</span> September 2021 – June 2025</div>
-      </div>
-    </div>
-
-    <div class="resume-section-divider"></div>
-    <h3 class="resume-subheading">Skills / Tools</h3>
-    <div class="skills-wrap">
-      <span class="skill-chip">UX/UI</span><span class="skill-chip">UX Research</span><span class="skill-chip">Wireframing &amp; Prototyping</span>
-      <span class="skill-chip">Visual Design</span><span class="skill-chip">Motion &amp; Video Editing</span>
-      <span class="skill-chip">Social Media</span>
-    </div>
-    <div class="skills-wrap">
-      <span class="skill-chip"><img src="assets/icons/icon-figma.png" class="skill-chip-icon skill-chip-icon-crop" alt="" />Figma</span>
-      <span class="skill-chip"><img src="assets/icons/figjam.jpg" class="skill-chip-icon" alt="" />FigJam</span>
-      <span class="skill-chip"><img src="assets/icons/miro.png" class="skill-chip-icon" alt="" />Miro</span>
-      <span class="skill-chip"><img src="assets/icons/Adobe_Illustrator_CC_icon.svg.png" class="skill-chip-icon" alt="" />Illustrator</span>
-      <span class="skill-chip"><img src="assets/icons/Adobe_Photoshop_CC_icon.svg.png" class="skill-chip-icon" alt="" />Photoshop</span>
-      <span class="skill-chip"><img src="assets/icons/procreate-logo_480x480.webp" class="skill-chip-icon" alt="" />Procreate</span>
-      <span class="skill-chip"><img src="assets/icons/canva-3d-icon-free-png.webp" class="skill-chip-icon skill-chip-icon-crop" alt="" />Canva</span>
-      <span class="skill-chip"><img src="assets/icons/lovable icon.png" class="skill-chip-icon" alt="" />Lovable</span>
-      <span class="skill-chip"><img src="assets/icons/claude icon.png" class="skill-chip-icon" alt="" />Claude</span>
-      <span class="skill-chip"><img src="assets/icons/runway icon.png" class="skill-chip-icon" alt="" />Runway</span>
-      <span class="skill-chip"><img src="assets/icons/Capcut-icon.svg.png" class="skill-chip-icon" alt="" />CapCut</span>
-      <span class="skill-chip"><img src="assets/icons/final cut pro.png" class="skill-chip-icon" alt="" />Final Cut Pro</span>
-    </div>
-
-  </div>
-</div>
-
-<!-- ── ABOUT ME PANEL — expands upward ───────────────────── -->
-<div id="about-panel" class="about-panel">
-  <div class="resume-panel-inner">
-    <div class="about-card-header">
-      <div class="about-card-avatar"><img src="assets/profile pictures/pfp 1.jpg" alt="Sydney Nguyen" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" /></div>
-      <div class="about-card-identity">
-        <div class="about-card-name">Sydney Nguyen</div>
-        <div class="about-card-location">📍 San Jose, CA</div>
-      </div>
-    </div>
-    <div class="about-chunk">
-      <div class="about-chunk-img"><img src="assets/icons/about me image icon 1.png" alt="" /></div>
-      <p class="about-chunk-text">I'm a <strong>Master of Design</strong> student in Experience Design at San José State University, focused on designing experiences that help people connect, understand each other, and feel a little less alone.</p>
-    </div>
-
-    <div class="about-chunk">
-      <div class="about-chunk-img"><img src="assets/icons/about me image icon 2.png" alt="" /></div>
-      <p class="about-chunk-text">My path wasn't linear — I started as a Political Science major at UC Riverside before realizing I wanted to design solutions through art, not politics. I taught myself UX/UI outside of class until it became my graduate focus.</p>
-    </div>
-
-    <div class="about-chunk">
-      <div class="about-chunk-img"><img src="assets/icons/about me image icon 3.png" alt="" /></div>
-      <p class="about-chunk-text">I keep pushing myself past what I already know — competing in hackathons, going to conferences, picking up new mediums in class, and building projects alongside classmates.</p>
-    </div>
-
-    <p class="about-card-closing">Looking ahead, I'm designing at the intersection of human-centered craft and emerging tech — building experiences that feel immersive, intuitive, and genuinely delightful.</p>
-
-    <div class="about-fact-grid">
-      <div class="about-fact">
-        <div class="about-fact-img"><img src="assets/photography/photo-canyon.jpg" alt="" /></div>
-        <div class="about-fact-caption">
-          <div class="about-fact-title">Outdoors</div>
-          <div class="about-fact-sub">Running, camping, swimming, skiing — whatever gets me outside.</div>
-        </div>
-      </div>
-      <div class="about-fact">
-        <div class="about-fact-img"><img src="assets/icons/minecraft photo.jpg" alt="" /></div>
-        <div class="about-fact-caption">
-          <div class="about-fact-title">Gaming</div>
-          <div class="about-fact-sub">Minecraft, osu!, Tomodachi Life, Pokopia.</div>
-        </div>
-      </div>
-      <div class="about-fact">
-        <div class="about-fact-img"><img src="assets/photography/ph-sunset.png" alt="" /></div>
-        <div class="about-fact-caption">
-          <div class="about-fact-title">Photography</div>
-          <div class="about-fact-sub">I shoot on the side — good practice for composition off-screen.</div>
-        </div>
-      </div>
-      <div class="about-fact">
-        <div class="about-fact-img"><img src="assets/photography/photo-cat.jpg" alt="" /></div>
-        <div class="about-fact-caption">
-          <div class="about-fact-title">Asuna</div>
-          <div class="about-fact-sub">My cat has sat through more design reviews than most classmates.</div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -450,7 +381,7 @@
   </div>
   <div class="mc-body">
     <div class="mc-header">
-      <img src="assets/icons/minecraft icon.png" alt="" />
+      <img src="assets/icons/minecraft icon.webp" alt="" />
       <span class="mc-header-title">my screenshots</span>
       <span class="mc-header-sub">3 images</span>
     </div>
@@ -550,8 +481,8 @@
       <span class="mc-header-sub">5 photos</span>
     </div>
     <div class="mc-grid mc-grid-cat">
-      <div class="mc-shot" onclick="openMcLightbox('assets/photography/photo-cat.jpg')">
-        <img src="assets/photography/photo-cat.jpg" alt="Asuna" />
+      <div class="mc-shot" onclick="openMcLightbox('assets/photography/photo-cat.webp')">
+        <img src="assets/photography/photo-cat.webp" alt="Asuna" />
         <div class="mc-shot-label">my beautiful baby asuna :3</div>
       </div>
       <div class="mc-shot" onclick="openMcLightbox('assets/cat-screenshot-1.jpg')">
@@ -623,7 +554,7 @@
 
   <!-- Top bar -->
   <div class="mob-bar">
-    <img src="assets/favicon.png" class="mob-bar-logo" alt="" />
+    <img src="assets/favicon.webp" class="mob-bar-logo" alt="" />
     <span class="mob-bar-title">sydney's desktop</span>
     <button class="mob-hamburger" onclick="mobDrawerOpen()" aria-label="Menu">
       <span></span><span></span><span></span>
@@ -637,7 +568,7 @@
   <div class="mob-drawer" id="mob-drawer">
     <div class="mob-drawer-header">
       <div class="mob-drawer-identity">
-        <img src="assets/profile pictures/pfp 1.jpg" class="mob-drawer-avatar" alt="" />
+        <img src="assets/profile pictures/pfp 1.webp" class="mob-drawer-avatar" alt="" />
         <div>
           <div class="mob-drawer-name">Sydney Nguyen</div>
           <div class="mob-drawer-role">UX/UI Designer</div>
@@ -650,19 +581,19 @@
 
     <div class="mob-drawer-section-label">Navigate</div>
     <nav class="mob-drawer-nav">
-      <a href="about-mobile.html" class="mob-drawer-link">
+      <a href="about-mobile" class="mob-drawer-link">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
         About Me
       </a>
-      <a href="experience-mobile.html" class="mob-drawer-link">
+      <a href="experience-mobile" class="mob-drawer-link">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
         Experience &amp; Education
       </a>
-      <a href="creative-mobile.html" class="mob-drawer-link">
+      <a href="creative-mobile" class="mob-drawer-link">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
         Creative
       </a>
-      <a href="marketing-mobile.html" class="mob-drawer-link">
+      <a href="marketing-mobile" class="mob-drawer-link">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         Marketing & Brand
       </a>
@@ -687,7 +618,7 @@
 
   <!-- Hero -->
   <div class="mob-hero">
-    <img src="assets/profile pictures/pfp 1.jpg" class="mob-avatar" alt="Sydney Nguyen" />
+    <img src="assets/profile pictures/pfp 1.webp" class="mob-avatar" alt="Sydney Nguyen" />
     <h1 class="mob-name">Sydney Nguyen</h1>
     <p class="mob-tagline">designing experiences that help people connect, understand, and feel less alone</p>
     <div class="mob-otw"><span class="peeker-pulse"></span>open to work</div>
@@ -695,17 +626,32 @@
 
   <!-- Case Studies -->
   <div class="mob-section">
-    <p class="mob-section-label">Case Studies</p>
+    <p class="mob-section-label" data-reveal>Case Studies</p>
     <div class="mob-cs-list">
 
-      <a class="mob-cs-card" href="voqa.html">
-        <div class="mob-cs-thumb" style="background:#e5f2ea;">
-          <img src="assets/case studies/voqa/voqa-thumb.png" alt="VOQA" />
+      <a class="mob-cs-card" href="bedside-wip" data-reveal>
+        <div class="mob-cs-thumb" style="background:#f4e7e1;">
+          <img src="assets/case studies/bedside/cover.svg" alt="Bedside" />
         </div>
         <div class="mob-cs-body">
           <div class="mob-cs-tags">
-            <span class="mob-tag" style="background:#d4edda;color:#2d6644;">Mobile App</span>
-            <span class="mob-tag" style="background:#d4edda;color:#2d6644;">Accessibility</span>
+            <span class="mob-tag">Hackathon</span>
+            <span class="mob-tag">In Progress</span>
+            <span class="mob-tag-meta">Team</span>
+          </div>
+          <div class="mob-cs-title">Bedside</div>
+          <div class="mob-cs-desc">A voice-first, privacy-first handoff tool for the hospice bedside.</div>
+        </div>
+      </a>
+
+      <a class="mob-cs-card" href="voqa" data-reveal data-reveal-delay="0.08">
+        <div class="mob-cs-thumb" style="background:#e5f2ea;">
+          <img src="assets/case studies/voqa/voqa-thumb.webp" alt="VOQA" />
+        </div>
+        <div class="mob-cs-body">
+          <div class="mob-cs-tags">
+            <span class="mob-tag">Mobile App</span>
+            <span class="mob-tag">Accessibility</span>
             <span class="mob-tag-meta">Team</span>
           </div>
           <div class="mob-cs-title">VOQA</div>
@@ -713,29 +659,29 @@
         </div>
       </a>
 
-      <a class="mob-cs-card" href="iterait.html">
+      <a class="mob-cs-card" href="iterait" data-reveal data-reveal-delay="0.16">
         <div class="mob-cs-thumb" style="background:#e6eef8;">
-          <img src="assets/case studies/iterait/iterait cover image.png" alt="iterait" />
+          <img src="assets/case studies/iterait/iterait cover image.webp" alt="iterait" />
         </div>
         <div class="mob-cs-body">
           <div class="mob-cs-tags">
-            <span class="mob-tag" style="background:#dce8f5;color:#2a4d7a;">AI</span>
-            <span class="mob-tag" style="background:#dce8f5;color:#2a4d7a;">Software</span>
-            <span class="mob-tag-meta">Solo</span>
+            <span class="mob-tag">AI</span>
+            <span class="mob-tag">Software</span>
+            <span class="mob-tag-meta">Team</span>
           </div>
           <div class="mob-cs-title">iterait</div>
           <div class="mob-cs-desc">Track, compare, and reuse iterations in AI-driven design workflows.</div>
         </div>
       </a>
 
-      <a class="mob-cs-card" href="room2talk.html">
+      <a class="mob-cs-card" href="room2talk" data-reveal data-reveal-delay="0.24">
         <div class="mob-cs-thumb" style="background:#fdf0f3;">
-          <img src="assets/case studies/room2talk/r2t-hero.png" alt="room2talk" />
+          <img src="assets/case studies/room2talk/r2t-hero.webp" alt="room2talk" />
         </div>
         <div class="mob-cs-body">
           <div class="mob-cs-tags">
-            <span class="mob-tag" style="background:#fce0e8;color:#7a2c47;">Thesis</span>
-            <span class="mob-tag" style="background:#fce0e8;color:#7a2c47;">Web-Game</span>
+            <span class="mob-tag">Thesis</span>
+            <span class="mob-tag">Web-Game</span>
             <span class="mob-tag-meta">Solo</span>
           </div>
           <div class="mob-cs-title">room2talk</div>
@@ -743,39 +689,49 @@
         </div>
       </a>
 
-      <a class="mob-cs-card" href="soundbite.html">
-        <div class="mob-cs-thumb" style="background:#fdf5e6;">
-          <img src="assets/soundbite/6.png" alt="soundbite" />
-        </div>
-        <div class="mob-cs-body">
-          <div class="mob-cs-tags">
-            <span class="mob-tag" style="background:#FFF0C4;color:#7a5010;">Concept</span>
-            <span class="mob-tag" style="background:#FFF0C4;color:#7a5010;">Sensory Design</span>
-            <span class="mob-tag-meta">Solo</span>
-          </div>
-          <div class="mob-cs-title">soundbite</div>
-          <div class="mob-cs-desc">Snack and sound pairings for immersive, mood-based audio experiences.</div>
-        </div>
-      </a>
-
     </div>
   </div>
 
 
-  <!-- Other Projects -->
+  <!-- Marketing & Brand -->
   <div class="mob-section">
-    <p class="mob-section-label">Other Projects</p>
+    <p class="mob-section-label" data-reveal>Marketing &amp; Brand</p>
     <div class="mob-other-list">
-      <a class="mob-other-item" href="https://www.behance.net/gallery/220421801/Sunright-Tea-Studio-UXUI-Case-Study" target="_blank">
-        <img src="assets/icons/sunright-thumb.png" class="mob-other-thumb" alt="" />
+      <a class="mob-other-item" href="marketing-mobile" data-reveal>
+        <img src="assets/thumbs/haliene desktop thumbnail.webp" class="mob-other-thumb" alt="" />
         <div class="mob-other-body">
-          <div class="mob-other-title">Sunright Tea Studio</div>
-          <div class="mob-other-tags"><span class="mob-tag">UX/UI</span><span class="mob-tag">Mobile</span></div>
-          <div class="mob-other-desc">Mobile ordering experience for a boba tea shop</div>
+          <div class="mob-other-title">Marketing &amp; Brand</div>
+          <div class="mob-other-tags"><span class="mob-tag">Photography</span><span class="mob-tag">Content Strategy</span><span class="mob-tag">Brand</span></div>
+          <div class="mob-other-desc">Campaigns, brand assets &amp; content across 6 roles</div>
         </div>
         <span class="mob-other-arrow">↗</span>
       </a>
-      <a class="mob-other-item" href="https://www.figma.com/deck/3zplTzhPjCf7GXCt6mZaHF/Moove-Slide-Deck?node-id=1-259&t=Rtj5TUFG31wYuwHL-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1" target="_blank">
+    </div>
+  </div>
+
+  <!-- Other Projects -->
+  <div class="mob-section">
+    <p class="mob-section-label" data-reveal>Other Projects</p>
+    <div class="mob-other-list">
+      <a class="mob-other-item" href="soundbite" data-reveal>
+        <img src="assets/case studies/soundbite/soundbite-thumb.webp" class="mob-other-thumb" alt="" />
+        <div class="mob-other-body">
+          <div class="mob-other-title">soundbite</div>
+          <div class="mob-other-tags"><span class="mob-tag">Concept</span><span class="mob-tag">Sensory Design</span></div>
+          <div class="mob-other-desc">Snack and sound pairings for immersive, mood-based audio experiences</div>
+        </div>
+        <span class="mob-other-arrow">→</span>
+      </a>
+      <a class="mob-other-item" href="https://pantry-pop.netlify.app/" target="_blank" data-reveal data-reveal-delay="0.08">
+        <img src="assets/pantry pop widget cover.png" class="mob-other-thumb" alt="" />
+        <div class="mob-other-body">
+          <div class="mob-other-title">Pantry Pop!</div>
+          <div class="mob-other-tags"><span class="mob-tag">Product Design</span><span class="mob-tag">Vibe-coded</span></div>
+          <div class="mob-other-desc">Vibe-coded food blindbox simulator</div>
+        </div>
+        <span class="mob-other-arrow">↗</span>
+      </a>
+      <a class="mob-other-item" href="https://www.figma.com/deck/3zplTzhPjCf7GXCt6mZaHF/Moove-Slide-Deck?node-id=1-259&t=Rtj5TUFG31wYuwHL-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1" target="_blank" data-reveal data-reveal-delay="0.16">
         <img src="assets/icons/moove-thumb.webp" class="mob-other-thumb" alt="" />
         <div class="mob-other-body">
           <div class="mob-other-title">moove</div>
@@ -784,8 +740,8 @@
         </div>
         <span class="mob-other-arrow">↗</span>
       </a>
-      <a class="mob-other-item" href="https://www.figma.com/proto/MDJjsmm2Hyi5fHFBFJLIBn/m3-past-present-future-site?node-id=1-2&t=km5SQGWGHu2ioRcs-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=1" target="_blank">
-        <img src="assets/icons/ppf-thumb.png" class="mob-other-thumb" alt="" />
+      <a class="mob-other-item" href="https://www.figma.com/proto/MDJjsmm2Hyi5fHFBFJLIBn/m3-past-present-future-site?node-id=1-2&t=km5SQGWGHu2ioRcs-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=1" target="_blank" data-reveal data-reveal-delay="0.24">
+        <img src="assets/icons/ppf-thumb.webp" class="mob-other-thumb" alt="" />
         <div class="mob-other-body">
           <div class="mob-other-title">Past / Present / Future</div>
           <div class="mob-other-tags"><span class="mob-tag">Speculative Design</span></div>
@@ -803,6 +759,584 @@
 
 </div>
 
-<script src="script.js"></script>
+<!-- ═══════════════════════════════════════════════════════════
+     MARKETING & BRAND — modal portal (body-level, NOT in the grid)
+     Panels live in #mkw-panels (display:none) so the bento never
+     reserves space for them. On open, script.js moves the matching
+     panel into .mkw-modal-scroll. One shared frosted scrim.
+     ═══════════════════════════════════════════════════════════ -->
+<div id="mkw-panels" hidden>
+  <div class="mkw-panel" id="panel-lwb">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <span class="mkw-panel-logo"><img src="assets/little wins bakehouse/logo-badge-tan.webp" alt="Little Wins Bakehouse" /></span>
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Little Wins Bakehouse</div>
+          <div class="mkw-panel-role">Brand Designer &amp; Photographer</div>
+          <div class="mkw-panel-dates">Apr 2026 – Present</div>
+        </div>
+      </div>
+      <p class="mkw-panel-blurb">Designed the full brand identity for a San Francisco micro-bakery — logo system, stickers, business cards, and packaging. Created social media content including new flavor announcements and digital menus, and shot product photography for Instagram.</p>
+      <div class="lwb-gallery">
+        <div class="lwb-section">
+          <div class="lwb-section-label">Print &amp; Packaging</div>
+          <div class="lwb-row">
+            <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/business-card.webp" alt="Business card" loading="lazy" /></div>
+            <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/menu.webp" alt="Printed menu" loading="lazy" /></div>
+            <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/sticker.webp" alt="Sticker design" loading="lazy" /></div>
+          </div>
+        </div>
+        <div class="lwb-section">
+          <div class="lwb-section-label">Social Media</div>
+          <div class="lwb-row">
+            <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/1.webp" alt="New flavor announcement" loading="lazy" /></div>
+            <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/5.webp" alt="New flavor announcement" loading="lazy" /></div>
+            <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/7.webp" alt="New flavor announcement" loading="lazy" /></div>
+          </div>
+        </div>
+        <div class="lwb-section">
+          <div class="lwb-section-label">Photography</div>
+          <div class="lwb-row">
+            <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/cookie-stack-hand.webp" alt="Cookie stack" style="object-position: center 60%;" loading="lazy" /></div>
+            <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/flatlay-four-plates.webp" alt="Flatlay cookies" loading="lazy" /></div>
+            <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/matcha-cookies-tea.webp" alt="Matcha cookies with tea" loading="lazy" /></div>
+          </div>
+        </div>
+      </div>
+      <div class="role-links">
+        <a href="https://www.littlewinsbakehouse.com/" target="_blank" rel="noopener" class="role-link-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          littlewinsbakehouse.com
+        </a>
+        <a href="https://www.instagram.com/littlewinsbakehouse/" target="_blank" rel="noopener" class="role-link-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          @littlewinsbakehouse
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nora AI -->
+  <div class="mkw-panel" id="panel-nora">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <span class="mkw-panel-logo"><img src="assets/icons/logo-nora-ai.webp" alt="Nora AI" /></span>
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Nora AI <span style="font-weight:400;color:#aaa;font-size:12px;">formerly InternGuys</span></div>
+          <div class="mkw-panel-role">UX/UI &amp; Marketing Intern</div>
+          <div class="mkw-panel-dates">Jun 2024 – Nov 2024</div>
+        </div>
+      </div>
+      <p class="mkw-panel-blurb">Interned at Nora AI (formerly InternGuys) producing content across video, social, and events. Shot and edited a candidate tutorial video for YouTube, designed slide decks and social assets, and hosted a UCR collaboration workshop — reaching both student job-seekers and university audiences.</p>
+      <div class="yt-embed">
+        <iframe src="https://www.youtube.com/embed/dS3S4kLVpRo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+      </div>
+      <div class="ig-grid">
+        <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (1).webp" alt="Nora AI slide deck" loading="lazy" /></div>
+        <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (2).webp" alt="Nora AI slide deck" loading="lazy" /></div>
+        <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (3).webp" alt="Nora AI slide deck" loading="lazy" /></div>
+        <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (4).webp" alt="Nora AI slide deck" loading="lazy" /></div>
+        <div class="ig-cell pt img-cell"><img src="assets/thumbs/nora story post.webp" alt="Nora AI story post" loading="lazy" /></div>
+      </div>
+      <div class="li-embed-row">
+        <div class="li-embed">
+          <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7225650999854579713" height="500" allowfullscreen loading="lazy" title="Nora AI LinkedIn post"></iframe>
+        </div>
+        <div class="li-embed">
+          <iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:7290913553295806464" height="500" allowfullscreen loading="lazy" title="Nora AI UCR Workshop post"></iframe>
+        </div>
+      </div>
+      <div class="role-links">
+        <a href="https://www.youtube.com/watch?v=dS3S4kLVpRo" target="_blank" rel="noopener" class="role-link-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96C1 8.12 1 12 1 12s0 3.88.46 5.58a2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96C23 15.88 23 12 23 12s0-3.88-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/></svg>
+          Watch Video
+        </a>
+        <a href="https://www.norahq.com/" target="_blank" rel="noopener" class="role-link-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          norahq.com
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- HALIENE / Next Step Management -->
+  <div class="mkw-panel" id="panel-haliene">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <span class="mkw-panel-logo"><img src="assets/thumbs/haliene icon.webp" alt="HALIENE" /></span>
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">HALIENE · Next Step Management</div>
+          <div class="mkw-panel-role">Social Media &amp; Merch Designer · Content Creator</div>
+          <div class="mkw-panel-dates">Sep 2023 – Dec 2024</div>
+        </div>
+      </div>
+      <p class="mkw-panel-blurb">Edited social media content and captured live footage at concerts and festivals across California. Designed custom merch — a jersey and pashmina — and traveled with the artist to document shows and behind-the-scenes moments.</p>
+      <div class="img-section">
+        <div class="ig-grid">
+          <div class="ig-cell pt img-cell"><img src="assets/thumbs/haliene jersey.webp" alt="HALIENE jersey design" loading="lazy" /></div>
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/reel/CxI-gwzLzj7/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/reel/Cx_HXEXLHRY/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+        </div>
+      </div>
+      <div class="role-links">
+        <a href="https://www.instagram.com/haliene/" target="_blank" rel="noopener" class="role-link-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          @haliene
+        </a>
+        <a href="https://www.haliene.com/" target="_blank" rel="noopener" class="role-link-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          haliene.com
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Designer Drains -->
+  <div class="mkw-panel" id="panel-designer-drains">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <span class="mkw-panel-logo"><img src="assets/icons/logo-designer-drains.webp" alt="Designer Drains" /></span>
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Designer Drains</div>
+          <div class="mkw-panel-role">Visual Design &amp; Marketing Intern</div>
+          <div class="mkw-panel-dates">Apr 2024 – Jun 2025</div>
+        </div>
+      </div>
+      <p class="mkw-panel-blurb">Designed marketing graphics, product photography, and brand assets. Rebuilt Amazon storefront UI and sent out monthly Mailchimp newsletters, driving a 20% increase in engagement.</p>
+      <div class="ig-slideshow" id="ss-dd">
+        <div class="ss-slide active">
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/C7wmzmPSghd/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/C8M7vSuuXKt/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/C7hX05svmIU/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+        </div>
+        <div class="ss-slide">
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DJuNju2yUb6/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DJmfiLxq--p/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DIg9paJzV2l/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+        </div>
+        <div class="ss-slide">
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DHglwPJPImh/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DHL_eY7N2wd/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DIUF5DYM4FA/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+        </div>
+        <div class="ss-slide">
+          <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DHG18xHtuFQ/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell pt img-cell"><img src="assets/thumbs/designer drains mailchimp email.webp" alt="Mailchimp email template" /></div>
+          <div class="ig-cell pt img-cell"><img src="assets/thumbs/designer drains amazon storefront.webp" alt="Amazon storefront" /></div>
+        </div>
+        <div class="ss-controls">
+          <button onclick="prevSlide('ss-dd')" class="ss-btn">&#8249;</button>
+          <div class="ss-dots">
+            <span class="ss-dot active"></span>
+            <span class="ss-dot"></span>
+            <span class="ss-dot"></span>
+            <span class="ss-dot"></span>
+          </div>
+          <button onclick="nextSlide('ss-dd')" class="ss-btn">&#8250;</button>
+        </div>
+      </div>
+      <div class="role-links">
+        <a href="https://www.instagram.com/designer_drains/" target="_blank" rel="noopener" class="role-link-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          @designer_drains
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graduation Photography -->
+  <div class="mkw-panel" id="panel-photography">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <span class="mkw-panel-logo"><img src="assets/little wins bakehouse/visualsbyskn icon.webp" alt="visualsbyskn" /></span>
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Freelance Photography</div>
+          <div class="mkw-panel-role">Graduation Photographer · @visualsbyskn</div>
+          <div class="mkw-panel-dates">May 2021 – Jun 2025</div>
+        </div>
+      </div>
+      <p class="mkw-panel-blurb">Built a client base of 150+ across California over 5 years, averaging 20–30 shoots per year through self-run Instagram marketing and word-of-mouth. Specializing in graduation and portrait photography with additional work in event and concert coverage — and grew a community of fellow photographers along the way.</p>
+      <div class="ig-slideshow" id="ss-photo">
+        <div class="ss-slide active">
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DZdms-xgQjU/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DKx9OIhSVrS/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CwMEmSAxj8w/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+        </div>
+        <div class="ss-slide">
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DKx87f1SJEq/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DJVuzTiukIu/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DHj7Ck7yxmc/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+        </div>
+        <div class="ss-slide">
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/DET6o4PxGiv/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/C8vUgJMvixd/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/C8vUWRkvY49/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+        </div>
+        <div class="ss-slide">
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/C8XhV_sJ2q0/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/C7H-2xyyTb6/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CRiHfgJNke7/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+        </div>
+        <div class="ss-controls">
+          <button onclick="prevSlide('ss-photo')" class="ss-btn">&#8249;</button>
+          <div class="ss-dots">
+            <span class="ss-dot active"></span>
+            <span class="ss-dot"></span>
+            <span class="ss-dot"></span>
+            <span class="ss-dot"></span>
+          </div>
+          <button onclick="nextSlide('ss-photo')" class="ss-btn">&#8250;</button>
+        </div>
+      </div>
+      <div class="testimonial-grid">
+        <div class="testimonial-card">"Sydney did an amazing job taking grad photos for me and my boyfriend! She made us feel very comfortable and showed our awkward selves how to pose. She knew the best spots on campus and what lighting would look best. Would definitely recommend her for any future shoots!"</div>
+        <div class="testimonial-card">"Sydney was such an amazing photographer! She offered a lot of creative freedom while still giving insight and direction in order to get the perfect shot! She made me so comfortable and we shared a lot of laughs! The shoot turned out perfect and the photos looked natural and effortless!"</div>
+        <div class="testimonial-card">"Sydney goes above and beyond with guiding, inspiring, and creating perfect photo shots. Super friendly, super down to earth, and superb with the camera — I recommend nobody but her!"</div>
+        <div class="testimonial-card">"oh my goshhhh, these pictures are so beautiful!! thank you so much for your services and for making me feel so, so, so comfortable during the shoot! i truly enjoyed it!"</div>
+      </div>
+      <div class="role-links">
+        <a href="https://www.instagram.com/visualsbyskn" target="_blank" rel="noopener" class="role-link-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          @visualsbyskn
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alpha Phi Omega -->
+  <div class="mkw-panel" id="panel-apo">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <span class="mkw-panel-logo"><img src="assets/icons/logo-alpha-phi-omega.webp" alt="Alpha Phi Omega" /></span>
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Alpha Phi Omega</div>
+          <div class="mkw-panel-role">Historian / New Member Educator</div>
+          <div class="mkw-panel-dates">Sep 2022 – Dec 2023</div>
+        </div>
+      </div>
+      <p class="mkw-panel-blurb">Served as chapter Historian for UCR's Alpha Phi Omega chapter — designed rush flyers, social media graphics, and event photography and videography. Created rush t-shirt designs for Spring and Fall 2023 and documented chapter life to grow our community presence on Instagram.</p>
+      <div class="li-embed-row">
+        <div class="yt-embed" style="flex:1;min-width:0;margin-top:0;">
+          <iframe src="https://www.youtube.com/embed/EPvWZpcKZ8s" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="yt-embed" style="flex:1;min-width:0;margin-top:0;">
+          <iframe src="https://www.youtube.com/embed/yoV1roI498Q" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+        </div>
+      </div>
+      <div class="ig-slideshow" id="ss-apo">
+        <div class="ss-slide active">
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CyJ71I7PvyD/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CtKycc6vvq2/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CnVArS1yHrF/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+        </div>
+        <div class="ss-slide">
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/Cq4LSQVI-dn/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+          <div class="ig-cell sq"><iframe src="https://www.instagram.com/p/CzMbqOFPWEj/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
+        </div>
+        <div class="ss-controls">
+          <button onclick="prevSlide('ss-apo')" class="ss-btn">&#8249;</button>
+          <div class="ss-dots">
+            <span class="ss-dot active"></span>
+            <span class="ss-dot"></span>
+          </div>
+          <button onclick="nextSlide('ss-apo')" class="ss-btn">&#8250;</button>
+        </div>
+      </div>
+      <div class="role-links">
+        <a href="https://www.instagram.com/apoucr/" target="_blank" rel="noopener" class="role-link-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          @apoucr
+        </a>
+      </div>
+    </div>
+  </div>
+  <!-- Photo & Video stack items (migrated from the hero arc) — placeholder modals -->
+  <div class="mkw-panel" id="panel-pv-01">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Sunset</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2022</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-sunset.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-02">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Confetti</div>
+          <div class="mkw-panel-role">iPhone, Lightroom · 2023</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-confetti.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-03">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Koi</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2025</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-koi.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-04">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Bryant</div>
+          <div class="mkw-panel-role">iPhone, Lightroom · 2025</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-bryant.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-05">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Joshua</div>
+          <div class="mkw-panel-role">Canon, Lightroom · 2021</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-joshua.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-06">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Temple</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2025</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-temple.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-07">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Space Needle</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2024</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-space-needle.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-08">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Vendor</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2025</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-vendor.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-10">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Friends</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2025</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-friends.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-11">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Glitter</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2023</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-glitter.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-12">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Flowers</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2024</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-flowers.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-13">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Champagne</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2022</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-champagne.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-14">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Celebrate</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2022</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-grad-conf.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-15">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Bffs</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2023</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-bffs.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-pv-16">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Hugs</div>
+          <div class="mkw-panel-role">Nikon Z7, Lightroom · 2021</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/photo-video/ph-hugs.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <!-- Art & Graphic Design stack items (migrated from the hero arc) — placeholder modals -->
+  <div class="mkw-panel" id="panel-ag-01">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">UCR Alpha Phi Omega Rush Flyer</div>
+          <div class="mkw-panel-role">Canva, Procreate, Photoshop · 2023</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/art/gd-fall-rush.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-ag-02">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Designer Drains Product Brochure</div>
+          <div class="mkw-panel-role">Canva, Photoshop · 2025</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/art/gd-brochure.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-ag-03">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">UCR Alpha Phi Omega Rush Flyer</div>
+          <div class="mkw-panel-role">Canva, Medibang Paint Pro · 2022</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/art/gd-spring-rush.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-ag-04">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">UCR ASPB Spring Quarter Campaign</div>
+          <div class="mkw-panel-role">Photoshop · 2022</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/art/gd-aspb.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-ag-05">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">UCR ASPB Mock Concert Flyer</div>
+          <div class="mkw-panel-role">Illustrator · 2022</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/art/gd-concert.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-ag-06">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Adobe Ambassador Flyer</div>
+          <div class="mkw-panel-role">Illustrator, Canva · 2025</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/art/adobe ambassador flyer.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-ag-07">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Fruit Plate Illustration</div>
+          <div class="mkw-panel-role">Procreate · 2026</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/art/fruit plate illustration.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-ag-08">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Music Album Illustration</div>
+          <div class="mkw-panel-role">Medibang Paint Pro · 2022</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/art/art-music-album.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-ag-09">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Official Jersey for HALIENE Water EP</div>
+          <div class="mkw-panel-role">Procreate, Photoshop · 2025</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/art/art-haliene.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+  <div class="mkw-panel" id="panel-ag-10">
+    <div class="mkw-panel-inner">
+      <div class="mkw-panel-head">
+        <div class="mkw-panel-titles">
+          <div class="mkw-panel-name">Tree Illustration</div>
+          <div class="mkw-panel-role">Procreate · 2025</div>
+        </div>
+      </div>
+      <img class="stack-modal-hero" src="assets/stacks/art/art-tree.webp" alt="" style="width:100%;border-radius:12px;margin:6px 0 14px;display:block;" />
+    </div>
+  </div>
+</div>
+
+<div class="mkw-modal-overlay" id="mkw-modal-overlay" hidden>
+  <div class="site-scrim" data-modal-dismiss></div>
+  <div class="mkw-modal" role="dialog" aria-modal="true" tabindex="-1">
+    <button class="mkw-modal-close" type="button" aria-label="Close">&times;</button>
+    <div class="mkw-modal-scroll" id="mkw-modal-scroll"><!-- panel moved here on open --></div>
+  </div>
+</div>
+
+<script src="script.js?v=5"></script>
 </body>
 </html>

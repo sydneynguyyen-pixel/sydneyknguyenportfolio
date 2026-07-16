@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" width="1600" height="1000" role="img" aria-label="Care-plan Q&A placeholder">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7f2ee"/>
+      <stop offset="1" stop-color="#f4e7e1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="1000" fill="url(#g)"/>
+  <rect x="1" y="1" width="1598" height="998" fill="none" stroke="#a5583f" stroke-opacity="0.18" stroke-width="2" rx="6"/>
+  <g transform="translate(800.0, 458.0)">
+    <circle r="26" fill="none" stroke="#a5583f" stroke-opacity="0.5" stroke-width="2.5"/>
+    <path d="M -10 2 L -3 9 L 11 -8" fill="none" stroke="#a5583f" stroke-opacity="0.5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="800.0" y="504.0" font-family="-apple-system, Segoe UI, Roboto, sans-serif" font-size="26" font-weight="500" fill="#a5583f" text-anchor="middle">Care-plan Q&A</text>
+  <text x="800.0" y="530.0" font-family="-apple-system, Segoe UI, Roboto, sans-serif" font-size="18" fill="#8a7d76" text-anchor="middle">grounded assistant recording</text>
+</svg>

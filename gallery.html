@@ -4,13 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Art + Design · Sydney Nguyen</title>
-<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="icon" type="image/png" href="assets/favicon.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
+    --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --bg: #f5f2ee;
     --ink: #1a1a1a;
     --ink-soft: #666;
@@ -21,7 +22,7 @@
   body {
     background: var(--bg);
     color: var(--ink);
-    font-family: 'Instrument Sans', sans-serif;
+    font-family: var(--font-sans);
     min-height: 100vh;
   }
 
@@ -45,7 +46,7 @@
     align-items: center;
     gap: 6px;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--ink-soft);
     text-decoration: none;
     transition: color 0.15s, transform 0.15s;
@@ -53,7 +54,7 @@
   .gl-back:hover { color: var(--ink); transform: translateX(-2px); }
   .gl-header-title {
     font-size: 14px;
-    font-weight: 650;
+    font-weight: 500;
     letter-spacing: 0.02em;
     color: var(--ink);
   }
@@ -65,9 +66,9 @@
     margin: 0 auto;
   }
   .gl-hero h1 {
-    font-family: 'Lora', serif;
+    font-family: var(--font-sans);
     font-size: clamp(32px, 5vw, 52px);
-    font-weight: 600;
+    font-weight: 500;
     font-style: italic;
     line-height: 1.15;
     color: var(--ink);
@@ -88,7 +89,7 @@
   }
   .gl-section-label {
     font-size: 11px;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--ink-faint);
@@ -133,7 +134,7 @@
   }
   .gl-item:hover .gl-item-overlay { opacity: 1; }
   .gl-item-info { color: #fff; }
-  .gl-item-title { font-size: 12px; font-weight: 650; line-height: 1.3; }
+  .gl-item-title { font-size: 12px; font-weight: 500; line-height: 1.3; }
   .gl-item-meta  { font-size: 11px; opacity: 0.72; margin-top: 2px; }
 
   /* ── Lightbox ── */
@@ -163,7 +164,7 @@
 <body>
 
 <header class="gl-header">
-  <a href="index.html" class="gl-back">← Back to desktop</a>
+  <a href="/" class="gl-back">← Back to desktop</a>
   <span class="gl-header-title">Art + Design</span>
   <span></span>
 </header>
@@ -191,16 +192,18 @@
 
 <script>
 const GD = [
-  { img: 'assets/graphic design/gd-fall-rush.png',   title: 'UCR Alpha Phi Omega Rush Flyer',    meta: 'Illustrator, Photoshop · 2023' },
-  { img: 'assets/graphic design/gd-brochure.png',    title: 'Designer Drains Product Brochure',  meta: 'Illustrator, InDesign · 2025' },
-  { img: 'assets/graphic design/gd-spring-rush.png', title: 'UCR Alpha Phi Omega Rush Flyer',    meta: 'Illustrator, Photoshop · 2022' },
-  { img: 'assets/graphic design/gd-aspb.png',        title: 'UCR ASPB Spring Quarter Campaign',  meta: 'Illustrator · 2022' },
-  { img: 'assets/graphic design/gd-concert.png',     title: 'UCR ASPB Mock Concert Flyer',       meta: 'Illustrator · 2022' },
+  { img: 'assets/stacks/art/gd-fall-rush.webp',           title: 'UCR Alpha Phi Omega Rush Flyer',    meta: 'Canva, Procreate, Photoshop · 2023' },
+  { img: 'assets/stacks/art/gd-brochure.webp',            title: 'Designer Drains Product Brochure',  meta: 'Canva, Photoshop · 2025' },
+  { img: 'assets/stacks/art/gd-spring-rush.webp',         title: 'UCR Alpha Phi Omega Rush Flyer',    meta: 'Canva, Medibang Paint Pro · 2022' },
+  { img: 'assets/stacks/art/gd-aspb.webp',                title: 'UCR ASPB Spring Quarter Campaign',  meta: 'Photoshop · 2022' },
+  { img: 'assets/stacks/art/gd-concert.webp',             title: 'UCR ASPB Mock Concert Flyer',       meta: 'Illustrator · 2022' },
+  { img: 'assets/stacks/art/adobe ambassador flyer.webp', title: 'Adobe Ambassador Flyer',            meta: 'Illustrator, Canva · 2025' },
 ];
 const ART = [
-  { img: 'assets/graphic design/art-music-album.png', title: 'Music Album Illustration',              meta: 'Procreate, Photoshop · 2025' },
-  { img: 'assets/graphic design/art-haliene.png',     title: 'Official Jersey for HALIENE Water EP',  meta: 'Illustrator · 2025' },
-  { img: 'assets/graphic design/art-tree.png',        title: 'Tree Illustration',                     meta: 'Procreate · 2025' },
+  { img: 'assets/stacks/art/art-music-album.webp',        title: 'Music Album Illustration',              meta: 'Medibang Paint Pro · 2022' },
+  { img: 'assets/stacks/art/art-haliene.webp',            title: 'Official Jersey for HALIENE Water EP',  meta: 'Procreate, Photoshop · 2025' },
+  { img: 'assets/stacks/art/art-tree.webp',               title: 'Tree Illustration',                     meta: 'Procreate · 2025' },
+  { img: 'assets/stacks/art/fruit plate illustration.webp', title: 'Fruit Plate Illustration',            meta: 'Procreate · 2026' },
 ];
 
 function buildGrid(items, containerId) {
