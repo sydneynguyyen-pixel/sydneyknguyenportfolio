@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>About Me · Sydney Nguyen</title>
+<link rel="icon" type="image/png" href="assets/favicon.webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Mynerve&display=swap" rel="stylesheet" />
+<script src="nav.js"></script>
+<script src="doodles.js"></script>
+<script src="hand-frame.js"></script>
+<style>
+  :root {
+    --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-hand: 'Mynerve', var(--font-sans);
+    --ink: #1a1a1a;
+    --ink-soft: #555;
+    --ink-faint: #888;
+    --rule: #ececec;
+    --frame-bg: #f6f5f3;
+    --max: 860px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-sans);
+    color: var(--ink);
+    background: var(--frame-bg);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Top nav is injected by the shared nav.js. */
+
+  /* ── Custom cursor ── */
+  * { cursor: none !important; }
+  .cursor-dot {
+    width: 9px; height: 9px;
+    background: rgba(100,100,100,0.45);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(100,100,100,0.3);
+    border-radius: 50%; position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 999999;
+    transform: translate(-50%,-50%);
+    transition: transform 0.15s cubic-bezier(0.34,1.56,0.64,1);
+    will-change: left, top;
+  }
+
+  /* ── Mobile override ── */
+  @media (max-width: 768px) {
+    * { cursor: auto !important; }
+    .cursor-dot { display: none !important; }
+  }
+
+  /* ── Page layout ──
+     .page-wrap is the shared 860px container (same alignment as every other
+     page) and the positioning context for the margin illustrations. The reading
+     content lives in a narrower centred column (.about-flow) so the ~160px side
+     margins are left free for the doodles — they anchor to this container, not
+     the viewport, so they never drift on wide screens. */
+  .page-wrap {
+    position: relative;
+    width: 100%;            /* body is a flex column (footer); without this,
+                               margin:0 auto shrinks the wrap to its content
+                               and the side margins for the doodles vanish. */
+    max-width: var(--max);
+    margin: 0 auto;
+    padding: 40px 32px 96px;
+  }
+  .about-flow {
+    max-width: 580px;
+    margin: 0 auto;
+  }
+
+  /* ── Page header ── */
+  .pg-header {
+    margin-bottom: 92px;
+  }
+  .pg-header h1 {
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+  .pg-header p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ── Alternating rows ── image on one side, copy on the other, flipping
+     down the page. Each row is authored in visual order, so no flex-reverse
+     is needed and the reading order matches what you see. */
+  .about-row {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    margin-bottom: 128px;
+  }
+  .about-media { flex: 0 0 auto; }
+  .about-copy  { flex: 1 1 auto; min-width: 0; }
+
+  .about-copy p {
+    font-size: 15.5px;
+    font-weight: 300;
+    color: #3a3a3a;
+    line-height: 1.75;
+    margin-bottom: 15px;
+  }
+  .about-copy p:last-child { margin-bottom: 0; }
+
+  /* ── Image placeholders ── the wobbly ink border is drawn by hand-frame.js.
+     Swap a real photo in by giving the <img> a src (or replacing the <figure>
+     contents); a single image per block. --w sets the width, --ar the ratio. */
+  .about-media--single .hand-frame { --w: 192px; }
+
+  /* Block 2 — two overlapping placeholders. */
+  .about-media--stack {
+    position: relative;
+    width: 248px;
+    height: 196px;
+  }
+  .about-media--stack .hand-frame { position: absolute; --w: 188px; --ar: 4 / 3; }
+  .about-media--stack .hand-frame:nth-child(1) { top: 0;    right: 0; z-index: 1; }
+  .about-media--stack .hand-frame:nth-child(2) { bottom: 0; left: 0;  z-index: 2; }
+
+  /* ── Photo fan ── a cover photo with more photos tucked behind it. At rest
+     they peek out as a subtle stack; on hover they fan out like a hand of cards
+     (pivoting from near their base). The cover (.fan-front) stays put on top.
+     Purely decorative extra images live in .fan-back frames behind it. */
+  .about-media--fan { position: relative; width: var(--fan-w, 192px); }
+  .about-media--fan .hand-frame { --w: 100%; margin: 0; }
+  .about-media--fan .fan-front { position: relative; z-index: 4; }
+  .about-media--fan .fan-back {
+    position: absolute; top: 0; left: 0; width: 100%;
+    transition: transform 0.55s cubic-bezier(0.33, 1.25, 0.5, 1);
+    will-change: transform;
+  }
+  .about-media--fan .fan-1 { z-index: 3; }
+  .about-media--fan .fan-2 { z-index: 2; }
+
+  /* Fan direction — the photos always spread toward the side WITHOUT copy, so
+     they never cover the text. Rest = a small peek so it reads as a pile; hover
+     / keyboard focus = spread wide, each photo clearly visible with only a
+     sliver of overlap. */
+  .fan-left  .fan-back { transform-origin: 88% 100%; }
+  .fan-right .fan-back { transform-origin: 12% 100%; }
+
+  .fan-left  .fan-1 { transform: translate(-6%, 2%)  rotate(-2.5deg); }
+  .fan-left  .fan-2 { transform: translate(-11%, 4%) rotate(-5deg); }
+  .fan-right .fan-1 { transform: translate(6%, 2%)   rotate(2.5deg); }
+  .fan-right .fan-2 { transform: translate(11%, 4%)  rotate(5deg); }
+
+  .fan-left:hover  .fan-1, .fan-left:focus-within  .fan-1 { transform: translate(-80%, -7%)  rotate(-8deg); }
+  .fan-left:hover  .fan-2, .fan-left:focus-within  .fan-2 { transform: translate(-156%, -9%) rotate(-15deg); }
+  .fan-right:hover .fan-1, .fan-right:focus-within .fan-1 { transform: translate(80%, -7%)   rotate(8deg); }
+  .fan-right:hover .fan-2, .fan-right:focus-within .fan-2 { transform: translate(156%, -9%)  rotate(15deg); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .about-media--fan .fan-back { transition: none; }
+  }
+
+  /* ── Closing line ── the only non-Manrope type on the page: --font-hand
+     (Mynerve), the same token as the "open to work" pill and the footer's
+     closing line. Mynerve's face is light, so it's sized up to carry the same
+     visual weight as the Manrope around it. */
+  .about-closing {
+    font-family: var(--font-hand);
+    font-weight: 400;
+    font-size: 21px;
+    line-height: 1.5;
+    color: var(--ink);
+    text-align: center;
+    max-width: 300px;
+    margin: 24px auto 0;
+  }
+
+  /* The final word cycles through a set (kindness → passion → love → …) with a
+     type/backspace effect, set in Manrope (--font-sans) so it reads apart from
+     the Mynerve line. It's an inline-block with a fixed min-width sized to the
+     widest word, so swapping words never reflows the line — that keeps the
+     flower doodle's bottom aligned with the closing line. */
+  .typeword {
+    position: relative;
+    display: inline-block;
+    min-width: 116px;
+    padding-bottom: 5px;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 19px;
+    white-space: nowrap;
+  }
+  /* Thin brush underline under the reserved blank — tapered ends give it a
+     hand-inked feel, so the word reads as filling in the line. */
+  .typeword::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    bottom: 0;
+    height: 1.5px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--ink) 14%, var(--ink) 86%, transparent 100%);
+    opacity: 0.5;
+  }
+  .typeword-caret {
+    display: inline-block;
+    width: 2px;
+    height: 0.95em;
+    margin-left: 2px;
+    background: var(--ink);
+    vertical-align: -0.12em;
+    animation: typeword-blink 1s step-end infinite;
+  }
+  @keyframes typeword-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .typeword-caret { animation: none; }
+  }
+
+  /* ══ Scroll reveal ══ fade + rise for content rows; opacity-only for the
+     margin doodles so their own rotate transforms survive. Matches the
+     homepage's [data-reveal] system; reveals once, respects reduced motion. */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(42px);
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1),
+                transform 0.7s cubic-bezier(0.16,1,0.3,1);
+    will-change: opacity, transform;
+  }
+  [data-reveal].is-visible { opacity: 1; transform: translateY(0); }
+  .doodle[data-reveal-fade] {
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1);
+    will-change: opacity;
+  }
+  .doodle[data-reveal-fade].is-visible { opacity: 0.9; }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] { opacity: 1; transform: none; transition: none; }
+    .doodle[data-reveal-fade] { opacity: 0.9; transition: none; }
+  }
+
+  /* ── Responsive ── below the doodle breakpoint the margins collapse, so the
+     rows stack (image above copy) and read as a single column. */
+  @media (max-width: 720px) {
+    .about-flow { max-width: 460px; }
+    .about-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 52px;
+    }
+    .about-media--single .hand-frame { --w: 170px; }
+    .about-media--stack { width: 100%; height: auto; padding-bottom: 20px; }
+    .about-media--stack .hand-frame { position: relative; --w: 62%; }
+    .about-media--stack .hand-frame:nth-child(1) { margin-left: auto; margin-bottom: -28px; }
+    .about-media--fan { --fan-w: 168px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor-dot" id="cursor-dot"></div>
+
+<!-- Top nav injected by shared nav.js -->
+
+<!-- Page content -->
+<div class="page-wrap">
+
+  <!-- ══ Margin illustrations ═══════════════════════════════════════════════
+       Anchored to .page-wrap (the content container), absolutely positioned,
+       pointer-events:none, aria-hidden, zero layout impact. Each is a swappable
+       component in the doodles.js registry — replace a registry value to change
+       one everywhere. Positions are container-relative (offsets / percentages
+       from .page-wrap, never viewport edges) so they hold on any screen width,
+       and they live in the side margins — never over text. -->
+  <div class="doodle" data-doodle="pencil"     data-reveal-fade style="left: 320px; top: 26px; width: 62px; transform: rotate(-26deg);"></div>
+  <div class="doodle" data-doodle="scribble"   data-reveal-fade style="left: -10px; top: 614px; width: 92px;"></div>
+  <div class="doodle" data-doodle="lightbulb"  data-reveal-fade style="left: 34px; top: 1234px; width: 64px;"></div>
+  <div class="doodle" data-doodle="flowers"    data-reveal-fade style="left: calc(50% - 270px); top: 1428px; width: 110px;"></div>
+
+  <div class="about-flow">
+
+    <header class="pg-header" data-reveal>
+      <h1>About Me</h1>
+    </header>
+
+    <!-- Block 1 — image left, copy right -->
+    <section class="about-row" data-reveal>
+      <div class="about-media about-media--fan fan-left" style="--fan-w: 192px;">
+        <figure class="hand-frame fan-back fan-1" data-seed="12" style="--ar: 1 / 1;"><img src="assets/about%20me/s1-fan-nature.jpg" alt="Sydney out in nature" loading="lazy" /></figure>
+        <figure class="hand-frame fan-back fan-2" data-seed="13" style="--ar: 1 / 1;"><img src="assets/about%20me/s1-fan-suna.jpg" alt="Sydney with Suna" loading="lazy" /></figure>
+        <figure class="hand-frame fan-front" data-seed="11" style="--ar: 1 / 1;"><img src="assets/about%20me/s1-cover.jpg" alt="Sydney" loading="lazy" /></figure>
+      </div>
+      <div class="about-copy">
+        <p><strong style="font-weight: 600;">Nice to meet you - I'm Sydney!</strong></p>
+        <p>I'm a Master of Design student in Experience Design at San José State University.</p>
+        <p>My mission in life is to design experiences that help people connect, understand each other, and feel a little less alone.</p>
+      </div>
+    </section>
+
+    <!-- Block 2 — copy left, two overlapping images right -->
+    <section class="about-row" data-reveal>
+      <div class="about-copy">
+        <p>My path wasn't linear — I started as a Political Science major at UC Riverside before realizing I wanted to design solutions through art, not politics.</p>
+        <p>I taught myself UX/UI, graphic design, and all my artistic skills outside of class, in any spare time I could find.</p>
+      </div>
+      <div class="about-media about-media--fan fan-right" style="--fan-w: 204px;">
+        <figure class="hand-frame fan-back fan-1" data-seed="43" style="--ar: 4 / 3;"><img src="assets/about%20me/s2-fan.jpg" alt="" loading="lazy" /></figure>
+        <figure class="hand-frame fan-front" data-seed="27" style="--ar: 4 / 3;"><img src="assets/about%20me/s2-cover.jpg" alt="" loading="lazy" /></figure>
+      </div>
+    </section>
+
+    <!-- Block 3 — image left, copy right -->
+    <section class="about-row" data-reveal>
+      <div class="about-media about-media--fan fan-left" style="--fan-w: 172px;">
+        <figure class="hand-frame fan-back fan-1" data-seed="59" style="--ar: 1 / 1;"><img src="assets/hero-arc/mdes-bffs.webp" alt="Found my people" loading="lazy" /></figure>
+        <figure class="hand-frame fan-back fan-2" data-seed="60" style="--ar: 1 / 1;"><img src="assets/hero-arc/materials-library.webp" alt="The materials library at SJSU" loading="lazy" /></figure>
+        <figure class="hand-frame fan-front" data-seed="58" style="--ar: 1 / 1;"><img src="assets/hero-arc/sjhacks.webp" alt="SJHacks 2026" loading="lazy" /></figure>
+      </div>
+      <div class="about-copy">
+        <p>Once starting my design program, I kept pushing myself past what I already know —</p>
+        <p>competing in hackathons, going to conferences, picking up new mediums in class, and building projects alongside my amazing classmates.</p>
+      </div>
+    </section>
+
+    <!-- Block 4 — copy left, image right -->
+    <section class="about-row" data-reveal>
+      <div class="about-copy">
+        <p>Looking ahead, I'm designing at the intersection of human-centered craft and emerging tech — building user experiences that feel immersive, intuitive, and genuinely delightful.</p>
+      </div>
+      <div class="about-media about-media--single">
+        <figure class="hand-frame" data-seed="72" style="--ar: 16 / 10; --w: 240px;"><img src="assets/hero-arc/desolation-wilderness.webp" alt="Desolation Wilderness, no signal" loading="lazy" /></figure>
+      </div>
+    </section>
+
+    <!-- Closing line — Mynerve (--font-hand) -->
+    <p class="about-closing" data-reveal>keep learning, use creativity, and live life with <span class="typeword"><span class="typeword-text">kindness</span><span class="typeword-caret" aria-hidden="true"></span></span></p>
+
+  </div>
+</div>
+
+<script>
+  // Custom cursor
+  const dot = document.getElementById('cursor-dot');
+  document.addEventListener('mousemove', e => { dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px'; });
+
+  // Scroll reveal — mirrors the homepage's [data-reveal] observer. Fades each
+  // content row / doodle in once as it enters view, then stops watching it.
+  // Opacity-only doodles ([data-reveal-fade]) keep their inline rotate.
+  (function () {
+    var els = document.querySelectorAll('[data-reveal], [data-reveal-fade]');
+    if (!els.length) return;
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)) {
+      els.forEach(function (el) { el.classList.add('is-visible'); });
+      return;
+    }
+    var obs = new IntersectionObserver(function (entries, o) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-visible');
+        o.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -80px 0px', threshold: 0 });
+    els.forEach(function (el) { obs.observe(el); });
+  })();
+
+  // Typing effect on the closing line's last word — types a word out, holds,
+  // backspaces, then moves to the next and loops. Reduced-motion shows the
+  // first word statically.
+  (function () {
+    var el = document.querySelector('.typeword-text');
+    if (!el) return;
+    var words = ['kindness', 'passion', 'love', 'empathy', 'generosity', 'reflection'];
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = words[0]; return; }
+    var wi = 0, ci = words[0].length, deleting = false;
+    var TYPE = 85, ERASE = 45, HOLD = 1600, GAP = 400;
+    function tick() {
+      var w = words[wi];
+      if (deleting) {
+        ci--;
+        el.textContent = w.slice(0, ci);
+        if (ci === 0) { deleting = false; wi = (wi + 1) % words.length; setTimeout(tick, GAP); }
+        else setTimeout(tick, ERASE);
+      } else {
+        ci++;
+        el.textContent = w.slice(0, ci);
+        if (ci === w.length) { deleting = true; setTimeout(tick, HOLD); }
+        else setTimeout(tick, TYPE);
+      }
+    }
+    setTimeout(function () { deleting = true; tick(); }, HOLD);
+  })();
+</script>
+</body>
+</html>
