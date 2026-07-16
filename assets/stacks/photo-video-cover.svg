@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <rect width="600" height="600" fill="#E4E9E7"/>
+  <rect x="175" y="170" width="250" height="180" rx="16" fill="none" stroke="#BFCBC6" stroke-width="2"/>
+  <circle cx="300" cy="260" r="42" fill="none" stroke="#BFCBC6" stroke-width="3"/>
+  <path d="M292 244 L318 260 L292 276 Z" fill="#BFCBC6"/>
+  <text x="300" y="440" text-anchor="middle" font-family="Manrope, sans-serif" font-size="30" font-weight="600" fill="#8a8a8a" letter-spacing="-0.02em">Photo &amp; Video</text>
+  <text x="300" y="472" text-anchor="middle" font-family="Manrope, sans-serif" font-size="15" font-weight="400" fill="#a9b4af">placeholder cover — swap me</text>
+</svg>

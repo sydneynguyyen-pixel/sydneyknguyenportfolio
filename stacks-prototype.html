@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stack interaction — prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<style>
+/* ══════════════════════════════════════════════════════════════
+   STACK INTERACTION — scoped prototype styles
+   Reuses the site's .pcard / .pcard-img / .pcard-title / .pcard-sub
+   look; everything here is namespaced under .stacks so it can be
+   lifted into index.html + style.css unchanged once approved.
+   ══════════════════════════════════════════════════════════════ */
+
+/* The prototype page scrolls normally (index.html locks overflow). */
+html, body { overflow: auto !important; height: auto !important; min-height: 100%; }
+body { background: #f2f2f0; padding: 64px 0 120px; }
+
+.stacks { --ease: cubic-bezier(0.16, 1, 0.3, 1); }
+.stacks .section-inner { max-width: 1120px; }
+.proto-note {
+  max-width: 1120px; margin: 0 auto 40px; padding: 0 32px;
+  font-size: 13px; color: #a0a0a0; line-height: 1.5;
+}
+
+/* ── Row of stacks ─────────────────────────────────────────── */
+.stack-row {
+  display: grid;
+  /* minmax(0,1fr) — NOT 1fr. Plain 1fr = minmax(auto,1fr), whose `auto` floor
+     is each column's min-content; the nowrap subtitles gave Design/Marketing a
+     wider floor, so they refused to shrink while Photo/Art compressed. minmax(0)
+     lets all four shrink equally and the subtitles ellipsis-truncate. */
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 48px 40px;
+  align-items: start;
+}
+
+/* ── A single stack (pile + title + subtitle) ──────────────── */
+.stack {
+  display: block;
+  color: #1a1a1a;
+  border: none; background: none;
+  text-align: inherit;
+  width: 100%;
+  position: relative;   /* stacking context so a hovered pile lifts above neighbours */
+}
+/* Hovered/focused pile renders ABOVE its grid neighbours — spread may overlap. */
+.stack:hover, .stack:focus-within { z-index: 10; }
+.stack:focus-visible { outline: none; }
+.stack:focus-visible .stack-cover { border-color: #1A1A1A; box-shadow: 0 0 0 3px rgba(26,26,26,0.18); }
+
+/* Pile: cover on top, decorative layers behind. Equal depth for every
+   stack (always 3 layers) — pile height never reflects item count. */
+.stack-pile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  /* room so fanned/rotated layers aren't clipped by the grid cell */
+  margin: 6px 10px 14px 4px;
+}
+.stack-layer,
+.stack-cover {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  transition: transform 0.32s var(--ease), border-color 0.2s ease;
+}
+/* Decorative depth — neutral fills, NOT real item images. */
+.stack-layer {
+  background: #E4E1DB;
+  border: 1px solid #DAD6CE;
+  transform-origin: 50% 50%;   /* pivot from centre — scattered pieces, not a hinged fan */
+}
+.stack-layer-3 { z-index: 1; background:#DEDAD2; }
+.stack-layer-2 { z-index: 2; }
+.stack-layer-1 { z-index: 3; }
+/* Resting pile — a loose, slightly scattered stack. Each layer offsets in a
+   different direction so its edge peeks out on a different side of the cover;
+   rotations are small and mismatched (random-ish), not a clean splay. */
+.stack-layer-1 { transform: translate(-7px,  5px) rotate(-3.5deg); }
+.stack-layer-2 { transform: translate( 8px,  3px) rotate( 2.5deg); }
+.stack-layer-3 { transform: translate(-2px, -8px) rotate( 5deg); }
+
+.stack-cover {
+  z-index: 4;
+  border: 1px solid var(--border, #E4E4E4);
+  overflow: hidden;
+  background: #ECEAE6;
+}
+.stack-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Hover — the pile spreads open: each layer pushes further out along the
+   direction it already leans, rotations grow a touch. Restrained (~20–24px) so
+   it still reads as one object, not an explosion. ~0.3s handled above. */
+@media (hover: hover) {
+  .stack:hover .stack-cover { border-color: #1A1A1A; }
+  .stack:hover .stack-layer-1 { transform: translate(-24px,   4px) rotate(-7deg); }
+  .stack:hover .stack-layer-2 { transform: translate( 25px,  -4px) rotate( 6deg); }
+  .stack:hover .stack-layer-3 { transform: translate( -6px, -26px) rotate( 9.5deg); }
+}
+
+/* Active/selected stack — highlighted; the pile settles to a tighter scatter. */
+.stack.is-active .stack-cover { border-color: #1A1A1A; }
+.stack.is-active .stack-layer-1 { transform: translate(-4px,  3px) rotate(-2deg); }
+.stack.is-active .stack-layer-2 { transform: translate( 5px,  2px) rotate( 1.5deg); }
+.stack.is-active .stack-layer-3 { transform: translate(-1px, -5px) rotate( 3deg); }
+
+.stack .pcard-title { margin-top: 6px; }
+
+/* ── Drawer: item row that appears BELOW the whole stack row ── */
+.stack-drawer {
+  margin-top: 44px;
+  overflow: hidden;              /* clip the enter/leave y-shift */
+  --card-w: 208px;
+  --card-gap: 20px;
+}
+/* The inner box IS the 4-up viewport width; arrows float on top of it so they
+   never occupy flow space. Every drawer therefore starts at the same left edge
+   whether or not it has arrows (a 4-item row lines up with a 6-item row). */
+.stack-drawer-inner {
+  position: relative;            /* anchor for the floating arrows */
+  /* 4 full cards + gaps, plus a sliver that reveals card #5 at the edge */
+  width: calc(4 * var(--card-w) + 3 * var(--card-gap) + var(--card-gap) + 44px);
+  max-width: 100%;
+}
+.stack-viewport {
+  width: 100%;
+  overflow: hidden;
+}
+.stack-track {
+  display: flex;
+  gap: var(--card-gap);
+  transition: transform 0.4s var(--ease);
+  will-change: transform;
+}
+
+/* Item card — the shared image-forward .pcard, fixed width in the track. */
+.stack-item {
+  flex: 0 0 var(--card-w);
+  width: var(--card-w);
+  display: block;
+  color: #1a1a1a;
+  position: relative;
+}
+.stack-item .pcard-img { position: relative; }
+
+/* ↗ badge — external-link cards ONLY. Signals a new tab before the click. */
+.stack-item-arrow {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.08);
+  color: #1a1a1a;
+  font-size: 13px; line-height: 1;
+  backdrop-filter: blur(6px);
+  transition: transform 0.2s var(--ease), background 0.2s ease;
+  z-index: 2;
+}
+.stack-item:hover .stack-item-arrow { transform: translate(1px,-1px); background:#fff; }
+
+/* Neutral placeholder tile (until real item images land). */
+.stack-item-ph {
+  display: grid; place-items: center;
+  background: repeating-linear-gradient(-45deg,#ECEAE6 0 12px,#E7E4DF 12px 24px);
+  color: #b0aca4;
+  font-size: 13px; font-weight: 500; text-align: center; padding: 12px;
+}
+
+/* Enter / leave motion for the drawer contents. */
+.stack-drawer.is-entering .stack-item {
+  animation: stackItemIn 0.36s var(--ease) both;
+  animation-delay: calc(min(var(--i), 3) * 0.08s);
+}
+@keyframes stackItemIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.stack-drawer.is-leaving .stack-drawer-inner {
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+/* Arrow controls — float ON TOP of the cards, vertically centered on the card
+   image. Hidden (visibility) at the end of that side; hidden entirely ≤4 items. */
+.stack-arrow {
+  position: absolute;
+  top: calc(var(--card-w) / 2);   /* center on the square image, not the labels */
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border-radius: 999px;
+  border: 1px solid #E0DDD6;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #1a1a1a;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.stack-arrow-prev { left: 12px; }
+.stack-arrow-next { right: 12px; }
+.stack-arrow:hover:not(:disabled) { border-color:#1A1A1A; background:#fff; }
+.stack-arrow svg { width: 16px; height: 16px; }
+
+/* ── Mobile: 2×2 stacks, native scroll-snap drawer, no arrows ── */
+@media (max-width: 720px) {
+  .stack-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 28px; }
+  .stack-arrow { display: none; }
+  .stack-viewport {
+    width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .stack-viewport::-webkit-scrollbar { display: none; }
+  .stack-track { transform: none !important; }
+  .stack-item { scroll-snap-align: start; flex-basis: 46%; width: 46%; }
+}
+
+/* ── Reduced motion: keep the resting scatter, no spread, no stagger. ── */
+@media (prefers-reduced-motion: reduce) {
+  .stack-layer, .stack-cover, .stack-track { transition: none !important; }
+  .stack:hover .stack-layer-1 { transform: translate(-7px,  5px) rotate(-3.5deg); }
+  .stack:hover .stack-layer-2 { transform: translate( 8px,  3px) rotate( 2.5deg); }
+  .stack:hover .stack-layer-3 { transform: translate(-2px, -8px) rotate( 5deg); }
+  .stack-drawer.is-entering .stack-item { animation: none; }
+  .stack-drawer.is-leaving .stack-drawer-inner { transition: none; }
+}
+
+/* ── Minimal modal stub (real write-up modal wired in later step) ── */
+.proto-modal {
+  position: fixed; inset: 0; z-index: 9000;
+  display: none; place-items: center;
+  background: rgba(240,240,240,0.7); backdrop-filter: blur(12px);
+}
+.proto-modal.open { display: grid; }
+.proto-modal-card {
+  background: #fff; border: 1px solid #E4E4E4; border-radius: 18px;
+  padding: 32px 36px; max-width: 400px; text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+}
+.proto-modal-card h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+.proto-modal-card p { font-size: 13px; color: #8a8a8a; margin-bottom: 20px; }
+.proto-modal-card button {
+  font-size: 13px; font-weight: 500; padding: 9px 18px;
+  border-radius: 999px; border: 1px solid #E0DDD6; background:#fff;
+}
+</style>
+</head>
+<body>
+
+<section class="stacks">
+  <div class="proto-note">
+    Prototype — stack fan + open stack. Hover a pile to fan it. Click to open its
+    row below (only one open at a time; click again to close). <b>Marketing</b> is
+    open by default and has 6 items → shows the arrow scroll + clipped 5th-card peek.
+    Click <b>Design</b> to see the external-link (↗) card variant.
+  </div>
+
+  <div class="section-inner">
+    <div class="stack-row" id="stack-row"><!-- built by JS --></div>
+    <div class="stack-drawer" id="stack-drawer" aria-live="polite"><!-- built by JS --></div>
+  </div>
+</section>
+
+<!-- modal stub -->
+<div class="proto-modal" id="proto-modal">
+  <div class="proto-modal-card">
+    <h3 id="proto-modal-title"></h3>
+    <p>This card opens its full write-up modal in place (wired up in the next step). No new tab.</p>
+    <button onclick="closeProtoModal()">Got it</button>
+  </div>
+</div>
+
+<script>
+/* ── Data model ────────────────────────────────────────────────
+   One cover asset per stack (swap the file at `cover`). Items carry
+   a `type`: 'link' → external new tab (gets the ↗ badge); 'modal' →
+   opens in place (no badge). Subtitles marked PLACEHOLDER below. */
+const PH = null; // placeholder tile
+
+const STACKS = [
+  {
+    id: 'design',
+    title: 'Design',
+    subtitle: 'Product design & UX/UI case studies', // PLACEHOLDER copy
+    cover: 'assets/stacks/design-cover.svg',
+    items: [
+      { title: 'moove', sub: 'Mobility & flexibility app', type: 'link',
+        img: 'assets/icons/moove-thumb.webp',
+        href: 'https://www.figma.com/deck/3zplTzhPjCf7GXCt6mZaHF/Moove-Slide-Deck' },
+      { title: 'Zara Brothers Travel', sub: 'Brand identity & booking site', type: 'link',
+        img: 'assets/icons/zara brothers travel.avif',
+        href: 'https://www.zarabrotherstravel.com/' },
+      { title: 'Sunright Tea Studio', sub: 'Mobile ordering experience', type: 'link',
+        img: 'assets/icons/sunright-thumb.webp',
+        href: 'https://www.behance.net/gallery/220421801/Sunright-Tea-Studio-UXUI-Case-Study' },
+      { title: 'Past / Present / Future', sub: 'Tech across three generations', type: 'link',
+        img: 'assets/icons/ppf-thumb.webp',
+        href: 'https://www.figma.com/proto/MDJjsmm2Hyi5fHFBFJLIBn/m3-past-present-future-site' },
+    ],
+  },
+  {
+    id: 'marketing',
+    title: 'Marketing & Branding',
+    subtitle: 'Campaigns, brand identity & content', // PLACEHOLDER copy
+    cover: 'assets/stacks/marketing-cover.svg',
+    items: [
+      { title: 'Little Wins Bakehouse', sub: 'Brand identity & packaging', type: 'modal', img: 'assets/marketing/cards/little-wins.svg' },
+      { title: 'Nora AI', sub: 'UX/UI & marketing content', type: 'modal', img: 'assets/marketing/cards/nora-ai.svg' },
+      { title: 'HALIENE', sub: 'Concert content & merch', type: 'modal', img: 'assets/marketing/cards/haliene.svg' },
+      { title: 'Alpha Phi Omega', sub: 'Rush graphics & event media', type: 'modal', img: 'assets/marketing/cards/alpha-phi-omega.svg' },
+      { title: '@visualsbyskn', sub: 'Graduation & portrait photography', type: 'modal', img: 'assets/marketing/cards/visualsbyskn.svg' },
+      { title: 'Designer Drains', sub: 'Storefront UI & email', type: 'modal', img: 'assets/marketing/cards/designer-drains.svg' },
+    ],
+  },
+  {
+    id: 'photo-video',
+    title: 'Photo & Video',
+    subtitle: 'Photography & motion work', // PLACEHOLDER copy
+    cover: 'assets/stacks/photo-video-cover.svg',
+    items: [
+      { title: 'Shoot 01', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Shoot 02', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Shoot 03', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Shoot 04', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Shoot 05', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Shoot 06', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Shoot 07', sub: 'Placeholder item', type: 'modal', img: PH },
+    ],
+  },
+  {
+    id: 'art',
+    title: 'Art & Graphic Design',
+    subtitle: 'Illustration & graphic design', // PLACEHOLDER copy
+    cover: 'assets/stacks/art-cover.svg',
+    items: [
+      { title: 'Piece 01', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Piece 02', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Piece 03', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Piece 04', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Piece 05', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Piece 06', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Piece 07', sub: 'Placeholder item', type: 'modal', img: PH },
+      { title: 'Piece 08', sub: 'Placeholder item', type: 'modal', img: PH },
+    ],
+  },
+];
+
+const VISIBLE = 4;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let activeId = null;
+
+/* ── Build the stack row ───────────────────────────────────── */
+const rowEl = document.getElementById('stack-row');
+STACKS.forEach(stack => {
+  const el = document.createElement('div');
+  el.className = 'stack';
+  el.dataset.stack = stack.id;
+  el.setAttribute('role', 'button');
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('aria-pressed', 'false');
+  el.setAttribute('aria-label', 'Open ' + stack.title);
+  el.innerHTML =
+    '<div class="stack-pile">' +
+      '<div class="stack-layer stack-layer-3"></div>' +
+      '<div class="stack-layer stack-layer-2"></div>' +
+      '<div class="stack-layer stack-layer-1"></div>' +
+      '<div class="stack-cover"><img src="' + stack.cover + '" alt="' + stack.title + '" /></div>' +
+    '</div>' +
+    '<div class="pcard-title">' + stack.title + '</div>' +
+    '<div class="pcard-sub">' + stack.subtitle + '</div>';
+  el.addEventListener('click', () => toggleStack(stack.id));
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStack(stack.id); }
+  });
+  rowEl.appendChild(el);
+});
+
+/* ── Item card markup ──────────────────────────────────────── */
+function itemCard(item, i) {
+  const imgInner = item.img
+    ? '<img src="' + item.img + '" alt="' + item.title + '" loading="lazy" />'
+    : '<div style="width:100%;height:100%" class="stack-item-ph">' + item.title + '</div>';
+  const arrow = item.type === 'link'
+    ? '<span class="stack-item-arrow" aria-hidden="true">↗</span>' : '';
+  const body =
+    '<div class="pcard-img">' + imgInner + arrow + '</div>' +
+    '<div class="pcard-title">' + item.title + '</div>' +
+    '<div class="pcard-sub">' + item.sub + '</div>';
+
+  if (item.type === 'link') {
+    const a = document.createElement('a');
+    a.className = 'stack-item pcard';
+    a.href = item.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    a.style.setProperty('--i', i);
+    a.innerHTML = body;
+    return a;
+  }
+  const d = document.createElement('div');
+  d.className = 'stack-item pcard';
+  d.setAttribute('role', 'button'); d.setAttribute('tabindex', '0');
+  d.style.setProperty('--i', i);
+  d.innerHTML = body;
+  const open = () => openProtoModal(item.title);
+  d.addEventListener('click', open);
+  d.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+  });
+  return d;
+}
+
+/* ── Drawer render + scroll ────────────────────────────────── */
+const drawerEl = document.getElementById('stack-drawer');
+
+function renderDrawer(stack) {
+  drawerEl.innerHTML = '';
+  const inner = document.createElement('div');
+  inner.className = 'stack-drawer-inner';
+
+  const hasArrows = stack.items.length > VISIBLE;
+
+  const prev = arrowBtn('prev');
+  const viewport = document.createElement('div');
+  viewport.className = 'stack-viewport';
+  const track = document.createElement('div');
+  track.className = 'stack-track';
+  stack.items.forEach((it, i) => track.appendChild(itemCard(it, i)));
+  viewport.appendChild(track);
+  const next = arrowBtn('next');
+
+  if (hasArrows) inner.appendChild(prev);
+  inner.appendChild(viewport);
+  if (hasArrows) inner.appendChild(next);
+  drawerEl.appendChild(inner);
+
+  // ≤4 items → no arrows, no peek: shrink the inner to exactly the items so
+  // there's no 5th sliver. (Inner controls width now; viewport is 100% of it.)
+  if (!hasArrows) {
+    inner.style.width = 'auto';
+    inner.style.maxWidth = '100%';
+  }
+
+  if (hasArrows) wireScroll(track, prev, next, stack.items.length);
+
+  // enter animation (stagger)
+  drawerEl.classList.remove('is-leaving');
+  if (!reduceMotion) {
+    drawerEl.classList.add('is-entering');
+    // clear the class after the longest delay+duration so re-open re-triggers
+    setTimeout(() => drawerEl.classList.remove('is-entering'), 700);
+  }
+}
+
+function arrowBtn(dir) {
+  const b = document.createElement('button');
+  b.className = 'stack-arrow stack-arrow-' + dir;
+  b.setAttribute('aria-label', dir === 'prev' ? 'Previous' : 'Next');
+  b.innerHTML = dir === 'prev'
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+  return b;
+}
+
+function wireScroll(track, prev, next, count) {
+  const isMobile = matchMedia('(max-width: 720px)').matches;
+  if (isMobile) { prev.style.display = next.style.display = 'none'; return; }
+
+  const cs = getComputedStyle(track);
+  const gap = parseFloat(cs.gap) || 20;
+  const cardW = track.firstElementChild.getBoundingClientRect().width;
+  const step = VISIBLE * (cardW + gap);
+  const trackW = count * cardW + (count - 1) * gap;
+  const viewportW = track.parentElement.clientWidth;
+  const maxT = Math.max(0, trackW - viewportW);
+  let t = 0;
+
+  const apply = () => {
+    track.style.transform = 'translateX(' + (-t) + 'px)';
+    const atStart = t <= 0.5, atEnd = t >= maxT - 0.5;
+    // Hide (not remove) the end-side arrow — visibility keeps its slot so the
+    // cards never shift sideways when you reach an end.
+    prev.disabled = atStart; prev.style.visibility = atStart ? 'hidden' : 'visible';
+    next.disabled = atEnd;   next.style.visibility = atEnd   ? 'hidden' : 'visible';
+  };
+  prev.addEventListener('click', () => { t = Math.max(0, t - step); apply(); });
+  next.addEventListener('click', () => { t = Math.min(maxT, t + step); apply(); });
+  apply();
+}
+
+/* ── Open / close / switch (AnimatePresence-style) ─────────── */
+function toggleStack(id) {
+  if (activeId === id) { closeStack(); return; }
+
+  const prevActive = activeId;
+  activeId = id;
+  STACKS.forEach(s => {
+    const el = rowEl.querySelector('[data-stack="' + s.id + '"]');
+    const on = s.id === id;
+    el.classList.toggle('is-active', on);
+    el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
+
+  const stack = STACKS.find(s => s.id === id);
+  if (prevActive && !reduceMotion) {
+    // animate outgoing row out, then swap in the new one
+    drawerEl.classList.add('is-leaving');
+    setTimeout(() => renderDrawer(stack), 200);
+  } else {
+    renderDrawer(stack);
+  }
+}
+
+function closeStack() {
+  activeId = null;
+  STACKS.forEach(s => {
+    const el = rowEl.querySelector('[data-stack="' + s.id + '"]');
+    el.classList.remove('is-active');
+    el.setAttribute('aria-pressed', 'false');
+  });
+  if (!reduceMotion) {
+    drawerEl.classList.add('is-leaving');
+    setTimeout(() => { drawerEl.innerHTML = ''; drawerEl.classList.remove('is-leaving'); }, 200);
+  } else {
+    drawerEl.innerHTML = '';
+  }
+}
+
+/* ── Modal stub ────────────────────────────────────────────── */
+function openProtoModal(title) {
+  document.getElementById('proto-modal-title').textContent = title;
+  document.getElementById('proto-modal').classList.add('open');
+}
+function closeProtoModal() {
+  document.getElementById('proto-modal').classList.remove('open');
+}
+document.getElementById('proto-modal').addEventListener('click', e => {
+  if (e.target.id === 'proto-modal') closeProtoModal();
+});
+
+/* Open Marketing by default so the open-stack state is visible on load. */
+toggleStack('marketing');
+</script>
+</body>
+</html>

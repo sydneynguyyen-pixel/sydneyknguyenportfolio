@@ -4,17 +4,19 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>room2talk — UX Case Study · Sydney Nguyen</title>
-<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="icon" type="image/png" href="assets/favicon.webp" />
 <meta name="description" content="A reflection-based card experience helping Vietnamese American families connect without forcing the conversation. UX research, design, and prototyping by Sydney Nguyen." />
 <meta property="og:title" content="room2talk — UX Case Study · Sydney Nguyen" />
 <meta property="og:description" content="A reflection-based card experience helping Vietnamese American families connect — without forcing the conversation." />
-<meta property="og:image" content="assets/case studies/room2talk/r2t-hero.png" />
+<meta property="og:image" content="assets/case studies/room2talk/r2t-hero.webp" />
 <meta property="og:type" content="article" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="nav.js"></script>
 <style>
   :root {
+    --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --ink: #1a1a1a;
     --ink-soft: #555;
     --ink-faint: #888;
@@ -26,7 +28,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--font-sans);
     color: var(--ink);
     background-color: #fbfbfa;
     line-height: 1.7;
@@ -40,7 +42,7 @@
     padding-top: 28px;
   }
   .site-top a {
-    font-size: 13.5px; font-weight: 500; color: #fff;
+    font-size: 13.5px; font-weight: 400; color: #fff;
     background: var(--accent);
     padding: 9px 18px; border-radius: 999px;
     text-decoration: none;
@@ -51,11 +53,11 @@
   /* ── Header ── */
   header { padding: 64px 0 0; }
   .eyebrow {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.12em;
+    font-size: 11px; font-weight: 400; letter-spacing: 0.12em;
     text-transform: uppercase; color: var(--ink-faint); margin-bottom: 20px;
   }
   h1 {
-    font-size: 32px; line-height: 1.25; font-weight: 600;
+    font-size: 32px; line-height: 1.25; font-weight: 500;
     letter-spacing: -0.01em; margin-bottom: 36px;
   }
   /* compact inline metadata */
@@ -65,9 +67,9 @@
     margin-bottom: 28px;
   }
   .meta div { font-size: 13.5px; }
-  .meta dt { color: var(--ink-faint); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
-  .meta dd { color: var(--ink); font-weight: 400; }
-  .meta dd a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .meta dt { color: var(--ink-faint); font-size: 11px; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+  .meta dd { color: var(--ink); font-weight: 300; }
+  .meta dd a { color: var(--accent); text-decoration: none; font-weight: 400; }
   .meta dd a:hover { text-decoration: underline; }
 
   /* jump nav (narrow screens only — wide screens get the side TOC) */
@@ -84,7 +86,7 @@
     width: 150px;
   }
   .toc-label {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.1em;
+    font-size: 11px; font-weight: 400; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--ink-faint); margin-bottom: 14px;
   }
   .toc a {
@@ -95,7 +97,7 @@
     transition: color 0.15s, border-color 0.15s;
   }
   .toc a:hover { color: var(--ink); }
-  .toc a.active { color: var(--ink); border-left-color: var(--ink); font-weight: 500; }
+  .toc a.active { color: var(--ink); border-left-color: var(--ink); font-weight: 400; }
   @media (min-width: 1180px) {
     .toc { display: block; }
     .jump { display: none; }
@@ -106,10 +108,10 @@
   /* ── Sections ── */
   section { margin-bottom: 160px; }
   h2 {
-    font-size: 18px; font-weight: 600; letter-spacing: -0.01em;
+    font-size: 18px; font-weight: 500; letter-spacing: -0.01em;
     margin-bottom: 16px; scroll-margin-top: 40px;
   }
-  h3 { font-size: 13px; font-weight: 600; margin: 32px 0 8px; }
+  h3 { font-size: 13px; font-weight: 500; margin: 32px 0 8px; }
   p { font-size: 13px; color: var(--ink-soft); margin-bottom: 14px; line-height: 1.65; text-wrap: pretty; }
   h1, h2, h3 { text-wrap: balance; }
   p strong { color: var(--ink); }
@@ -137,7 +139,7 @@
 
   /* small gray eyebrow label above section headers */
   .section-label {
-    font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+    font-size: 11px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase;
     color: var(--ink-faint); margin-bottom: 8px;
   }
 
@@ -153,7 +155,7 @@
     background: #e4e2de; display: flex; align-items: center; justify-content: center;
     font-size: 10px; color: var(--ink-faint);
   }
-  .roster-name { font-size: 12.5px; font-weight: 600; color: var(--ink); line-height: 1.3; margin: 0; }
+  .roster-name { font-size: 12.5px; font-weight: 500; color: var(--ink); line-height: 1.3; margin: 0; }
   .roster-role { font-size: 11px; color: var(--ink-faint); line-height: 1.35; margin: 2px 0 0; }
   @media (max-width: 640px) { .roster-grid { grid-template-columns: repeat(2, 1fr); } }
 
@@ -169,14 +171,14 @@
     width: 28px; height: 28px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
     background: #e4e2de;
   }
-  .finding-who { font-size: 12px; font-weight: 600; color: var(--ink); margin: 0; }
+  .finding-who { font-size: 12px; font-weight: 500; color: var(--ink); margin: 0; }
   .finding-quote {
     font-size: 13px; font-style: italic; color: var(--ink-soft); line-height: 1.55;
     margin: 0;
   }
   @media (max-width: 640px) { .finding-grid { grid-template-columns: 1fr; } }
   .finding-synthesis {
-    font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.6;
+    font-size: 14px; font-weight: 400; color: var(--ink); line-height: 1.6;
     margin: 32px 0 8px; padding-top: 20px; border-top: 1px solid var(--rule);
   }
 
@@ -186,7 +188,7 @@
     border-top: 1px solid var(--rule);
   }
   .persona-eyebrow {
-    font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
     color: var(--ink-faint); margin-bottom: 8px;
   }
   .persona-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
@@ -202,11 +204,11 @@
   }
   .pcell:last-child { border-bottom: 1px solid var(--rule); }
   .pcell-n {
-    font-size: 11px; font-weight: 500; color: var(--ink-faint);
+    font-size: 11px; font-weight: 400; color: var(--ink-faint);
     letter-spacing: 0.08em; flex-shrink: 0; width: 20px;
   }
   .pcell-statement {
-    font-size: 13px; font-weight: 400; color: var(--ink); line-height: 1.65; margin-bottom: 0;
+    font-size: 13px; font-weight: 300; color: var(--ink); line-height: 1.65; margin-bottom: 0;
   }
 
   /* two-col text split — accent left, body right */
@@ -214,7 +216,7 @@
     display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 40px 0;
     align-items: start;
   }
-  .split-accent p { color: var(--ink); font-weight: 500; font-size: 13px; margin-bottom: 0; }
+  .split-accent p { color: var(--ink); font-weight: 400; font-size: 13px; margin-bottom: 0; }
   .split-body p { margin-bottom: 0; font-size: 13px; }
   @media (max-width: 640px) { .split-text { grid-template-columns: 1fr; gap: 12px; } }
 
@@ -224,14 +226,14 @@
     background: var(--frame-bg); border-radius: 14px; padding: 28px 24px;
     margin: 14px 0 24px;
   }
-  .stats .num { font-size: 32px; font-weight: 600; color: var(--ink); line-height: 1.1; }
+  .stats .num { font-size: 32px; font-weight: 500; color: var(--ink); line-height: 1.1; }
   .stats .lbl { font-size: 13px; color: var(--ink-soft); margin-top: 6px; line-height: 1.5; }
   @media (max-width: 600px) { .stats { grid-template-columns: 1fr; gap: 18px; } }
 
   /* numbered screen walkthrough */
   .screen { margin-bottom: 72px; }
   .screen .n {
-    font-size: 14px; font-weight: 500; letter-spacing: 0.08em;
+    font-size: 14px; font-weight: 400; letter-spacing: 0.08em;
     color: var(--ink-faint); margin-bottom: 4px;
   }
   .screen figure img,
@@ -258,7 +260,7 @@
     padding: 16px 0; border-top: 1px solid var(--rule);
   }
   .feature-row:last-child { border-bottom: 1px solid var(--rule); }
-  .feature-name { font-size: 13px; font-weight: 600; color: var(--ink); flex-shrink: 0; width: 180px; }
+  .feature-name { font-size: 13px; font-weight: 500; color: var(--ink); flex-shrink: 0; width: 180px; }
   .feature-desc { font-size: 13px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
   @media (max-width: 600px) { .feature-row { flex-direction: column; gap: 4px; } .feature-name { width: auto; } }
 
@@ -283,7 +285,7 @@
     display: flex; gap: 8px; margin-bottom: 16px;
   }
   .mode-btn {
-    font-family: inherit; font-size: 12px; font-weight: 500;
+    font-family: inherit; font-size: 12px; font-weight: 400;
     color: var(--ink-faint); background: var(--frame-bg);
     border: 1px solid var(--rule); border-radius: 999px;
     padding: 6px 16px; cursor: pointer;
@@ -316,13 +318,15 @@
   footer p { margin-bottom: 24px; }
   .btn {
     display: inline-block; background: var(--ink); color: #fff;
-    font-size: 14px; font-weight: 500; text-decoration: none;
+    font-size: 14px; font-weight: 400; text-decoration: none;
     padding: 12px 22px; border-radius: 999px;
   }
   .btn:hover { background: var(--accent); }
 
-  /* ── sydney's desktop top bar ── */
-  body { padding-top: 70px; }
+  /* ── Legacy top bar — kept ONLY as the mobile bar (hamburger + drawer).
+     The shared nav.js owns the desktop nav, so hide this on desktop. ── */
+  body { padding-top: 0; }
+  @media (min-width: 769px) { .menubar, .menubar-sub { display: none !important; } }
   .menubar {
     position: fixed; top: 0; left: 0; width: 100%; height: 58px;
     backdrop-filter: blur(18px) saturate(1.6);
@@ -335,12 +339,12 @@
   .menubar-home { display: flex; align-items: center; text-decoration: none; color: #1a1a1a; }
   .menubar-apple { width: 32px; height: 33px; object-fit: contain; flex-shrink: 0; }
   .menubar-title {
-    font-family: 'Instrument Sans', sans-serif; font-weight: 600;
+    font-weight: 500;
     font-size: 20px; color: #1a1a1a; margin-left: 22px; white-space: nowrap;
   }
   .menubar-sub {
     position: fixed; left: 253px; top: 18px;
-    font-family: 'Instrument Sans', sans-serif; font-weight: 500;
+    font-weight: 400;
     font-size: 16px; color: #696967; white-space: nowrap; z-index: 1001;
   }
   .menubar-right {
@@ -355,13 +359,13 @@
   .ticker-pill { overflow: hidden; white-space: nowrap; }
   .ticker-track {
     display: inline-block; white-space: nowrap; animation: ticker-scroll 32s linear infinite;
-    font-family: 'Instrument Sans', sans-serif; font-weight: 500; font-size: 13px; letter-spacing: 0.1px;
+    font-weight: 400; font-size: 13px; letter-spacing: 0.1px;
     background: linear-gradient(90deg, #d44f70 0%, #c4880a 14%, #1fa8a0 28%, #8255cc 42%, #e05030 56%, #2e96cc 70%, #3aaa6a 84%, #d44f70 100%);
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
   }
   @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
   .menubar-clock {
-    font-family: 'Instrument Sans', sans-serif; font-weight: 500;
+    font-weight: 400;
     font-size: 16px; color: #1a1a1a; white-space: nowrap; margin-left: 4px;
     min-width: 157px; text-align: right;
   }
@@ -394,7 +398,7 @@
 
   /* ── More Case Studies — small widget row ── */
   .more-cs { margin: 48px 0 36px; }
-  .more-cs-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 14px; }
+  .more-cs-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 14px; }
   .more-cs-row { display: flex; gap: 12px; flex-wrap: wrap; }
   .more-cs-card {
     flex: 1 1 140px; max-width: 200px; text-decoration: none;
@@ -406,7 +410,7 @@
   .more-cs-thumb { width: 100%; height: 90px; overflow: hidden; background: var(--frame-bg); }
   .more-cs-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .more-cs-body { padding: 10px 12px 12px; }
-  .more-cs-title { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+  .more-cs-title { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
   .more-cs-desc { font-size: 11px; color: var(--ink-faint); line-height: 1.4; }
   .mob-hamburger { display: none; }
   .mob-drawer-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 199; backdrop-filter: blur(2px); }
@@ -416,24 +420,45 @@
   .mob-drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border-bottom: 1px solid rgba(0,0,0,0.07); }
   .mob-drawer-identity { display: flex; align-items: center; gap: 11px; }
   .mob-drawer-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-  .mob-drawer-name { font-size: 13.5px; font-weight: 700; color: #1a1a1a; margin-bottom: 1px; }
+  .mob-drawer-name { font-size: 13.5px; font-weight: 600; color: #1a1a1a; margin-bottom: 1px; }
   .mob-drawer-role { font-size: 11.5px; color: #999; }
   .mob-drawer-close { width: 32px; height: 32px; border-radius: 8px; background: rgba(0,0,0,0.06); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #555; flex-shrink: 0; }
-  .mob-drawer-section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; padding: 20px 20px 8px; }
+  .mob-drawer-section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; padding: 20px 20px 8px; }
   .mob-drawer-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-  .mob-drawer-link { display: flex; align-items: center; gap: 12px; padding: 13px 10px; border-radius: 12px; font-size: 14px; font-weight: 600; color: #1a1a1a; text-decoration: none; transition: background 0.15s; }
+  .mob-drawer-link { display: flex; align-items: center; gap: 12px; padding: 13px 10px; border-radius: 12px; font-size: 14px; font-weight: 500; color: #1a1a1a; text-decoration: none; transition: background 0.15s; }
   .mob-drawer-link svg { color: #888; flex-shrink: 0; }
   .mob-drawer-link:hover { background: rgba(0,0,0,0.05); }
   .mob-drawer-contact { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
-  .mob-drawer-contact-link { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-radius: 12px; font-size: 13px; font-weight: 500; color: #555; text-decoration: none; transition: background 0.15s; }
+  .mob-drawer-contact-link { display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-radius: 12px; font-size: 13px; font-weight: 400; color: #555; text-decoration: none; transition: background 0.15s; }
   .mob-drawer-contact-link svg { flex-shrink: 0; color: #bbb; }
   .mob-drawer-contact-link:hover { background: rgba(0,0,0,0.05); color: #1a1a1a; }
   @media (max-width: 768px) {
+    body { padding-top: 70px; }  /* room for the fixed mobile bar */
     .mob-hamburger { display: flex; flex-direction: column; justify-content: center; gap: 5px; width: 36px; height: 36px; padding: 8px; background: none; border: none; outline: none; cursor: pointer; border-radius: 8px; margin-left: auto; flex-shrink: 0; -webkit-appearance: none; appearance: none; }
     .mob-hamburger span { display: block; height: 2px; background: #1a1a1a; border-radius: 2px; }
     .menubar-ticker, .menubar-sub, .toc { display: none !important; }
     * { cursor: auto !important; }
     .cursor-dot { display: none !important; }
+  }
+
+  /* ── Scroll-triggered reveal (same logic as index.html) ── */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 </style>
 </head>
@@ -441,8 +466,8 @@
 
 <div class="cursor-dot" id="cursor-dot"></div>
 <div class="menubar">
-  <a href="index.html" class="menubar-home">
-    <img src="assets/favicon.png" class="menubar-apple" alt="" />
+  <a href="/" class="menubar-home">
+    <img src="assets/favicon.webp" class="menubar-apple" alt="" />
     <span class="menubar-title">sydney's desktop</span>
   </a>
 
@@ -473,19 +498,19 @@
   </div>
   <div class="mob-drawer-section-label">Navigate</div>
   <div class="mob-drawer-nav">
-    <a href="about-mobile.html" class="mob-drawer-link">
+    <a href="about-mobile" class="mob-drawer-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
       About Me
     </a>
-    <a href="experience-mobile.html" class="mob-drawer-link">
+    <a href="experience-mobile" class="mob-drawer-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
       Experience
     </a>
-    <a href="creative-mobile.html" class="mob-drawer-link">
+    <a href="creative-mobile" class="mob-drawer-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
       Creative
     </a>
-    <a href="marketing-mobile.html" class="mob-drawer-link">
+    <a href="marketing-mobile" class="mob-drawer-link">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       Marketing & Design
     </a>
@@ -524,7 +549,7 @@
   </div>
 
   <header>
-    <img src="assets/case studies/room2talk/r2t-hero.png" class="hero" alt="room2talk hero" style="margin-bottom: 48px;" />
+    <img src="assets/case studies/room2talk/r2t-hero.webp" class="hero" alt="room2talk hero" style="margin-bottom: 48px;" />
 
     <div class="eyebrow">Case Study · room2talk</div>
     <h1>Designing a card experience that helps Vietnamese American families connect — without forcing the conversation</h1>
@@ -546,9 +571,9 @@
   </header>
 
   <!-- ── Problem ── -->
-  <section id="context">
+  <section id="context" data-reveal>
     <figure>
-      <img src="assets/case studies/room2talk/r2t-context-1.jpg" loading="lazy" alt="A woman with a backpack standing on a wooden platform" style="object-fit:cover; max-height:420px;" />
+      <img src="assets/case studies/room2talk/r2t-context-1.webp" loading="lazy" alt="A woman with a backpack standing on a wooden platform" style="object-fit:cover; max-height:420px;" />
     </figure>
     <h2>Context</h2>
     <p class="lead">In a lot of Vietnamese American families, mental health doesn't get talked about. Not because no one cares — because there was never a language for it.</p>
@@ -563,7 +588,7 @@
     </div>
 
     <figure>
-      <img src="assets/case studies/room2talk/r2t-context-2.jpg" loading="lazy" alt="Grayscale photo of students sitting on chairs with papers and pens" style="object-fit:cover; max-height:420px;" />
+      <img src="assets/case studies/room2talk/r2t-context-2.webp" loading="lazy" alt="Grayscale photo of students sitting on chairs with papers and pens" style="object-fit:cover; max-height:420px;" />
     </figure>
 
     <div class="split-text">
@@ -577,49 +602,49 @@
 
     <p>This is what my MDes thesis at SJSU is trying to understand. The program is focused on experience design — how the things we make shape how people feel, connect, and make sense of their lives. My thesis, <em>Carrying Culture, Becoming Ourselves</em>, looks at what it would actually take to design mental health support for Vietnamese American young adults — not adapted from existing Western tools, but built around the specific barriers this community faces.</p>
 
-    <p><span style="color: var(--ink); font-weight: 500;">room2talk is a research artifact I made as part of that thesis</span> — a prototype for testing one particular idea: that if you remove language from the equation and give people a low-pressure way to reflect in parallel, something might open up that direct conversation couldn't.</p>
+    <p><span style="color: var(--ink); font-weight: 400;">room2talk is a research artifact I made as part of that thesis</span> — a prototype for testing one particular idea: that if you remove language from the equation and give people a low-pressure way to reflect in parallel, something might open up that direct conversation couldn't.</p>
 
   </section>
 
   <!-- ── Research ── -->
-  <section id="research">
+  <section id="research" data-reveal>
     <h2>Research</h2>
     <p>I interviewed 4 Vietnamese American mental health and culture professionals and 5 Vietnamese American young adults, then ran a survey with 41 participants to find patterns at scale.</p>
 
     <div class="persona-block" style="border-top:none; padding-top:0; margin-top:8px;">
       <p class="persona-eyebrow">Vietnamese Americans</p>
       <div class="roster-grid roster-grid--wrap">
-        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/michelle photo.jpg" alt="Michelle" /><p class="roster-name">Michelle</p><p class="roster-role">Age 27</p></div>
-        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/lauren photo.jpg" alt="Lauren" /><p class="roster-name">Lauren</p><p class="roster-role">Age 23</p></div>
-        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/wiliam photo.jpg" alt="William" /><p class="roster-name">William</p><p class="roster-role">Age 23</p></div>
-        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/natalie photo.jpg" alt="Natalie" /><p class="roster-name">Natalie</p><p class="roster-role">Age 23</p></div>
-        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/andy photo.png" alt="Andy" /><p class="roster-name">Andy</p><p class="roster-role">Age 23</p></div>
+        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/michelle photo.webp" alt="Michelle" /><p class="roster-name">Michelle</p><p class="roster-role">Age 27</p></div>
+        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/lauren photo.webp" alt="Lauren" /><p class="roster-name">Lauren</p><p class="roster-role">Age 23</p></div>
+        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/wiliam photo.webp" alt="William" /><p class="roster-name">William</p><p class="roster-role">Age 23</p></div>
+        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/natalie photo.webp" alt="Natalie" /><p class="roster-name">Natalie</p><p class="roster-role">Age 23</p></div>
+        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/andy photo.webp" alt="Andy" /><p class="roster-name">Andy</p><p class="roster-role">Age 23</p></div>
       </div>
       <div class="finding-grid">
         <div class="finding-item">
           <div class="finding-who-row">
-            <img class="finding-who-photo" src="assets/case studies/room2talk/michelle photo.jpg" alt="Michelle" />
+            <img class="finding-who-photo" src="assets/case studies/room2talk/michelle photo.webp" alt="Michelle" />
             <p class="finding-who">Michelle</p>
           </div>
           <p class="finding-quote">"We don't slowly talk about it. It has to get to a crisis point before we talk about it."</p>
         </div>
         <div class="finding-item">
           <div class="finding-who-row">
-            <img class="finding-who-photo" src="assets/case studies/room2talk/lauren photo.jpg" alt="Lauren" />
+            <img class="finding-who-photo" src="assets/case studies/room2talk/lauren photo.webp" alt="Lauren" />
             <p class="finding-who">Lauren</p>
           </div>
           <p class="finding-quote">"(Mom) told me there are real problems in the world, that I was making mine up."</p>
         </div>
         <div class="finding-item">
           <div class="finding-who-row">
-            <img class="finding-who-photo" src="assets/case studies/room2talk/andy photo.png" alt="Andy" />
+            <img class="finding-who-photo" src="assets/case studies/room2talk/andy photo.webp" alt="Andy" />
             <p class="finding-who">Andy</p>
           </div>
           <p class="finding-quote">"I don't want to be a burden to a friend… I know everyone else has their own problems too."</p>
         </div>
         <div class="finding-item">
           <div class="finding-who-row">
-            <img class="finding-who-photo" src="assets/case studies/room2talk/natalie photo.jpg" alt="Natalie" />
+            <img class="finding-who-photo" src="assets/case studies/room2talk/natalie photo.webp" alt="Natalie" />
             <p class="finding-who">Natalie</p>
           </div>
           <p class="finding-quote">"Our parents are often part of the problem, but we don't want to hurt them by saying that."</p>
@@ -630,22 +655,22 @@
     <div class="persona-block">
       <p class="persona-eyebrow">Professionals</p>
       <div class="roster-grid">
-        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/hien do photo.png" alt="Hien Do" /><p class="roster-name">Hien Do</p><p class="roster-role">Professor of Sociology, SJSU</p></div>
-        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/van bui photo.png" alt="Van Bui" /><p class="roster-name">Van Bui</p><p class="roster-role">Licensed Clinical Social Worker, PhD</p></div>
-        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/birdie photo.png" alt="Roberta Birdie Cheng" /><p class="roster-name">Roberta "Birdie" Cheng</p><p class="roster-role">Licensed Marriage &amp; Family Therapist</p></div>
-        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/liana photo.png" alt="Liana Huang" /><p class="roster-name">Liana Huang</p><p class="roster-role">Licensed Clinical Social Worker</p></div>
+        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/hien do photo.webp" alt="Hien Do" /><p class="roster-name">Hien Do</p><p class="roster-role">Professor of Sociology, SJSU</p></div>
+        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/van bui photo.webp" alt="Van Bui" /><p class="roster-name">Van Bui</p><p class="roster-role">Licensed Clinical Social Worker, PhD</p></div>
+        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/birdie photo.webp" alt="Roberta Birdie Cheng" /><p class="roster-name">Roberta "Birdie" Cheng</p><p class="roster-role">Licensed Marriage &amp; Family Therapist</p></div>
+        <div class="roster-person"><img class="roster-photo" src="assets/case studies/room2talk/liana photo.webp" alt="Liana Huang" /><p class="roster-name">Liana Huang</p><p class="roster-role">Licensed Clinical Social Worker</p></div>
       </div>
       <div class="finding-grid">
         <div class="finding-item">
           <div class="finding-who-row">
-            <img class="finding-who-photo" src="assets/case studies/room2talk/birdie photo.png" alt="Roberta Birdie Cheng" />
+            <img class="finding-who-photo" src="assets/case studies/room2talk/birdie photo.webp" alt="Roberta Birdie Cheng" />
             <p class="finding-who">Roberta "Birdie" Cheng</p>
           </div>
           <p class="finding-quote">"Many aren't used to identifying feelings beyond 'I feel bad.'"</p>
         </div>
         <div class="finding-item">
           <div class="finding-who-row">
-            <img class="finding-who-photo" src="assets/case studies/room2talk/liana photo.png" alt="Liana Huang" />
+            <img class="finding-who-photo" src="assets/case studies/room2talk/liana photo.webp" alt="Liana Huang" />
             <p class="finding-who">Liana Huang</p>
           </div>
           <p class="finding-quote">"Doing something alongside someone — not face-to-face — can feel safer."</p>
@@ -682,7 +707,7 @@
   </section>
 
   <!-- ── Process ── -->
-  <section id="process">
+  <section id="process" data-reveal>
     <h2>Process</h2>
 
     <div class="process-grid">
@@ -690,7 +715,7 @@
         <h3>Designing the cards</h3>
         <p>I designed the full deck in Figma first: 40 question cards split by player role, 50+ image cards across four categories.</p>
         <figure style="margin: 0;">
-          <img src="assets/case studies/room2talk/r2t-process1-crop.png" loading="lazy" alt="Figma canvas with the full deck: 40 question cards and 50+ image cards in grids" />
+          <img src="assets/case studies/room2talk/r2t-process1-crop.webp" loading="lazy" alt="Figma canvas with the full deck: 40 question cards and 50+ image cards in grids" />
           <figcaption>The full deck system in Figma.</figcaption>
         </figure>
       </div>
@@ -698,7 +723,7 @@
         <h3>Prototyping with Claude</h3>
         <p>After fully designing the cards, logo, and overall design system, I used Claude to flesh out full game sessions and stress-test the experience. I tested interaction flow, card logic, and pacing — then iterated with real users before shipping.</p>
         <figure style="margin: 0;">
-          <img src="assets/case studies/room2talk/r2t-process2-crop.png" loading="lazy" alt="Claude session iterating on game logic beside the live room2talk prototype" />
+          <img src="assets/case studies/room2talk/r2t-process2-crop.webp" loading="lazy" alt="Claude session iterating on game logic beside the live room2talk prototype" />
           <figcaption>Stress-testing sessions and pacing before shipping.</figcaption>
         </figure>
       </div>
@@ -706,7 +731,7 @@
   </section>
 
   <!-- ── Final Product ── -->
-  <section id="final-product">
+  <section id="final-product" data-reveal>
     <h2>Final Product</h2>
 
     <div class="feature-list">
@@ -812,10 +837,10 @@
   </section>
 
   <!-- ── Where It Stands ── -->
-  <section id="reflection" style="margin-bottom: 48px;">
+  <section id="reflection" data-reveal style="margin-bottom: 48px;">
     <div class="closing-box">
       <div class="closing-col">
-        <p class="lead">room2talk is live, playtested, and <a href="https://room2talk.netlify.app" target="_blank" style="color:var(--accent);font-weight:500;text-decoration:none;">publicly playable</a>.</p>
+        <p class="lead">room2talk is live, playtested, and <a href="https://room2talk.netlify.app" target="_blank" style="color:var(--accent);font-weight:400;text-decoration:none;">publicly playable</a>.</p>
         <p>Success here isn't a conversion metric — it's whether parallel reflection actually opens dialogue across generations. The next phase tests that with real families: structured sessions measuring whether the reveal creates moments of recognition, and whether conversations continue after the session ends.</p>
       </div>
       <div class="closing-col">
@@ -838,22 +863,29 @@
     <div class="more-cs">
       <div class="more-cs-label">More Case Studies</div>
       <div class="more-cs-row">
-        <a class="more-cs-card" href="iterait.html">
-          <div class="more-cs-thumb"><img src="assets/case studies/iterait/iterait cover image.png" alt="iterait" loading="lazy" /></div>
+        <a class="more-cs-card" href="bedside">
+          <div class="more-cs-thumb"><img src="assets/case studies/bedside/thumb.svg" alt="Bedside" loading="lazy" /></div>
+          <div class="more-cs-body">
+            <div class="more-cs-title">Bedside</div>
+            <div class="more-cs-desc">A voice-first, privacy-first handoff tool for the hospice bedside.</div>
+          </div>
+        </a>
+        <a class="more-cs-card" href="iterait">
+          <div class="more-cs-thumb"><img src="assets/case studies/iterait/iterait cover image.webp" alt="iterait" loading="lazy" /></div>
           <div class="more-cs-body">
             <div class="more-cs-title">iterait</div>
             <div class="more-cs-desc">Track, compare, and reuse iterations in AI-driven design workflows.</div>
           </div>
         </a>
-        <a class="more-cs-card" href="voqa.html">
-          <div class="more-cs-thumb"><img src="assets/case studies/voqa/voqa-thumb.png" alt="VOQA" loading="lazy" /></div>
+        <a class="more-cs-card" href="voqa">
+          <div class="more-cs-thumb"><img src="assets/case studies/voqa/voqa-thumb.webp" alt="VOQA" loading="lazy" /></div>
           <div class="more-cs-body">
             <div class="more-cs-title">VOQA</div>
             <div class="more-cs-desc">Making museum experiences more inclusive and accessible.</div>
           </div>
         </a>
-        <a class="more-cs-card" href="soundbite.html">
-          <div class="more-cs-thumb"><img src="assets/soundbite/6.png" alt="soundbite" loading="lazy" /></div>
+        <a class="more-cs-card" href="soundbite">
+          <div class="more-cs-thumb"><img src="assets/soundbite/6.webp" alt="soundbite" loading="lazy" /></div>
           <div class="more-cs-body">
             <div class="more-cs-title">soundbite</div>
             <div class="more-cs-desc">Snack and sound pairings for immersive, mood-based audio experiences.</div>
@@ -967,6 +999,30 @@ function mobDrawerClose() {
   document.getElementById('mobBackdrop').classList.remove('open');
   document.body.style.overflow = '';
 }
+</script>
+<script>
+  // ── Scroll-triggered reveal — watches [data-reveal], reveals once on
+  // scroll-in, honors [data-reveal-delay] for stagger, respects reduced motion.
+  (function initReveal() {
+    const els = document.querySelectorAll('[data-reveal]');
+    if (!els.length) return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      els.forEach(el => el.classList.add('is-visible'));
+      return;
+    }
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const delay = el.getAttribute('data-reveal-delay');
+        if (delay) el.style.transitionDelay = `${delay}s`;
+        el.classList.add('is-visible');
+        obs.unobserve(el);
+      });
+    }, { rootMargin: '0px 0px -100px 0px', threshold: 0 });
+    els.forEach(el => observer.observe(el));
+  })();
 </script>
 </body>
 </html>

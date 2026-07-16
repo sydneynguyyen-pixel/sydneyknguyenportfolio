@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600">
+  <rect width="600" height="600" fill="#ECE6E6"/>
+  <circle cx="300" cy="250" r="95" fill="none" stroke="#D2C2C4" stroke-width="2"/>
+  <path d="M258 250 L292 284 L348 214" fill="none" stroke="#D2C2C4" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="300" y="440" text-anchor="middle" font-family="Manrope, sans-serif" font-size="30" font-weight="600" fill="#8a8a8a" letter-spacing="-0.02em">Marketing &amp; Branding</text>
+  <text x="300" y="472" text-anchor="middle" font-family="Manrope, sans-serif" font-size="15" font-weight="400" fill="#bbb1b1">placeholder cover — swap me</text>
+</svg>

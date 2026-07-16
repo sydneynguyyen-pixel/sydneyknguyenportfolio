@@ -4,12 +4,14 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Marketing & Brand · Sydney Nguyen</title>
-<link rel="icon" type="image/png" href="assets/favicon.png" />
+<link rel="icon" type="image/png" href="assets/favicon.webp" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="nav.js"></script>
 <style>
   :root {
+    --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --ink: #1a1a1a;
     --ink-soft: #555;
     --ink-faint: #888;
@@ -20,38 +22,13 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family: var(--font-sans);
     color: var(--ink);
     background: var(--frame-bg);
     -webkit-font-smoothing: antialiased;
   }
 
-  /* ── Menubar ── */
-  .menubar {
-    position: fixed; top: 0; left: 0; right: 0; height: 58px;
-    background: rgba(246,245,243,0.88);
-    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-    border-bottom: 1px solid rgba(0,0,0,0.08);
-    display: flex; align-items: center;
-    padding: 0 24px; z-index: 1000;
-  }
-  .menubar-home { display: flex; align-items: center; text-decoration: none; color: #1a1a1a; }
-  .menubar-apple { width: 32px; height: 33px; object-fit: contain; flex-shrink: 0; }
-  .menubar-title { font-weight: 700; font-size: 20px; color: #1a1a1a; margin-left: 22px; white-space: nowrap; }
-  .menubar-sub { position: fixed; left: 253px; top: 18px; font-weight: 500; font-size: 16px; color: #696967; white-space: nowrap; z-index: 1001; }
-  .menubar-ticker {
-    position: fixed; left: 50%; top: 29px; transform: translate(-50%, -50%);
-    width: 400px; overflow: hidden; pointer-events: none; z-index: 1001;
-  }
-  .ticker-pill { overflow: hidden; white-space: nowrap; }
-  .ticker-track {
-    display: inline-block; white-space: nowrap; animation: ticker-scroll 32s linear infinite;
-    font-weight: 500; font-size: 13px; letter-spacing: 0.1px;
-    background: linear-gradient(90deg, #d44f70 0%, #c4880a 14%, #1fa8a0 28%, #8255cc 42%, #e05030 56%, #2e96cc 70%, #3aaa6a 84%, #d44f70 100%);
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-  }
-  @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-  .menubar-clock { font-weight: 500; font-size: 16px; color: #1a1a1a; white-space: nowrap; margin-left: auto; min-width: 157px; text-align: right; }
+  /* Top nav is injected by the shared nav.js. */
 
   /* ── Custom cursor ── */
   * { cursor: none !important; }
@@ -71,14 +48,13 @@
   @media (max-width: 768px) {
     * { cursor: auto !important; }
     .cursor-dot { display: none !important; }
-    .menubar-ticker, .menubar-sub { display: none !important; }
   }
 
   /* ── Page layout ── */
   .page-wrap {
     max-width: var(--max);
     margin: 0 auto;
-    padding: 98px 32px 80px;
+    padding: 40px 32px 80px;
   }
 
   /* ── Page header ── */
@@ -87,7 +63,7 @@
   }
   .pg-header h1 {
     font-size: 36px;
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.02em;
     color: var(--ink);
     margin-bottom: 10px;
@@ -103,7 +79,7 @@
   .lwb-section { margin-top: 14px; }
   .lwb-section:first-child { margin-top: 0; }
   .lwb-section-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    font-size: 10px; font-weight: 500; letter-spacing: 0.08em;
     text-transform: uppercase; color: #bbb; margin-bottom: 8px;
   }
   .lwb-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -121,6 +97,7 @@
     border: 1px solid rgba(0,0,0,0.07);
     box-shadow: 0 2px 16px rgba(0,0,0,0.05);
     overflow: hidden;
+    scroll-margin-top: 78px; /* clears the fixed menubar when deep-linked from the home bento */
   }
 
   .role-header {
@@ -141,7 +118,7 @@
   }
   .role-logo img { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
   .role-meta { flex: 1; }
-  .role-company { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+  .role-company { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
   .role-title { font-size: 13px; color: var(--ink-soft); margin-bottom: 3px; }
   .role-dates { font-size: 12px; color: var(--ink-faint); }
 
@@ -154,7 +131,7 @@
   /* ── Image grid ── */
   .img-section + .img-section { margin-top: 20px; }
   .img-section-label {
-    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
     text-transform: uppercase; color: #bbb; margin-bottom: 10px;
   }
   .img-grid { display: grid; gap: 8px; }
@@ -272,7 +249,7 @@
     content: attr(data-label);
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 600; color: #ccc;
+    font-size: 11px; font-weight: 500; color: #ccc;
     text-align: center; padding: 10px; line-height: 1.3;
   }
 
@@ -281,7 +258,7 @@
   .role-link-btn {
     display: inline-flex; align-items: center; gap: 6px;
     padding: 8px 16px; border-radius: 20px;
-    background: #f0ede8; font-size: 12.5px; font-weight: 600;
+    background: #f0ede8; font-size: 12.5px; font-weight: 500;
     color: #444; text-decoration: none; transition: background 0.15s;
     cursor: none !important;
   }
@@ -293,22 +270,7 @@
 
 <div class="cursor-dot" id="cursor-dot"></div>
 
-<!-- Menubar -->
-<div class="menubar">
-  <a href="index.html" class="menubar-home">
-    <img src="assets/favicon.png" class="menubar-apple" alt="" />
-    <span class="menubar-title">sydney's desktop</span>
-  </a>
-  <div class="menubar-ticker" aria-hidden="true">
-    <div class="ticker-pill">
-      <div class="ticker-track">
-        <span>always creating&nbsp;&nbsp;·&nbsp;&nbsp;drinking a matcha&nbsp;&nbsp;·&nbsp;&nbsp;learning new ai skills&nbsp;&nbsp;·&nbsp;&nbsp;creating a figma prototype&nbsp;&nbsp;·&nbsp;&nbsp;planning my next 5k run&nbsp;&nbsp;·&nbsp;&nbsp;petting my cat&nbsp;&nbsp;·&nbsp;&nbsp;editing photos in lightroom&nbsp;&nbsp;·&nbsp;&nbsp;hiking a trail&nbsp;&nbsp;·&nbsp;&nbsp;</span><span>always creating&nbsp;&nbsp;·&nbsp;&nbsp;drinking a matcha&nbsp;&nbsp;·&nbsp;&nbsp;learning new ai skills&nbsp;&nbsp;·&nbsp;&nbsp;creating a figma prototype&nbsp;&nbsp;·&nbsp;&nbsp;planning my next 5k run&nbsp;&nbsp;·&nbsp;&nbsp;petting my cat&nbsp;&nbsp;·&nbsp;&nbsp;editing photos in lightroom&nbsp;&nbsp;·&nbsp;&nbsp;hiking a trail&nbsp;&nbsp;·&nbsp;&nbsp;</span>
-      </div>
-    </div>
-  </div>
-  <span class="menubar-clock" id="clock"></span>
-</div>
-<span class="menubar-sub">UX/UI  ·  SJSU Mdes</span>
+<!-- Top nav injected by shared nav.js -->
 
 <!-- Page content -->
 <div class="page-wrap">
@@ -321,9 +283,9 @@
   <div class="roles-list">
 
     <!-- Little Wins Bakehouse -->
-    <div class="role-card">
+    <div class="role-card" id="lwb">
       <div class="role-header">
-        <div class="role-logo"><img src="assets/little wins bakehouse/logo-badge-tan.png" alt="Little Wins Bakehouse" /></div>
+        <div class="role-logo"><img src="assets/little wins bakehouse/logo-badge-tan.webp" alt="Little Wins Bakehouse" /></div>
         <div class="role-meta">
           <div class="role-company">Little Wins Bakehouse</div>
           <div class="role-title">Brand Designer & Photographer</div>
@@ -336,25 +298,25 @@
           <div class="lwb-section">
             <div class="lwb-section-label">Print & Packaging</div>
             <div class="lwb-row">
-              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/business-card.png" alt="Business card" loading="lazy" /></div>
-              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/menu.png" alt="Printed menu" loading="lazy" /></div>
-              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/sticker.png" alt="Sticker design" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/business-card.webp" alt="Business card" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/menu.webp" alt="Printed menu" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/physical and print/sticker.webp" alt="Sticker design" loading="lazy" /></div>
             </div>
           </div>
           <div class="lwb-section">
             <div class="lwb-section-label">Social Media</div>
             <div class="lwb-row">
-              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/1.png" alt="New flavor announcement" loading="lazy" /></div>
-              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/5.png" alt="New flavor announcement" loading="lazy" /></div>
-              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/7.png" alt="New flavor announcement" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/1.webp" alt="New flavor announcement" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/5.webp" alt="New flavor announcement" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/New Flavor Announcements/7.webp" alt="New flavor announcement" loading="lazy" /></div>
             </div>
           </div>
           <div class="lwb-section">
             <div class="lwb-section-label">Photography</div>
             <div class="lwb-row">
-              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/cookie-stack-hand.jpg" alt="Cookie stack" style="object-position: center 60%;" loading="lazy" /></div>
-              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/flatlay-four-plates.jpg" alt="Flatlay cookies" loading="lazy" /></div>
-              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/matcha-cookies-tea.jpg" alt="Matcha cookies with tea" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/cookie-stack-hand.webp" alt="Cookie stack" style="object-position: center 60%;" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/flatlay-four-plates.webp" alt="Flatlay cookies" loading="lazy" /></div>
+              <div class="ig-cell sq img-cell"><img src="assets/little wins bakehouse/bakehouse photogrpahy/matcha-cookies-tea.webp" alt="Matcha cookies with tea" loading="lazy" /></div>
             </div>
           </div>
         </div>
@@ -372,9 +334,9 @@
     </div>
 
     <!-- HALIENE / Next Step Management -->
-    <div class="role-card">
+    <div class="role-card" id="haliene">
       <div class="role-header">
-        <div class="role-logo"><img src="assets/thumbs/haliene icon.png" alt="HALIENE" /></div>
+        <div class="role-logo"><img src="assets/thumbs/haliene icon.webp" alt="HALIENE" /></div>
         <div class="role-meta">
           <div class="role-company">HALIENE · Next Step Management</div>
           <div class="role-title">Social Media & Merch Designer · Content Creator</div>
@@ -385,7 +347,7 @@
         <p class="role-blurb">Edited social media content and captured live footage at concerts and festivals across California. Designed custom merch — a jersey and pashmina — and traveled with the artist to document shows and behind-the-scenes moments.</p>
         <div class="img-section">
           <div class="ig-grid">
-            <div class="ig-cell pt img-cell"><img src="assets/thumbs/haliene jersey.png" alt="HALIENE jersey design" loading="lazy" /></div>
+            <div class="ig-cell pt img-cell"><img src="assets/thumbs/haliene jersey.webp" alt="HALIENE jersey design" loading="lazy" /></div>
             <div class="ig-cell pt"><iframe src="https://www.instagram.com/reel/CxI-gwzLzj7/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
             <div class="ig-cell pt"><iframe src="https://www.instagram.com/reel/Cx_HXEXLHRY/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
           </div>
@@ -404,11 +366,11 @@
     </div>
 
     <!-- Nora AI -->
-    <div class="role-card">
+    <div class="role-card" id="nora">
       <div class="role-header">
-        <div class="role-logo"><img src="assets/icons/logo-nora-ai.png" alt="Nora AI" /></div>
+        <div class="role-logo"><img src="assets/icons/logo-nora-ai.webp" alt="Nora AI" /></div>
         <div class="role-meta">
-          <div class="role-company">Nora AI <span style="font-weight:400;color:#aaa;font-size:12px;">formerly InternGuys</span></div>
+          <div class="role-company">Nora AI <span style="font-weight:300;color:#aaa;font-size:12px;">formerly InternGuys</span></div>
           <div class="role-title">UX/UI & Marketing Intern</div>
           <div class="role-dates">Jun 2024 – Nov 2024</div>
         </div>
@@ -419,11 +381,11 @@
           <iframe src="https://www.youtube.com/embed/dS3S4kLVpRo" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
         </div>
         <div class="ig-grid">
-          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (1).png" alt="Nora AI slide deck" loading="lazy" /></div>
-          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (2).png" alt="Nora AI slide deck" loading="lazy" /></div>
-          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (3).png" alt="Nora AI slide deck" loading="lazy" /></div>
-          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (4).png" alt="Nora AI slide deck" loading="lazy" /></div>
-          <div class="ig-cell pt img-cell"><img src="assets/thumbs/Nora Story Post.png" alt="Nora AI story post" loading="lazy" /></div>
+          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (1).webp" alt="Nora AI slide deck" loading="lazy" /></div>
+          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (2).webp" alt="Nora AI slide deck" loading="lazy" /></div>
+          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (3).webp" alt="Nora AI slide deck" loading="lazy" /></div>
+          <div class="ig-cell ld img-cell"><img src="assets/thumbs/nora ai slidedeck (4).webp" alt="Nora AI slide deck" loading="lazy" /></div>
+          <div class="ig-cell pt img-cell"><img src="assets/thumbs/Nora Story Post.webp" alt="Nora AI story post" loading="lazy" /></div>
         </div>
         <div class="li-embed-row">
           <div class="li-embed">
@@ -447,9 +409,9 @@
     </div>
 
     <!-- Designer Drains -->
-    <div class="role-card">
+    <div class="role-card" id="designer-drains">
       <div class="role-header">
-        <div class="role-logo"><img src="assets/icons/logo-designer-drains.png" alt="Designer Drains" /></div>
+        <div class="role-logo"><img src="assets/icons/logo-designer-drains.webp" alt="Designer Drains" /></div>
         <div class="role-meta">
           <div class="role-company">Designer Drains</div>
           <div class="role-title">Visual Design & Marketing Intern</div>
@@ -476,8 +438,8 @@
           </div>
           <div class="ss-slide">
             <div class="ig-cell pt"><iframe src="https://www.instagram.com/p/DHG18xHtuFQ/embed/" scrolling="no" frameborder="0" allowtransparency="true"></iframe></div>
-            <div class="ig-cell pt img-cell"><img src="assets/thumbs/designer drains mailchimp email.png" alt="Mailchimp email template" /></div>
-            <div class="ig-cell pt img-cell"><img src="assets/thumbs/designer drains amazon storefront.png" alt="Amazon storefront" /></div>
+            <div class="ig-cell pt img-cell"><img src="assets/thumbs/designer drains mailchimp email.webp" alt="Mailchimp email template" /></div>
+            <div class="ig-cell pt img-cell"><img src="assets/thumbs/designer drains amazon storefront.webp" alt="Amazon storefront" /></div>
           </div>
           <div class="ss-controls">
             <button onclick="prevSlide('ss-dd')" class="ss-btn">&#8249;</button>
@@ -500,7 +462,7 @@
     </div>
 
     <!-- Graduation Photography -->
-    <div class="role-card">
+    <div class="role-card" id="photography">
       <div class="role-header">
         <div class="role-logo"><img src="assets/thumbs/visualsbyskn icon.jpg" alt="visualsbyskn" /></div>
         <div class="role-meta">
@@ -559,9 +521,9 @@
     </div>
 
     <!-- Alpha Phi Omega -->
-    <div class="role-card">
+    <div class="role-card" id="apo">
       <div class="role-header">
-        <div class="role-logo"><img src="assets/icons/logo-alpha-phi-omega.png" alt="Alpha Phi Omega" /></div>
+        <div class="role-logo"><img src="assets/icons/logo-alpha-phi-omega.webp" alt="Alpha Phi Omega" /></div>
         <div class="role-meta">
           <div class="role-company">Alpha Phi Omega</div>
           <div class="role-title">Historian / New Member Educator</div>
@@ -611,13 +573,6 @@
 </div>
 
 <script>
-  // Clock
-  function updateClock() {
-    const now = new Date();
-    document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
-  }
-  updateClock(); setInterval(updateClock, 1000);
-
   // Custom cursor
   const dot = document.getElementById('cursor-dot');
   document.addEventListener('mousemove', e => { dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px'; });
