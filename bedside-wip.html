@@ -90,6 +90,7 @@
   }
   .wip-btn:hover { background: #fff; color: var(--ink); }
   .wip-btn .wip-arrow { font-size: 15px; line-height: 1; }
+  .wip-btns { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 
   /* ── Menubar (mobile bar only) ── */
   .menubar {
@@ -233,7 +234,10 @@
   <div class="wip-spacer wip-spacer-mid" aria-hidden="true"></div>
   <div class="wip-bottom">
     <p class="wip-fornow">for now...</p>
-    <a class="wip-btn" href="https://devpost.com/software/bedside" target="_blank" rel="noopener noreferrer">visit devpost <span class="wip-arrow">↗</span></a>
+    <div class="wip-btns">
+      <a class="wip-btn" href="https://devpost.com/software/bedside" target="_blank" rel="noopener noreferrer">visit devpost <span class="wip-arrow">↗</span></a>
+      <a class="wip-btn" href="https://bedside-seven.vercel.app/" target="_blank" rel="noopener noreferrer">live demo <span class="wip-arrow">↗</span></a>
+    </div>
   </div>
   <div class="wip-spacer wip-spacer-bot" aria-hidden="true"></div>
 </main>
