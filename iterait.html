@@ -20,8 +20,8 @@
     --ink: #1a1a1a;
     --ink-soft: #555;
     --ink-faint: #888;
-    --accent: #0891a8;
-    --accent-light: #d9fcff;
+    --accent: #1a1a1a;        /* was teal — neutralized to B&W (cursor trails keep their color) */
+    --accent-light: #ededed;
     --rule: #ececec;
     --frame-bg: #f0fafb;
     --max: 720px;
@@ -43,11 +43,11 @@
   /* ── Top bar ── */
   .site-top { display: flex; justify-content: flex-end; padding-top: 28px; }
   .site-top a {
-    font-size: 13.5px; font-weight: 400; color: #fff;
-    background: var(--accent); padding: 9px 18px; border-radius: 999px;
-    text-decoration: none; transition: background 0.15s;
+    font-size: 13.5px; font-weight: 400; color: var(--ink);
+    background: transparent; border: 1px solid var(--ink); padding: 9px 18px; border-radius: 999px;
+    text-decoration: none; transition: background 0.15s, color 0.15s;
   }
-  .site-top a:hover { background: var(--ink); }
+  .site-top a:hover { background: var(--ink); color: #fff; }
 
   /* ── Header ── */
   header { padding: 64px 0 0; }
@@ -124,7 +124,7 @@
   .role-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 32px; }
   .role-tag {
     font-size: 12px; font-weight: 400; padding: 6px 14px; border-radius: 999px;
-    background: var(--accent-light); color: #006070;
+    background: var(--accent-light); color: #1a1a1a;
   }
 
   /* two-up images */
@@ -146,8 +146,8 @@
   /* footer */
   footer { border-top: 1px solid var(--rule); padding: 56px 0 96px; }
   footer p { margin-bottom: 24px; }
-  .btn { display: inline-block; background: var(--ink); color: #fff; font-size: 14px; font-weight: 400; text-decoration: none; padding: 12px 22px; border-radius: 999px; }
-  .btn:hover { background: var(--accent); }
+  .btn { display: inline-block; background: transparent; color: var(--ink); border: 1px solid var(--ink); font-size: 14px; font-weight: 400; text-decoration: none; padding: 12px 22px; border-radius: 999px; transition: background 0.15s, color 0.15s; }
+  .btn:hover { background: var(--ink); color: #fff; }
   .btn-ghost { background: transparent; color: var(--ink); border: 1px solid var(--rule); }
   .btn-ghost:hover { background: var(--ink); color: #fff; }
 
@@ -544,8 +544,8 @@
     <div class="more-cs">
       <div class="more-cs-label">More Case Studies</div>
       <div class="more-cs-row">
-        <a class="more-cs-card" href="bedside">
-          <div class="more-cs-thumb"><img src="assets/case studies/bedside/thumb.svg" alt="Bedside" loading="lazy" /></div>
+        <a class="more-cs-card" href="bedside-wip">
+          <div class="more-cs-thumb"><img src="assets/case studies/bedside/cover.png" alt="Bedside" loading="lazy" /></div>
           <div class="more-cs-body">
             <div class="more-cs-title">Bedside</div>
             <div class="more-cs-desc">A voice-first, privacy-first handoff tool for the hospice bedside.</div>

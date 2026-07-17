@@ -20,7 +20,7 @@
     --ink: #1a1a1a;
     --ink-soft: #555;
     --ink-faint: #888;
-    --accent: #3f7d5a;        /* VOQA green */
+    --accent: #1a1a1a;        /* was VOQA green — neutralized to B&W (cursor trails keep their color) */
     --rule: #ececec;
     --frame-bg: #f6f5f3;
     --max: 720px;
@@ -42,13 +42,13 @@
     padding-top: 28px;
   }
   .site-top a {
-    font-size: 13.5px; font-weight: 500; color: #fff;
-    background: var(--accent);
+    font-size: 13.5px; font-weight: 500; color: var(--ink);
+    background: transparent; border: 1px solid var(--ink);
     padding: 9px 18px; border-radius: 999px;
     text-decoration: none;
-    transition: background 0.15s;
+    transition: background 0.15s, color 0.15s;
   }
-  .site-top a:hover { background: var(--ink); }
+  .site-top a:hover { background: var(--ink); color: #fff; }
 
   /* ── Header ── */
   header { padding: 64px 0 0; }
@@ -243,11 +243,12 @@
   }
   footer p { margin-bottom: 24px; }
   .btn {
-    display: inline-block; background: var(--ink); color: #fff;
+    display: inline-block; background: transparent; color: var(--ink); border: 1px solid var(--ink);
     font-size: 14px; font-weight: 500; text-decoration: none;
     padding: 12px 22px; border-radius: 999px;
+    transition: background 0.15s, color 0.15s;
   }
-  .btn:hover { background: var(--accent); }
+  .btn:hover { background: var(--ink); color: #fff; }
 
   /* ── Legacy top bar — kept ONLY as the mobile bar (hamburger + drawer).
      The shared nav.js owns the desktop nav, so hide this on desktop. ── */
@@ -735,8 +736,8 @@
     <div class="more-cs">
       <div class="more-cs-label">More Case Studies</div>
       <div class="more-cs-row">
-        <a class="more-cs-card" href="bedside">
-          <div class="more-cs-thumb"><img src="assets/case studies/bedside/thumb.svg" alt="Bedside" loading="lazy" /></div>
+        <a class="more-cs-card" href="bedside-wip">
+          <div class="more-cs-thumb"><img src="assets/case studies/bedside/cover.png" alt="Bedside" loading="lazy" /></div>
           <div class="more-cs-body">
             <div class="more-cs-title">Bedside</div>
             <div class="more-cs-desc">A voice-first, privacy-first handoff tool for the hospice bedside.</div>
