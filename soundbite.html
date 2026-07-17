@@ -52,8 +52,8 @@
   .site-top a:hover { background: var(--ink); color: #fff; }
 
   header { padding: 64px 0 0; }
-  .eyebrow { font-size: 11px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 20px; }
-  h1 { font-size: 32px; line-height: 1.25; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 36px; text-wrap: balance; }
+  .eyebrow { font-size: 12px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 20px; }
+  h1 { font-size: 40px; line-height: 1.25; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 36px; text-wrap: balance; }
 
   .meta {
     display: flex; flex-wrap: wrap; gap: 8px 48px;
@@ -61,7 +61,7 @@
     margin-bottom: 56px;
   }
   .meta dt { color: var(--ink-faint); font-size: 11px; font-weight: 400; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
-  .meta dd { color: var(--ink); font-size: 13.5px; }
+  .meta dd { color: var(--ink); font-size: 15px; }
   .meta dd a { color: var(--accent); text-decoration: none; font-weight: 400; }
   .meta dd a:hover { text-decoration: underline; }
 
@@ -75,24 +75,24 @@
   .hero { width: 100%; border-radius: 12px; display: block; margin-bottom: 96px; max-height: 460px; object-fit: cover; }
 
   section { margin-bottom: 140px; }
-  h2 { font-size: 18px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 16px; scroll-margin-top: 40px; text-wrap: balance; }
-  h3 { font-size: 13px; font-weight: 500; margin: 28px 0 8px; }
-  p { font-size: 13px; color: var(--ink-soft); margin-bottom: 14px; line-height: 1.65; text-wrap: pretty; }
+  h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 16px; scroll-margin-top: 40px; text-wrap: balance; }
+  h3 { font-size: 16px; font-weight: 500; margin: 28px 0 8px; }
+  p { font-size: 16px; color: var(--ink-soft); margin-bottom: 14px; line-height: 1.65; text-wrap: pretty; }
   p strong { color: var(--ink); }
-  .lead { font-size: 14px; color: var(--ink); line-height: 1.65; margin-bottom: 14px; }
+  .lead { font-size: 18px; font-weight: 500; color: var(--ink); line-height: 1.65; margin-bottom: 14px; }
 
   figure { margin: 48px 0; }
   figure img { width: 100%; border-radius: 10px; display: block; }
-  figcaption { font-size: 12px; color: var(--ink-faint); margin-top: 10px; }
+  figcaption { font-size: 14px; color: var(--ink-faint); margin-top: 10px; }
 
-  .section-label { font-size: 11px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
+  .section-label { font-size: 12px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
 
   .jump { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 56px; }
   .jump a { font-size: 13px; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent; }
   .jump a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
   .split-text { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin: 32px 0; align-items: start; }
-  .split-accent p { color: var(--ink); font-weight: 400; font-size: 13px; margin-bottom: 0; }
+  .split-accent p { color: var(--ink); font-weight: 400; font-size: 16px; margin-bottom: 0; }
   .split-body p { margin-bottom: 0; }
   @media (max-width: 640px) { .split-text { grid-template-columns: 1fr; gap: 12px; } }
 
@@ -735,5 +735,101 @@ function mobDrawerClose() {
     els.forEach(el => observer.observe(el));
   })();
 </script>
+
+<!-- ── Artifact zoom / click-to-enlarge (added for readability + detail viewing) ── -->
+<style>
+  figure img { cursor: zoom-in; transition: filter 0.2s ease; }
+  figure.has-zoom { position: relative; }
+  figure.has-zoom:hover img { filter: brightness(0.95); }
+  figure.has-zoom::after {
+    content: "\2922"; position: absolute; top: 14px; right: 14px;
+    width: 30px; height: 30px; border-radius: 8px;
+    background: rgba(26,26,26,0.60); color: #fff; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); z-index: 3;
+  }
+  figure.has-zoom:hover::after { opacity: 1; }
+  .lightbox-overlay {
+    position: fixed; inset: 0; z-index: 100001;
+    background: rgba(18,16,15,0.88);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 44px; opacity: 0; pointer-events: none;
+    transition: opacity 0.28s ease;
+  }
+  .lightbox-overlay.open { opacity: 1; pointer-events: auto; }
+  .lightbox-overlay img {
+    max-width: 94vw; max-height: 90vh; width: auto; height: auto;
+    border-radius: 10px; box-shadow: 0 30px 90px rgba(0,0,0,0.55);
+    transform: scale(0.97); transition: transform 0.28s cubic-bezier(0.16,1,0.3,1);
+  }
+  .lightbox-overlay.open img { transform: scale(1); }
+  .lightbox-close {
+    position: fixed; top: 20px; right: 24px; width: 46px; height: 46px;
+    border-radius: 50%; border: none; background: rgba(255,255,255,0.16);
+    color: #fff; font-size: 19px; line-height: 1; display: flex;
+    align-items: center; justify-content: center; transition: background 0.15s ease;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.30); }
+  .lightbox-hint {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,255,0.62); font-size: 12px; letter-spacing: 0.02em; pointer-events: none;
+  }
+  @media (max-width: 768px) {
+    figure.has-zoom::after { display: none; }
+    .lightbox-overlay { padding: 16px; }
+    .lightbox-hint { display: none; }
+  }
+</style>
+<div class="lightbox-overlay" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close image">✕</button>
+  <img id="lightboxImg" src="" alt="" />
+  <div class="lightbox-hint">Click anywhere or press Esc to close</div>
+</div>
+<script>
+(function() {
+  var overlay = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lightboxImg');
+  var closeBtn = document.getElementById('lightboxClose');
+  if (!overlay || !lbImg) return;
+
+  // Only figures that actually contain an image get the zoom affordance.
+  document.querySelectorAll('figure').forEach(function(fig) {
+    if (fig.querySelector('img')) fig.classList.add('has-zoom');
+  });
+
+  function openLightbox(src, alt) {
+    lbImg.src = src; lbImg.alt = alt || '';
+    overlay.classList.add('open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    overlay.classList.remove('open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('click', function(e) {
+    var img = e.target.closest && e.target.closest('figure img');
+    if (img) { e.preventDefault(); openLightbox(img.currentSrc || img.src, img.alt); }
+  });
+  overlay.addEventListener('click', function() { closeLightbox(); });
+  if (closeBtn) closeBtn.addEventListener('click', function(e) { e.stopPropagation(); closeLightbox(); });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeLightbox();
+  });
+
+  // Reuse the site's custom cursor hover state so the dot reacts over zoomable images.
+  document.addEventListener('mouseover', function(e) {
+    if (e.target.closest && e.target.closest('figure img')) document.body.classList.add('cursor-hover');
+  });
+  document.addEventListener('mouseout', function(e) {
+    if (e.target.closest && e.target.closest('figure img')) document.body.classList.remove('cursor-hover');
+  });
+})();
+</script>
+
 </body>
 </html>
