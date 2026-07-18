@@ -1692,6 +1692,86 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeMusicPopup();
 });
 
+// ── Cross-page persistence — save playback so it resumes on other pages.
+// Shares the 'sydney_music_v1' schema with music-player.js (the shared module
+// on non-homepage pages). Additive: does not change the player's own logic.
+// Robustness mirrors music-player.js: pause-on-leave + bfcache resync +
+// ownership guard so stale/cached page instances can't clobber the live one.
+const MUSIC_STORE_KEY = 'sydney_music_v1';
+const MUSIC_SESSION = Math.random().toString(36).slice(2);
+let _musicLeaving = false;
+let _musicRestoring = false;
+let _lastMusicSave = 0;
+function readMusicState() {
+  try { return JSON.parse(localStorage.getItem(MUSIC_STORE_KEY)); } catch (e) { return null; }
+}
+function saveMusicState() {
+  if (_musicRestoring) return; // suppress transient saves while seeking to restored spot
+  // Only the visible page may write; backgrounded/bfcached instances stay out
+  // (the _musicLeaving exception allows the pagehide handoff save). See
+  // music-player.js for the full rationale.
+  if (document.visibilityState !== 'visible' && !_musicLeaving) return;
+  const playing = !bgAudio.paused;
+  const prev = readMusicState();
+  // Ownership: only the actively-playing page writes; another page owns while
+  // its heartbeat stays fresh (<1.5s). See music-player.js for the rationale.
+  const mayWrite = !prev || !prev.owner || prev.owner === MUSIC_SESSION ||
+                   !prev.playing || (Date.now() - prev.ts) > 1500;
+  if (!mayWrite) return;
+  try {
+    localStorage.setItem(MUSIC_STORE_KEY, JSON.stringify({
+      track: cdpCurrentTrack, time: bgAudio.currentTime || 0, playing: playing,
+      vol: bgAudio.volume, ts: Date.now(),
+      owner: playing ? MUSIC_SESSION : (prev ? prev.owner : MUSIC_SESSION)
+    }));
+  } catch (e) {}
+}
+bgAudio.addEventListener('play', saveMusicState);
+bgAudio.addEventListener('pause', () => { if (!_musicLeaving) saveMusicState(); });
+bgAudio.addEventListener('ended', saveMusicState);
+bgAudio.addEventListener('volumechange', saveMusicState);
+bgAudio.addEventListener('timeupdate', () => {
+  const now = Date.now();
+  if (now - _lastMusicSave > 1000) { _lastMusicSave = now; saveMusicState(); }
+});
+window.addEventListener('pagehide', () => { _musicLeaving = true; if (!bgAudio.paused) saveMusicState(); bgAudio.pause(); });
+window.addEventListener('pageshow', (e) => { if (e.persisted) { _musicLeaving = false; applyMusicState(readMusicState()); } });
+
+function applyMusicState(saved) {
+  if (!saved || typeof saved.track !== 'number' || !CDP_TRACKS[saved.track]) return;
+  _musicRestoring = true;
+  cdpSelectTrack(saved.track);
+  if (typeof saved.vol === 'number') {
+    bgAudio.volume = saved.vol;
+    const vol = document.querySelector('.cdp-vol-slider');
+    if (vol) vol.value = saved.vol;
+  }
+  const seekTo = saved.time || 0;
+  const startResume = () => {
+    if (!saved.playing) return;
+    const tryResume = () => { if (bgAudio.paused) { musicPlaying = false; cdpTogglePlay(); } };
+    tryResume(); // often allowed after the user has already played media here
+    const onGesture = () => {           // otherwise resume on first interaction
+      tryResume();
+      if (!bgAudio.paused) {
+        document.removeEventListener('pointerdown', onGesture);
+        document.removeEventListener('keydown', onGesture);
+      }
+    };
+    document.addEventListener('pointerdown', onGesture);
+    document.addEventListener('keydown', onGesture);
+  };
+  const seek = () => { try { bgAudio.currentTime = seekTo; } catch (e) {} _musicRestoring = false; startResume(); };
+  if (bgAudio.readyState >= 1) seek();
+  else bgAudio.addEventListener('loadedmetadata', seek, { once: true });
+}
+
+(function () {
+  const run = () => applyMusicState(readMusicState());
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
+
 
 // ── Marketing bento — open a card's write-up as a modal ───────────────────
 // The panel is a portal: it lives in #mkw-panels (out of the grid) and is
