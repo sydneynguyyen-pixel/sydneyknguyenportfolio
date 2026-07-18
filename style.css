@@ -5504,8 +5504,9 @@ html.mkw-modal-lock { overflow: hidden; padding-right: var(--mkw-sbw, 0px); }
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid rgba(0,0,0,0.07);
   }
-  .mob-bar-logo { width: 26px; height: 26px; object-fit: contain; border-radius: 6px; }
-  .mob-bar-title { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-left: 9px; flex: 1; }
+  .mob-bar-brand { display: flex; align-items: center; text-decoration: none; flex: 1; min-width: 0; }
+  .mob-bar-logo { width: 26px; height: auto; display: block; overflow: visible; }
+  .mob-bar-title { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; color: #1a1a1a; margin-left: 10px; white-space: nowrap; }
   .mob-hamburger {
     display: flex; flex-direction: column; justify-content: center;
     gap: 5px; width: 36px; height: 36px; padding: 8px;
@@ -5590,19 +5591,28 @@ html.mkw-modal-lock { overflow: hidden; padding-right: var(--mkw-sbw, 0px); }
 
 
   .mob-hero {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     text-align: center;
-    padding: 40px 24px 32px;
+    min-height: calc(100svh - 52px);   /* fill the viewport below the sticky bar */
+    padding: 32px 24px 88px;           /* bottom room for the pinned scroll cue */
   }
-  .mob-avatar {
-    width: 84px; height: 84px; border-radius: 50%; object-fit: cover;
-    margin-bottom: 16px; border: 3px solid #fff;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  /* Hand-drawn mascot — shown whole (no crop/disc), like the desktop hero. */
+  .mob-hero-icon {
+    width: 150px; height: 150px; object-fit: contain;
+    margin-bottom: 14px;
   }
-  .mob-name { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin: 0 0 10px; line-height: 1.2; }
-  .mob-tagline { font-size: 13.5px; color: #666; line-height: 1.65; max-width: 280px; margin: 0 0 14px; }
+  /* Typed lowercase wordmark — same cycling phrases + caret as the desktop ring. */
+  .mob-wordmark {
+    font-family: var(--font-sans);
+    font-size: 34px; font-weight: 400; letter-spacing: -0.025em;
+    color: #1a1a1a; line-height: 1.15;
+    margin: 0 0 12px; min-height: 1.15em;
+  }
+  .mob-tagline { font-size: 14px; font-weight: 300; color: #888; line-height: 1.55; max-width: 300px; margin: 0 0 16px; }
   .mob-otw {
     display: inline-flex; align-items: center; gap: 7px;
     /* Handwriting accent — same scoped token as the desktop pill, nowhere else. */
@@ -5612,6 +5622,18 @@ html.mkw-modal-lock { overflow: hidden; padding-right: var(--mkw-sbw, 0px); }
     border-radius: 999px; padding: 5px 15px 7px; margin-bottom: 20px;
   }
   .mob-otw .peeker-pulse { align-self: center; margin-top: -1px; }
+
+  /* Scroll cue — pinned near the bottom of the hero, bobbing like the desktop
+     nudge. Reuses the global .scroll-nudge-arrow / .scroll-nudge-text styles. */
+  .mob-scroll-cue {
+    /* Span the full width and center with flex — the bob animation animates
+       transform, so centering can't also live on transform (it'd be overridden). */
+    position: absolute;
+    left: 0; right: 0; bottom: 26px;
+    display: flex; justify-content: center; align-items: baseline; gap: 0.4em;
+    color: #1a1a1a; white-space: nowrap;
+    animation: scroll-bob 2s ease-in-out infinite;
+  }
   .mob-cta-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
   .mob-cta {
     font-size: 13px; font-weight: 500; color: #fff; background: #1a1a1a;

@@ -2267,36 +2267,67 @@ function nextSlide(id) { _slideStep(id, 1); }
 // this animated text is aria-hidden. Under prefers-reduced-motion it
 // simply shows "Sydney Nguyen" static with no cursor.
 (function initRingNameType() {
-  const nameEl = document.querySelector('.ring-name');
-  const textEl = nameEl && nameEl.querySelector('.rn-text');
-  if (!textEl) return;
+  // Every .rn-text on the page runs its own independent typewriter. There are up
+  // to two: the desktop ring name and the mobile hero wordmark — only one is
+  // visible at a time, but both are cheap to drive.
+  const textEls = document.querySelectorAll('.rn-text');
+  if (!textEls.length) return;
 
   const PHRASES = ['sydney nguyen', 'product designer', 'ux/ui', 'mdes @ sjsu', 'creative thinker', 'matcha lover'];
   const TYPE_MS = 60;    // per character while typing
   const DELETE_MS = 35;  // per character while deleting (reads faster)
   const HOLD_MS = 2000;  // pause on a completed phrase
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    textEl.textContent = 'sydney nguyen';
-    return;
-  }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  let phrase = 0, chars = 0, deleting = false, timer = null;
+  function startTyping(textEl) {
+    if (reduceMotion) { textEl.textContent = 'sydney nguyen'; return; }
 
-  function step() {
-    const target = PHRASES[phrase];
-    if (!deleting) {
-      textEl.textContent = target.slice(0, ++chars);
-      if (chars === target.length) { deleting = true; timer = setTimeout(step, HOLD_MS); return; }
-      timer = setTimeout(step, TYPE_MS);
-    } else {
-      textEl.textContent = target.slice(0, --chars);
-      if (chars === 0) { deleting = false; phrase = (phrase + 1) % PHRASES.length; }
-      timer = setTimeout(step, DELETE_MS);
+    let phrase = 0, chars = 0, deleting = false, timer = null;
+
+    function step() {
+      const target = PHRASES[phrase];
+      if (!deleting) {
+        textEl.textContent = target.slice(0, ++chars);
+        if (chars === target.length) { deleting = true; timer = setTimeout(step, HOLD_MS); return; }
+        timer = setTimeout(step, TYPE_MS);
+      } else {
+        textEl.textContent = target.slice(0, --chars);
+        if (chars === 0) { deleting = false; phrase = (phrase + 1) % PHRASES.length; }
+        timer = setTimeout(step, DELETE_MS);
+      }
     }
+
+    timer = setTimeout(step, TYPE_MS);
+    // Clean up the pending timer if the page is torn down.
+    window.addEventListener('pagehide', () => clearTimeout(timer), { once: true });
   }
 
-  timer = setTimeout(step, TYPE_MS);
-  // Clean up the pending timer if the page is torn down.
-  window.addEventListener('pagehide', () => clearTimeout(timer), { once: true });
+  textEls.forEach(startTyping);
+})();
+
+// ── Mobile hero mascot — expression cycle ────────────────────
+// The desktop center icon flips expressions inside buildPortfolio's ring init
+// (which targets a single, first-in-DOM element). The mobile hero has its own
+// mascot below that in the DOM, so it gets this small independent cycler —
+// same four frames, same 1s beat, paused under reduced motion.
+(function initMobileHeroIcon() {
+  const img = document.getElementById('mob-hero-icon');
+  if (!img) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const ICONS = [
+    'assets/icons/center-icon.webp',           // default / first frame
+    'assets/icons/center-icon-wink.webp',
+    'assets/icons/center-icon-sleep.webp',
+    'assets/icons/center-icon-confused.webp',
+  ];
+  ICONS.forEach(src => { new Image().src = src; });   // preload for clean swaps
+
+  let idx = 0;
+  const timer = setInterval(() => {
+    idx = (idx + 1) % ICONS.length;
+    img.src = ICONS[idx];
+  }, 1000);
+  window.addEventListener('pagehide', () => clearInterval(timer), { once: true });
 })();
