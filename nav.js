@@ -140,7 +140,7 @@ body.has-site-footer { min-height: 100vh; display: flex; flex-direction: column;
   <span class="nav-brand-name">sydney nguyen</span>\
 </a>\
 <div class="nav-contact">\
-  <a href="mailto:sydney.nguyen01@sjsu.edu" class="nav-icon-btn" title="Email" aria-label="Email">\
+  <a href="mailto:sydneynguyyen@gmail.com" class="nav-icon-btn" title="Email" aria-label="Email">\
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>\
   </a>\
   <a href="https://www.linkedin.com/in/sydneyknguyen" target="_blank" rel="noopener" class="nav-icon-btn" title="LinkedIn" aria-label="LinkedIn">\
