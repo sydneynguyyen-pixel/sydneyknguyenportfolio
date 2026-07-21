@@ -199,11 +199,19 @@
   /* ── More Case Studies — small widget row ── */
   .more-cs { margin: 48px 0 36px; }
   .more-cs-label { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 14px; }
-  .more-cs-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .more-cs-row {
+    display: flex; gap: 12px; flex-wrap: nowrap;
+    overflow-x: auto; padding-bottom: 8px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.15) transparent;
+  }
+  .more-cs-row::-webkit-scrollbar { height: 5px; }
+  .more-cs-row::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+  .more-cs-row::-webkit-scrollbar-track { background: transparent; }
   .more-cs-card {
-    flex: 1 1 140px; max-width: 200px; text-decoration: none;
+    flex: 0 0 140px; max-width: 200px; text-decoration: none;
     border: 1px solid var(--rule); border-radius: 14px; overflow: hidden;
-    background: #fff; display: block;
+    background: #fff; display: block; scroll-snap-align: start;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   .more-cs-card:hover { transform: translateY(-4px); box-shadow: 0 10px 24px rgba(0,0,0,0.1); }
