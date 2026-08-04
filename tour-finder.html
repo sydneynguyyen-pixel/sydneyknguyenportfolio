@@ -15,6 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 <script src="nav.js"></script>
 <script src="music-player.js"></script>
+<script src="hand-frame.js"></script>
 <style>
   :root {
     --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -35,7 +36,9 @@
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+  /* .wrap: the shared nav makes <body> a flex column; a definite width + min-width:0
+     keep the centred reading column pinned to --max instead of stretching to a wide child. */
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; width: 100%; min-width: 0; }
 
   /* ── Site top bar ── */
   .site-top {
@@ -99,12 +102,13 @@
   .jump a { font-size: 13px; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent; }
   .jump a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* ── Side table of contents ── */
+  /* ── Side table of contents — decoupled from the content column, pinned toward
+     the window's LEFT edge at a fixed offset; the .wrap stays centred independently. ── */
   .toc {
     display: none;
     position: fixed;
     top: 140px;
-    left: calc(50% - var(--max) / 2 - 190px);
+    left: clamp(24px, 4vw, 72px);
     width: 150px;
   }
   .toc-label {
@@ -123,6 +127,29 @@
   @media (min-width: 1180px) {
     .toc { display: block; }
     .jump { display: none; }
+  }
+
+  /* ── Wide-media breakout ───────────────────────────────────────────
+     The .wrap reading column stays dead-centre in the window; key visuals can
+     break out to a wider max, centred on that same axis. Centering uses `left`
+     (not transform) so it never fights the data-reveal transforms on wrappers. */
+  .wide {
+    --wide-w: min(900px, calc(100vw - 40px));
+    width: var(--wide-w);
+    position: relative;
+    left: calc((100% - var(--wide-w)) / 2);
+  }
+  .wide-phones {
+    --wide-w: min(760px, calc(100vw - 40px));
+    width: var(--wide-w);
+    position: relative;
+    left: calc((100% - var(--wide-w)) / 2);
+  }
+  @media (min-width: 1180px) {
+    /* Where the left-pinned TOC is shown, keep the centred wide media clear of it:
+       symmetric side margins ≥ the TOC zone (rail 150px + 16px gap = 166px). */
+    .wide        { --wide-w: min(900px, calc(100vw - 2 * (clamp(24px, 4vw, 72px) + 166px))); }
+    .wide-phones { --wide-w: min(760px, calc(100vw - 2 * (clamp(24px, 4vw, 72px) + 166px))); }
   }
 
   .hero { width: 100%; border-radius: 12px; display: block; margin-bottom: 96px; }
@@ -152,6 +179,12 @@
 
   .framed { background: var(--frame-bg); border-radius: 12px; padding: 28px; }
   .framed img { border-radius: 8px; }
+
+  /* ── Hand-drawn brush-stroke image border (drawn by hand-frame.js) ──
+     Ported from voqa.html: always-on black ink, matching the case-study card
+     frames. Applied to plain content images + desktop-layout videos via a
+     .hand-frame wrapper. */
+  .hand-frame .hand-frame-svg{ color:#1a1a1a; opacity:1; }
 
   /* placeholder frame — stands in for a real screenshot until one is dropped in */
   .placeholder-frame {
@@ -561,7 +594,9 @@
   <section id="background" data-reveal>
     <h2>Background</h2>
     <figure>
-      <img src="assets/case studies/tour-finder/backstage.webp" loading="lazy" alt="Backstage at a live show" style="object-fit:cover; max-height:420px;" />
+      <div class="hand-frame" data-seed="12" style="--w:100%; --ar:auto;">
+        <img src="assets/case studies/tour-finder/backstage.webp" loading="lazy" alt="Backstage at a live show" style="object-fit:cover; max-height:420px;" />
+      </div>
     </figure>
     <p>The idea came from watching someone close to me navigate this exact problem — they work in live music, coordinating tours and production for touring artists. Tour manager and production coordinator roles are almost never publicly listed. They're filled through personal networks, word of mouth, or someone in the industry noticing an artist is about to tour and reaching out first.</p>
     <p>I watched how they actually found work: manually researching artists, guessing who might be gearing up for a tour, checking if they already had representation, cold-emailing when they spotted an opening. It worked — but only for whichever artists happened to come to mind, and it didn't scale.</p>
@@ -571,7 +606,9 @@
   <section id="concept" data-reveal>
     <h2>Concept</h2>
     <figure>
-      <img src="assets/case studies/tour-finder/concert.webp" loading="lazy" alt="A live concert crowd" style="object-fit:cover; max-height:420px;" />
+      <div class="hand-frame" data-seed="22" style="--w:100%; --ar:auto;">
+        <img src="assets/case studies/tour-finder/concert.webp" loading="lazy" alt="A live concert crowd" style="object-fit:cover; max-height:420px;" />
+      </div>
     </figure>
     <p class="lead">Tour Finder is a discovery tool, not a job board.</p>
     <p>Instead of listing open positions — which mostly don't exist in this industry — it surfaces artists showing real signs of touring soon: a fresh release with no tour booked yet, a comeback after time away, growing show frequency. It ranks them by likely fit for someone with specific touring experience and scale.</p>
@@ -737,8 +774,10 @@
       <p class="feature-block-desc">A 0–100 fit score built from five factors: touring history, venue scale match, how reachable an artist's team is, timing (a fresh release with no tour booked is the strongest signal), and momentum.</p>
       <div class="feature-media">
         <figure>
-          <div class="video-crop">
-            <video src="assets/case studies/tour-finder/artist score breakdown.mp4" autoplay loop muted playsinline></video>
+          <div class="hand-frame" data-seed="32" style="--w:100%; --ar:auto;">
+            <div class="video-crop">
+              <video src="assets/case studies/tour-finder/artist score breakdown.mp4" autoplay loop muted playsinline></video>
+            </div>
           </div>
           <figcaption>Score breakdown for a scored lead.</figcaption>
         </figure>
@@ -773,7 +812,9 @@
       <p class="feature-block-desc">A record of who you've actually worked with, separate from suggested leads, which doubles as calibration data for the scoring system.</p>
       <div class="feature-media">
         <figure>
-          <img src="assets/case studies/tour-finder/personal artist log.webp" loading="lazy" alt="My Artists — a personal log of artists worked with, feeding back into scoring" />
+          <div class="hand-frame" data-seed="42" style="--w:100%; --ar:auto;">
+            <img src="assets/case studies/tour-finder/personal artist log.webp" loading="lazy" alt="My Artists — a personal log of artists worked with, feeding back into scoring" />
+          </div>
           <figcaption>My Artists — your own roster.</figcaption>
         </figure>
       </div>
@@ -784,8 +825,10 @@
       <p class="feature-block-desc">Drag genres up or down to reorder — scoring nudges toward your current priorities in real time, without excluding anything else.</p>
       <div class="feature-media">
         <figure>
-          <div class="video-crop">
-            <video src="assets/case studies/tour-finder/genre ranking.mp4" autoplay loop muted playsinline></video>
+          <div class="hand-frame" data-seed="52" style="--w:100%; --ar:auto;">
+            <div class="video-crop">
+              <video src="assets/case studies/tour-finder/genre ranking.mp4" autoplay loop muted playsinline></video>
+            </div>
           </div>
           <figcaption>Reordering genre priorities.</figcaption>
         </figure>
@@ -797,8 +840,10 @@
       <p class="feature-block-desc">An unfiltered feed of confirmed tours already on sale but not yet underway, soonest first — pulled straight from ticketing data. Tracked artists surface immediately; anyone outside your roster needs a real multi-city run to qualify.</p>
       <div class="feature-media">
         <figure>
-          <div class="video-crop">
-            <video src="assets/case studies/tour-finder/new tour detected.mp4" autoplay loop muted playsinline></video>
+          <div class="hand-frame" data-seed="62" style="--w:100%; --ar:auto;">
+            <div class="video-crop">
+              <video src="assets/case studies/tour-finder/new tour detected.mp4" autoplay loop muted playsinline></video>
+            </div>
           </div>
           <figcaption>The New Tour Detected feed, soonest tours first.</figcaption>
         </figure>
@@ -810,8 +855,10 @@
       <p class="feature-block-desc">New leads arrive automatically every week — or trigger a check yourself anytime and watch results roll in.</p>
       <div class="feature-media">
         <figure>
-          <div class="video-crop">
-            <video src="assets/case studies/tour-finder/scan for new leads.mp4" autoplay loop muted playsinline></video>
+          <div class="hand-frame" data-seed="72" style="--w:100%; --ar:auto;">
+            <div class="video-crop">
+              <video src="assets/case studies/tour-finder/scan for new leads.mp4" autoplay loop muted playsinline></video>
+            </div>
           </div>
           <figcaption>Triggering an on-demand scan.</figcaption>
         </figure>
@@ -823,7 +870,9 @@
   <section id="how-it-was-built" data-reveal>
     <h2>How It Was Built</h2>
     <figure>
-      <img src="assets/case studies/tour-finder/build-visual.webp" loading="lazy" alt="Architecture diagram — data sources feed an automation pipeline running weekly via GitHub Actions, writing to a GitHub repo with no database, which powers a site dashboard that syncs edits back" />
+      <div class="hand-frame" data-seed="82" style="--w:100%; --ar:auto;">
+        <img src="assets/case studies/tour-finder/build-visual.webp" loading="lazy" alt="Architecture diagram — data sources feed an automation pipeline running weekly via GitHub Actions, writing to a GitHub repo with no database, which powers a site dashboard that syncs edits back" />
+      </div>
     </figure>
     <p class="tech-stack">Stack: React 19 + Vite (dashboard), Node.js (automation pipeline), GitHub Actions (weekly cron), Netlify (hosting + serverless functions). Built solo, paired with Claude Code — the whole thing went from empty repo to a live, running pipeline in about 2 days.</p>
 

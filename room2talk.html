@@ -12,16 +12,17 @@
 <meta property="og:type" content="article" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Mynerve&display=swap" rel="stylesheet" />
 <script src="nav.js"></script>
 <script src="music-player.js"></script>
+<script src="hand-frame.js"></script>
 <style>
   :root {
     --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     --ink: #1a1a1a;
     --ink-soft: #555;
     --ink-faint: #888;
-    --accent: #1a1a1a;        /* was room2talk pink — neutralized to B&W (cursor trails keep their color) */
+    --accent: #d76d9a;        /* rose — room2talk pinboard theme accent */
     --rule: #ececec;
     --frame-bg: #f6f5f3;
     --max: 720px;
@@ -35,21 +36,11 @@
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+  /* .wrap: the shared nav makes <body> a flex column; a definite width + min-width:0
+     keep the centred reading column pinned to --max instead of stretching to a wide child. */
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; width: 100%; min-width: 0; }
 
-  /* ── Site top bar ── */
-  .site-top {
-    display: flex; justify-content: flex-end; align-items: center;
-    padding-top: 28px;
-  }
-  .site-top a {
-    font-size: 13.5px; font-weight: 400; color: var(--ink);
-    background: transparent; border: 1px solid var(--ink);
-    padding: 9px 18px; border-radius: 999px;
-    text-decoration: none;
-    transition: background 0.15s, color 0.15s;
-  }
-  .site-top a:hover { background: var(--ink); color: #fff; }
+  .header-cta { margin: 4px 0 44px; }
 
   /* ── Header ── */
   header { padding: 64px 0 0; }
@@ -78,12 +69,13 @@
   .jump a { font-size: 13px; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent; }
   .jump a:hover { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* ── Side table of contents ── */
+  /* ── Side table of contents — decoupled from the content column, pinned toward
+     the window's LEFT edge at a fixed offset; the .wrap stays centred independently. ── */
   .toc {
     display: none;
     position: fixed;
     top: 140px;
-    left: calc(50% - var(--max) / 2 - 190px);
+    left: clamp(24px, 4vw, 72px);
     width: 150px;
   }
   .toc-label {
@@ -102,6 +94,29 @@
   @media (min-width: 1180px) {
     .toc { display: block; }
     .jump { display: none; }
+  }
+
+  /* ── Wide-media breakout ───────────────────────────────────────────
+     The .wrap reading column stays dead-centre in the window; key visuals can
+     break out to a wider max, centred on that same axis. Centering uses `left`
+     (not transform) so it never fights the data-reveal transforms on wrappers. */
+  .wide {
+    --wide-w: min(900px, calc(100vw - 40px));
+    width: var(--wide-w);
+    position: relative;
+    left: calc((100% - var(--wide-w)) / 2);
+  }
+  .wide-phones {
+    --wide-w: min(760px, calc(100vw - 40px));
+    width: var(--wide-w);
+    position: relative;
+    left: calc((100% - var(--wide-w)) / 2);
+  }
+  @media (min-width: 1180px) {
+    /* Where the left-pinned TOC is shown, keep the centred wide media clear of it:
+       symmetric side margins ≥ the TOC zone (rail 150px + 16px gap = 166px). */
+    .wide        { --wide-w: min(900px, calc(100vw - 2 * (clamp(24px, 4vw, 72px) + 166px))); }
+    .wide-phones { --wide-w: min(760px, calc(100vw - 2 * (clamp(24px, 4vw, 72px) + 166px))); }
   }
 
   .hero { width: 100%; border-radius: 12px; display: block; margin-bottom: 96px; }
@@ -124,6 +139,12 @@
 
   .framed { background: var(--frame-bg); border-radius: 12px; padding: 28px; }
   .framed img { border-radius: 8px; }
+
+  /* ── Hand-drawn brush-stroke image border (drawn by hand-frame.js) ──
+     Ported from voqa.html: always-on black ink, matching the case-study card
+     frames. Applied to plain content images + desktop-layout videos via a
+     .hand-frame wrapper. */
+  .hand-frame .hand-frame-svg{ color:#1a1a1a; opacity:1; }
   /* ombre frames behind the gifs — matches the original case study palette */
   .ombre-1 { background: linear-gradient(135deg, rgb(221,255,173), rgb(175,255,218)); }
   .ombre-2 { background: linear-gradient(135deg, rgb(168,184,255), rgb(255,186,196)); }
@@ -375,7 +396,7 @@
   * { cursor: none !important; }
   .cursor-dot {
     width: 9px; height: 9px;
-    background: linear-gradient(-45deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 65%), rgba(212,88,122,0.55);
+    background: linear-gradient(-45deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 65%), rgba(215,109,154,0.5);
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(230,140,160,0.5);
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -470,6 +491,49 @@
       transition: none;
     }
   }
+
+  /* ══ Pinboard intro — full-viewport board with edge polaroids that scales +
+     fades on scroll to hand off to the case study below (rose theme). ══ */
+  .hero-pin{position:relative;height:200vh;}
+  .hero-sticky{position:sticky;top:0;height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .board{position:relative;width:100%;height:100svh;}
+  .top-eyebrow{position:absolute;top:70px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);z-index:5;white-space:nowrap;}
+  .piece{position:absolute;transform:translate(-50%,-50%) rotate(var(--r,0deg));opacity:0;animation:floatin .7s cubic-bezier(.16,1,.3,1) forwards;animation-delay:var(--d,0s);}
+  @keyframes floatin{from{opacity:0;transform:translate(-50%,calc(-50% + 24px)) rotate(var(--r,0deg)) scale(.95);}to{opacity:1;transform:translate(-50%,-50%) rotate(var(--r,0deg)) scale(1);}}
+  .pol{transform:translateY(-50%) rotate(var(--r,0deg));animation-name:polfloat;}
+  @keyframes polfloat{from{opacity:0;transform:translateY(calc(-50% + 22px)) rotate(var(--r,0deg));}to{opacity:1;transform:translateY(-50%) rotate(var(--r,0deg));}}
+  .polaroid{background:#fff;padding:9px 9px 6px;border-radius:2px;box-shadow:0 3px 9px rgba(0,0,0,0.08);}
+  .polaroid .cap{font-family:'Mynerve',cursive;font-size:14.5px;color:var(--ink-soft);text-align:center;margin-top:7px;line-height:1.1;}
+  .polaroid .tape{position:absolute;top:-9px;left:50%;transform:translateX(-50%) rotate(-3deg);width:56px;height:18px;background:rgba(215,109,154,0.14);border:1px solid rgba(215,109,154,0.10);border-radius:1px;}
+  .polaroid.photo{width:256px;}
+  .polaroid.photo img,.polaroid.photo video{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#eee;border-radius:2px;}
+  .title-block{text-align:center;width:min(680px,92%);}
+  .cs-sketch{display:block;width:150px;height:auto;margin:0 auto 8px;overflow:visible;}
+  .cs-sketch path,.cs-sketch circle{stroke:var(--accent);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 1s ease forwards;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  .hero-title{font-size:64px;font-weight:800;letter-spacing:-.02em;line-height:.94;}
+  .uline{display:block;height:14px;width:280px;margin:6px auto 16px;}
+  .uline path{stroke:var(--accent);stroke-width:5;fill:none;stroke-linecap:round;}
+  .hero-sub{font-size:19px;color:var(--ink-soft);max-width:460px;margin:0 auto;line-height:1.5;}
+  .scroll-cue{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);text-align:center;color:var(--accent);z-index:6;}
+  .scroll-cue .lbl{font-family:'Mynerve',cursive;font-size:18px;margin-bottom:2px;}
+  .scroll-cue svg{width:22px;height:22px;animation:bob 1.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+  .btn-hand{display:inline-block;margin-top:6px;padding:11px 22px;border:2px solid var(--ink);border-radius:140px 12px 140px 12px/12px 140px 12px 140px;font-size:14px;font-weight:600;text-decoration:none;color:var(--ink);background:#fff;box-shadow:4px 4px 0 -1px rgba(215,109,154,0.3);}
+  .btn-hand:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .toc{opacity:0;transform:translateX(-8px);pointer-events:none;transition:opacity .35s ease,transform .35s ease;}
+  .toc.revealed{opacity:1;transform:none;pointer-events:auto;}
+  @media (max-width:820px){
+    .hero-title{font-size:44px;} .polaroid.photo{width:186px;}
+    .polaroid:not(.m-keep){display:none;}
+    .p-left{left:-40px !important;top:20% !important;} .p-right{right:-40px !important;left:auto !important;top:80% !important;}
+    .uline{width:210px;} .hero-sub{font-size:15px;max-width:270px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hero-pin{height:auto;} .hero-sticky{position:relative;height:100svh;}
+    .board{transform:none !important;opacity:1 !important;} .piece{opacity:1;animation:none;}
+    .cs-sketch path,.cs-sketch circle{stroke-dashoffset:0;animation:none;} .scroll-cue svg{animation:none;}
+  }
 </style>
 </head>
 <body>
@@ -552,15 +616,35 @@
   <a href="#reflection">Reflection</a>
 </nav>
 
+<div class="hero-pin" id="heroPin"><div class="hero-sticky"><div class="board" id="board">
+  <div class="top-eyebrow">Case Study · room2talk</div>
+  <div class="piece pol polaroid photo p-left m-keep" style="left:-60px;top:12%;--r:0deg;--d:.05s;"><span class="tape"></span><img src="assets/case studies/room2talk/r2t-hero.webp" alt="room2talk" loading="lazy"/><div class="cap">the game</div></div>
+  <div class="piece pol polaroid photo" style="left:-64px;top:38%;--r:0deg;--d:.12s;"><span class="tape"></span><img src="assets/case studies/room2talk/r2t-context-1.webp" alt="Conversation" loading="lazy"/><div class="cap">conversation</div></div>
+  <div class="piece pol polaroid photo" style="left:-58px;top:64%;--r:0deg;--d:.18s;"><span class="tape"></span><img src="assets/case studies/room2talk/r2t-screen3.png" alt="Choosing cards" loading="lazy"/><div class="cap">choosing cards</div></div>
+  <div class="piece pol polaroid photo" style="left:-64px;top:90%;--r:0deg;--d:.24s;"><span class="tape"></span><video src="assets/case studies/room2talk/seeing-reveal.mp4" autoplay loop muted playsinline></video><div class="cap">the reveal</div></div>
+  <div class="piece pol polaroid photo p-right m-keep" style="right:-60px;top:14%;--r:0deg;--d:.1s;"><span class="tape"></span><img src="assets/case studies/room2talk/r2t-screen1.png" alt="Group mode" loading="lazy"/><div class="cap">group mode</div></div>
+  <div class="piece pol polaroid photo" style="right:-58px;top:40%;--r:0deg;--d:.16s;"><span class="tape"></span><img src="assets/case studies/room2talk/r2t-context-2.webp" alt="Together" loading="lazy"/><div class="cap">together</div></div>
+  <div class="piece pol polaroid photo" style="right:-64px;top:66%;--r:0deg;--d:.22s;"><span class="tape"></span><img src="assets/case studies/room2talk/r2t-screen5.png" alt="Reflections" loading="lazy"/><div class="cap">reflections</div></div>
+  <div class="piece pol polaroid photo" style="right:-58px;top:92%;--r:0deg;--d:.28s;"><span class="tape"></span><video src="assets/case studies/room2talk/ending-session.mp4" autoplay loop muted playsinline></video><div class="cap">session's end</div></div>
+  <div class="piece title-block" style="left:50%;top:48%;--d:0s;">
+    <svg class="cs-sketch" viewBox="0 0 240 140" aria-hidden="true"><defs><filter id="rt-rough" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.017" numOctaves="2" seed="5" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.2" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g filter="url(#rt-rough)">
+      <path pathLength="100" style="animation-delay:.05s" d="M42 34 Q32 34 32 44 L32 76 Q32 86 42 86 L58 86 L52 100 L72 86 L130 86 Q140 86 140 76 L140 44 Q140 34 130 34 Z"/>
+      <circle pathLength="100" style="animation-delay:.5s" cx="60" cy="60" r="3.2"/>
+      <circle pathLength="100" style="animation-delay:.56s" cx="78" cy="60" r="3.2"/>
+      <circle pathLength="100" style="animation-delay:.62s" cx="96" cy="60" r="3.2"/>
+      <path pathLength="100" style="animation-delay:.34s" d="M128 62 Q120 62 120 70 L120 98 Q120 106 128 106 L180 106 L186 118 L192 106 L202 106 Q210 106 210 98 L210 70 Q210 62 202 62 Z"/>
+      <path pathLength="100" style="animation-delay:.74s" d="M165 80 C 162 76, 156 77, 158 83 C 159 87, 165 91, 165 91 C 165 91, 171 87, 172 83 C 174 77, 168 76, 165 80 Z"/>
+    </g></svg>
+    <div class="hero-title">ROOM2TALK</div>
+    <svg class="uline" viewBox="0 0 280 14" preserveAspectRatio="none"><path d="M5 9 C 60 3, 110 13, 155 7 S 235 3, 275 8"/></svg>
+    <div class="hero-sub">A reflection-based card experience for intergenerational conversation.</div>
+  </div>
+  <div class="scroll-cue"><div class="lbl">pull up a chair</div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+</div></div></div>
+
 <div class="wrap">
 
-  <div class="site-top">
-    <a href="https://room2talk.netlify.app" target="_blank">Try it live ↗</a>
-  </div>
-
   <header>
-    <img src="assets/case studies/room2talk/r2t-hero.webp" class="hero" alt="room2talk hero" style="margin-bottom: 48px;" />
-
     <div class="eyebrow">Case Study · room2talk</div>
     <h1>Designing a card experience that helps Vietnamese American families connect — without forcing the conversation</h1>
 
@@ -570,6 +654,10 @@
       <div><dt>Timeline</dt><dd>March 2026 · 4 weeks</dd></div>
       <div><dt>Tools</dt><dd>Figma, Claude, Netlify</dd></div>
     </dl>
+
+    <div class="header-cta">
+      <a class="btn-hand" href="https://room2talk.netlify.app" target="_blank">Play room2talk →</a>
+    </div>
 
     <nav class="jump">
       <a href="#context">Context</a>
@@ -583,7 +671,9 @@
   <!-- ── Problem ── -->
   <section id="context" data-reveal>
     <figure>
-      <img src="assets/case studies/room2talk/r2t-context-1.webp" loading="lazy" alt="A woman with a backpack standing on a wooden platform" style="object-fit:cover; max-height:420px;" />
+      <div class="hand-frame" data-seed="12" style="--w:100%; --ar:auto;">
+        <img src="assets/case studies/room2talk/r2t-context-1.webp" loading="lazy" alt="A woman with a backpack standing on a wooden platform" style="object-fit:cover; max-height:420px;" />
+      </div>
     </figure>
     <h2>Context</h2>
     <p class="lead">In a lot of Vietnamese American families, mental health doesn't get talked about. Not because no one cares — because there was never a language for it.</p>
@@ -598,7 +688,9 @@
     </div>
 
     <figure>
-      <img src="assets/case studies/room2talk/r2t-context-2.webp" loading="lazy" alt="Grayscale photo of students sitting on chairs with papers and pens" style="object-fit:cover; max-height:420px;" />
+      <div class="hand-frame" data-seed="22" style="--w:100%; --ar:auto;">
+        <img src="assets/case studies/room2talk/r2t-context-2.webp" loading="lazy" alt="Grayscale photo of students sitting on chairs with papers and pens" style="object-fit:cover; max-height:420px;" />
+      </div>
     </figure>
 
     <div class="split-text">
@@ -773,14 +865,18 @@
       <p>Group or Solo — whatever fits the moment.</p>
       <div class="screen-media">
         <figure>
-          <div class="video-crop">
-            <video src="assets/case studies/room2talk/r2t-screen1-group.mp4" autoplay loop muted playsinline></video>
+          <div class="hand-frame" data-seed="32" style="--w:100%; --ar:auto;">
+            <div class="video-crop">
+              <video src="assets/case studies/room2talk/r2t-screen1-group.mp4" autoplay loop muted playsinline></video>
+            </div>
           </div>
           <figcaption style="margin-top:10px;">Group Mode</figcaption>
         </figure>
         <figure>
-          <div class="video-crop">
-            <video src="assets/case studies/room2talk/r2t-screen1-solo.mp4" autoplay loop muted playsinline></video>
+          <div class="hand-frame" data-seed="42" style="--w:100%; --ar:auto;">
+            <div class="video-crop">
+              <video src="assets/case studies/room2talk/r2t-screen1-solo.mp4" autoplay loop muted playsinline></video>
+            </div>
           </div>
           <figcaption style="margin-top:10px;">Solo Mode</figcaption>
         </figure>
@@ -794,14 +890,18 @@
       <div class="screen-media">
         <div class="two-up">
           <figure>
-            <div class="video-crop">
-              <video src="assets/case studies/room2talk/individual-card.mp4" autoplay loop muted playsinline></video>
+            <div class="hand-frame" data-seed="82" style="--w:100%; --ar:auto;">
+              <div class="video-crop">
+                <video src="assets/case studies/room2talk/individual-card.mp4" autoplay loop muted playsinline></video>
+              </div>
             </div>
             <figcaption>Individual's Role</figcaption>
           </figure>
           <figure>
-            <div class="video-crop">
-              <video src="assets/case studies/room2talk/supporter-card.mp4" autoplay loop muted playsinline></video>
+            <div class="hand-frame" data-seed="92" style="--w:100%; --ar:auto;">
+              <div class="video-crop">
+                <video src="assets/case studies/room2talk/supporter-card.mp4" autoplay loop muted playsinline></video>
+              </div>
             </div>
             <figcaption>Supporter's Role</figcaption>
           </figure>
@@ -815,7 +915,9 @@
       <p>No typing required — just pick what feels right.</p>
       <div class="screen-media">
         <figure>
-          <video src="assets/case studies/room2talk/choosing-cards.mp4" autoplay loop muted playsinline></video>
+          <div class="hand-frame" data-seed="52" style="--w:100%; --ar:auto;">
+            <video src="assets/case studies/room2talk/choosing-cards.mp4" autoplay loop muted playsinline></video>
+          </div>
           <figcaption>Choosing image cards + adding notes.</figcaption>
         </figure>
       </div>
@@ -827,7 +929,9 @@
       <p>What was unspoken becomes visible, all at once.</p>
       <div class="screen-media">
         <figure>
-          <video src="assets/case studies/room2talk/seeing-reveal.mp4" autoplay loop muted playsinline></video>
+          <div class="hand-frame" data-seed="62" style="--w:100%; --ar:auto;">
+            <video src="assets/case studies/room2talk/seeing-reveal.mp4" autoplay loop muted playsinline></video>
+          </div>
           <figcaption>View results, answers, and shared moments.</figcaption>
         </figure>
       </div>
@@ -839,7 +943,9 @@
       <p>The conversation can keep going after you close the app.</p>
       <div class="screen-media">
         <figure>
-          <video src="assets/case studies/room2talk/ending-session.mp4" autoplay loop muted playsinline></video>
+          <div class="hand-frame" data-seed="72" style="--w:100%; --ar:auto;">
+            <video src="assets/case studies/room2talk/ending-session.mp4" autoplay loop muted playsinline></video>
+          </div>
           <figcaption>The session recap, ready to revisit.</figcaption>
         </figure>
       </div>
@@ -848,15 +954,17 @@
 
   <!-- ── Where It Stands ── -->
   <section id="reflection" data-reveal style="margin-bottom: 48px;">
-    <div class="closing-box">
-      <div class="closing-col">
-        <p class="lead">room2talk is live, playtested, and <a href="https://room2talk.netlify.app" target="_blank" style="color:var(--accent);font-weight:400;text-decoration:none;">publicly playable</a>.</p>
-        <p>Success here isn't a conversion metric — it's whether parallel reflection actually opens dialogue across generations. The next phase tests that with real families: structured sessions measuring whether the reveal creates moments of recognition, and whether conversations continue after the session ends.</p>
-      </div>
-      <div class="closing-col">
-        <p class="lead">Designing for emotional experiences isn't about adding more — it's about making things simpler.</p>
-        <p>I started this project thinking I needed to create a space for hard conversations. I ended it realizing the job was to create the conditions where hard conversations could happen on their own.</p>
-        <p><strong>Continuing:</strong> testing with real families across generations · exploring a physical + digital version · refining pacing through live playtesting.</p>
+    <div class="hand-frame" data-seed="102" data-r="16" style="--w:100%;">
+      <div class="closing-box">
+        <div class="closing-col">
+          <p class="lead">room2talk is live, playtested, and <a href="https://room2talk.netlify.app" target="_blank" style="color:var(--accent);font-weight:400;text-decoration:none;">publicly playable</a>.</p>
+          <p>Success here isn't a conversion metric — it's whether parallel reflection actually opens dialogue across generations. The next phase tests that with real families: structured sessions measuring whether the reveal creates moments of recognition, and whether conversations continue after the session ends.</p>
+        </div>
+        <div class="closing-col">
+          <p class="lead">Designing for emotional experiences isn't about adding more — it's about making things simpler.</p>
+          <p>I started this project thinking I needed to create a space for hard conversations. I ended it realizing the job was to create the conditions where hard conversations could happen on their own.</p>
+          <p><strong>Continuing:</strong> testing with real families across generations · exploring a physical + digital version · refining pacing through live playtesting.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -868,7 +976,7 @@
     <p style="font-size:15px; color:var(--ink-soft); line-height:1.75; margin-bottom:24px;">
       Thank you to my friends and family who helped me with testing, feedback, and cultural advice.
     </p>
-    <a href="https://room2talk.netlify.app" target="_blank" class="btn">Try room2talk live →</a>
+    <a class="btn-hand" href="https://room2talk.netlify.app" target="_blank">Try room2talk live →</a>
 
     <div class="more-cs">
       <div class="more-cs-label">More Case Studies</div>
@@ -967,7 +1075,7 @@
 
   // Cursor sparkle
   (function() {
-    const COLORS = ['#d4587a','#f5a0b5','#ffd166','#c3b1e1','#ff8c69','#f2c4ce','#e8a0b4','#ffb3c6'];
+    const COLORS = ['#d76d9a','#e8a6c2','#c85f8a','#f0b8cf','#b85080'];
     const SHAPES = ['✦','✧','★','◆','✿','⬥','✺','⟡'];
     let lastTime = 0;
     document.addEventListener('mousemove', e => {
@@ -1134,6 +1242,20 @@ function mobDrawerClose() {
   document.addEventListener('mouseout', function(e) {
     if (e.target.closest && e.target.closest('figure img')) document.body.classList.remove('cursor-hover');
   });
+})();
+</script>
+
+<script>
+(function(){ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var pin=document.getElementById('heroPin'),board=document.getElementById('board'),cue=document.querySelector('.scroll-cue');
+  if(!pin||!board)return;
+  function s(){var vh=window.innerHeight,total=pin.offsetHeight-vh;var p=Math.min(Math.max(window.scrollY/total,0),1);board.style.transform='scale('+(1+0.08*p)+')';board.style.opacity=1-Math.min(p/0.8,1);if(cue)cue.style.opacity=1-Math.min(p*2,1);}
+  window.addEventListener('scroll',s,{passive:true});s();
+})();
+(function(){ var toc=document.querySelector('.toc');if(!toc)return;var pin=document.getElementById('heroPin');
+  if(!pin){toc.classList.add('revealed');return;}
+  function t(){toc.classList.toggle('revealed',window.scrollY>pin.offsetHeight-window.innerHeight*0.6);}
+  window.addEventListener('scroll',t,{passive:true});t();
 })();
 </script>
 
