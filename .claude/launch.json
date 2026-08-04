@@ -4,8 +4,116 @@
     {
       "name": "static-site",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8934"],
+      "runtimeArgs": ["serve.py", "8934"],
       "port": 8934
+    },
+    {
+      "name": "static-site-v3",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "8952"],
+      "port": 8952
+    },
+    {
+      "name": "static-site-v4",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "8958"],
+      "port": 8958
+    },
+    {
+      "name": "static-site-mktg",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "8971"],
+      "port": 8971
+    },
+    {
+      "name": "static-site-v5",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "8985"],
+      "port": 8985
+    },
+    {
+      "name": "static-site-v6",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "8993"],
+      "port": 8993
+    },
+    {
+      "name": "static-site-v7",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "8997"],
+      "port": 8997
+    },
+    {
+      "name": "static-site-v8",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9006"],
+      "port": 9006
+    },
+    {
+      "name": "static-site-v9",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9014"],
+      "port": 9014
+    },
+    {
+      "name": "static-site-v10",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9021"],
+      "port": 9021
+    },
+    {
+      "name": "static-site-v11",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9033"],
+      "port": 9033
+    },
+    {
+      "name": "static-site-v12",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9041"],
+      "port": 9041
+    },
+    {
+      "name": "static-site-v13",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9052"],
+      "port": 9052
+    },
+    {
+      "name": "static-site-v14",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9067"],
+      "port": 9067
+    },
+    {
+      "name": "static-site-v15",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9101"],
+      "port": 9101
+    },
+    {
+      "name": "static-site-v16",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9123"],
+      "port": 9123
+    },
+    {
+      "name": "static-site-v17",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9147"],
+      "port": 9147
+    },
+    {
+      "name": "static-site-v18",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9163"],
+      "port": 9163
+    },
+    {
+      "name": "static-site-v19",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["serve.py", "9187"],
+      "port": 9187
     },
     {
       "name": "pantry-pop-dev",
