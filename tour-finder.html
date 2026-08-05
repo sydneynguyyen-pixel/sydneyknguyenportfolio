@@ -582,14 +582,10 @@
 
 <nav class="toc" aria-label="Table of contents">
   <div class="toc-label">Contents</div>
-  <a href="#background">Background</a>
-  <a href="#concept">Concept</a>
-  <a href="#who-its-for">Who It's For</a>
-  <a href="#business-opportunity">Business Opportunity</a>
-  <a href="#use-cases">Use Cases</a>
-  <a href="#key-features">Key Features</a>
-  <a href="#how-it-was-built">How It Was Built</a>
-  <a href="#reflection">Where It Stands</a>
+  <a href="#context">Context</a>
+  <a href="#process">Process</a>
+  <a href="#final-product">Final Product</a>
+  <a href="#reflection">Reflection</a>
 </nav>
 
 <div class="hero-pin" id="heroPin"><div class="hero-sticky"><div class="board" id="board">
@@ -650,296 +646,43 @@
     </dl>
 
     <nav class="jump">
-      <a href="#background">Background</a>
-      <a href="#concept">Concept</a>
-      <a href="#who-its-for">Who It's For</a>
-      <a href="#business-opportunity">Business Opportunity</a>
-      <a href="#use-cases">Use Cases</a>
-      <a href="#key-features">Key Features</a>
-      <a href="#how-it-was-built">How It Was Built</a>
-      <a href="#reflection">Where It Stands</a>
+      <a href="#context">Context</a>
+      <a href="#process">Process</a>
+      <a href="#final-product">Final Product</a>
+      <a href="#reflection">Reflection</a>
     </nav>
   </header>
 
-  <!-- ── Background ── -->
-  <section id="background" data-reveal>
-    <h2>Background</h2>
+  <!-- ── Context (Background + Concept compressed; audience + why-it-matters folded in) ── -->
+  <section id="context" data-reveal>
+    <h2>Context</h2>
+    <p class="lead">In live music, the roles that run tours are filled before a tour is ever announced — through personal networks, by whoever notices an artist is about to go out and reaches out first.</p>
     <figure>
       <div class="hand-frame" data-seed="12" style="--w:100%; --ar:auto;">
         <img src="assets/case studies/tour-finder/backstage.webp" loading="lazy" alt="Backstage at a live show" style="object-fit:cover; max-height:420px;" />
       </div>
     </figure>
-    <p>The idea came from watching someone close to me navigate this exact problem — they work in live music, coordinating tours and production for touring artists. Tour manager and production coordinator roles are almost never publicly listed. They're filled through personal networks, word of mouth, or someone in the industry noticing an artist is about to tour and reaching out first.</p>
-    <p>I watched how they actually found work: manually researching artists, guessing who might be gearing up for a tour, checking if they already had representation, cold-emailing when they spotted an opening. It worked — but only for whichever artists happened to come to mind, and it didn't scale.</p>
-  </section>
+    <p>The idea came from watching someone close to me do exactly this — coordinating tours and production, finding work by manually researching artists, guessing who might be gearing up, checking if they already had representation, and cold-emailing when they spotted an opening. It worked, but only for whichever artists happened to come to mind, and it didn't scale.</p>
 
-  <!-- ── Concept ── -->
-  <section id="concept" data-reveal>
-    <h2>Concept</h2>
+    <div class="split-text">
+      <div class="split-accent">
+        <p>Opportunity in this kind of work is often invisible until it's too late.</p>
+      </div>
+      <div class="split-body">
+        <p>By the time a tour is publicly announced, someone's usually already been hired to run it. Tour Finder is a discovery tool, not a job board: it surfaces artists showing real signs of touring soon — a fresh release with no tour booked yet, a comeback after time away, growing show frequency — and ranks them by likely fit, while there's still a window to reach out.</p>
+      </div>
+    </div>
     <figure>
       <div class="hand-frame" data-seed="22" style="--w:100%; --ar:auto;">
         <img src="assets/case studies/tour-finder/concert.webp" loading="lazy" alt="A live concert crowd" style="object-fit:cover; max-height:420px;" />
       </div>
     </figure>
-    <p class="lead">Tour Finder is a discovery tool, not a job board.</p>
-    <p>Instead of listing open positions — which mostly don't exist in this industry — it surfaces artists showing real signs of touring soon: a fresh release with no tour booked yet, a comeback after time away, growing show frequency. It ranks them by likely fit for someone with specific touring experience and scale.</p>
-
-    <div class="split-text">
-      <div class="split-accent">
-        <p>The core idea: opportunity in this kind of work is often invisible until it's too late.</p>
-      </div>
-      <div class="split-body">
-        <p>By the time a tour is publicly announced, someone's usually already been hired to run it. This tool tries to surface the window before that happens.</p>
-      </div>
-    </div>
+    <p>It's built first for the independent crew who live this problem — tour managers and production, working gig to gig. But the same early-tour signal is a qualified-lead pipeline for anyone who sells into tours: travel agencies, staffing companies, agents and vendors. One prediction, many buyers — and the edge is timing.</p>
   </section>
 
-  <!-- ── Who It's For ── -->
-  <section id="who-its-for" data-reveal>
-    <div class="widget-card">
-      <h2>Who This Is For</h2>
-      <p class="lead">The same early-tour signal that helps one person find their next gig is a qualified-lead pipeline for any company that sells into tours.</p>
-      <div class="audience-grid">
-        <div class="audience-card">
-          <div class="audience-card-head">
-            <svg class="audience-card-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
-            <div class="audience-card-label">Independent crew</div>
-          </div>
-          <p>TMs &amp; production, gig to gig</p>
-        </div>
-        <div class="audience-card">
-          <div class="audience-card-head">
-            <svg class="audience-card-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
-            <div class="audience-card-label">Travel agencies</div>
-          </div>
-          <p>Flights, buses, hotels for touring parties</p>
-        </div>
-        <div class="audience-card">
-          <div class="audience-card-head">
-            <svg class="audience-card-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
-            <div class="audience-card-label">Staffing companies</div>
-          </div>
-          <p>Placing TMs, coordinators, crew</p>
-        </div>
-        <div class="audience-card">
-          <div class="audience-card-head">
-            <svg class="audience-card-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></svg>
-            <div class="audience-card-label">Agents &amp; vendors</div>
-          </div>
-          <p>Spotting rising acts early</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Business Opportunity ── -->
-  <section id="business-opportunity" data-reveal>
-    <h2>Business Opportunity</h2>
-    <p class="lead">One prediction, many buyers — the insight that a tour is coming before it's announced is worth money to everyone who sells into tours.</p>
-
-    <div class="built-grid">
-      <details class="built-card">
-        <summary>
-          <div class="built-card-head">
-            <div class="built-card-title-row">
-              <svg class="built-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              <h3>Timing is the edge</h3>
-            </div>
-          </div>
-          <svg class="card-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="built-card-body">
-          <p>By the time a tour is public, the roles and vendors are locked. Everyone who services a tour faces the same closing window the crew does; the early signal gets them in first.</p>
-        </div>
-      </details>
-
-      <details class="built-card">
-        <summary>
-          <div class="built-card-head">
-            <div class="built-card-title-row">
-              <svg class="built-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
-              <h3>Measured in lead time won</h3>
-            </div>
-          </div>
-          <svg class="card-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="built-card-body">
-          <p>The metric that matters isn't the fit score, it's how many weeks ahead of a public announcement an act gets flagged. One landed account off an early lead covers a year of the tool.</p>
-        </div>
-      </details>
-
-      <details class="built-card">
-        <summary>
-          <div class="built-card-head">
-            <div class="built-card-title-row">
-              <svg class="built-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg>
-              <h3>Leads become a pipeline</h3>
-            </div>
-          </div>
-          <svg class="card-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="built-card-body">
-          <p>The personal log becomes a team funnel: surfaced → contacted → responded → signed.</p>
-        </div>
-      </details>
-
-      <details class="built-card">
-        <summary>
-          <div class="built-card-head">
-            <div class="built-card-title-row">
-              <svg class="built-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              <h3>How it could grow</h3>
-            </div>
-          </div>
-          <svg class="card-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="built-card-body">
-          <p>Free personal tier, paid per-seat for agencies, data/API licensing for vendors. Beachhead: entertainment travel agencies.</p>
-        </div>
-      </details>
-    </div>
-  </section>
-
-  <!-- ── Use Cases ── -->
-  <section id="use-cases" data-reveal>
-    <h2>Use Cases</h2>
-    <p class="lead">How it fits into the week — from first signal to a shortlist worth emailing.</p>
-    <div class="workflow-strip">
-      <div class="workflow-step">
-        <svg class="workflow-step-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><path d="M16.24 7.76A6 6 0 1 0 8.23 16.67"/><path d="M12 18h.01"/><path d="M17.99 11.66A6 6 0 0 1 15.77 16.67"/><circle cx="12" cy="12" r="2"/><path d="m13.41 10.59 5.66-5.66"/></svg>
-        <div>
-          <div class="workflow-step-label">Discover</div>
-          <p class="workflow-step-gloss">A weekly-refreshed feed surfaces artists showing early signs of touring.</p>
-        </div>
-      </div>
-      <div class="workflow-step">
-        <svg class="workflow-step-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
-        <div>
-          <div class="workflow-step-label">Research</div>
-          <p class="workflow-step-gloss">Each lead's tour history, venue scale, and contacts in one view — no digging.</p>
-        </div>
-      </div>
-      <div class="workflow-step">
-        <svg class="workflow-step-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v8l3-3 3 3V2"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg>
-        <div>
-          <div class="workflow-step-label">Track</div>
-          <p class="workflow-step-gloss">Log the artists you've actually worked with to sharpen future recommendations.</p>
-        </div>
-      </div>
-      <div class="workflow-step">
-        <svg class="workflow-step-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg>
-        <div>
-          <div class="workflow-step-label">Filter</div>
-          <p class="workflow-step-gloss">Dismiss wrong-scale, wrong-genre, or already-managed acts to cut the noise.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Key Features ── -->
-  <section id="key-features" data-reveal>
-    <h2>Key Features</h2>
-
-    <div class="feature-block">
-      <div class="feature-block-title">Scored leads</div>
-      <p class="feature-block-desc">A 0–100 fit score built from five factors: touring history, venue scale match, how reachable an artist's team is, timing (a fresh release with no tour booked is the strongest signal), and momentum.</p>
-      <div class="feature-media">
-        <figure>
-          <div class="hand-frame" data-seed="32" style="--w:100%; --ar:auto;">
-            <div class="video-crop">
-              <video src="assets/case studies/tour-finder/artist score breakdown.mp4" autoplay loop muted playsinline></video>
-            </div>
-          </div>
-          <figcaption>Score breakdown for a scored lead.</figcaption>
-        </figure>
-      </div>
-    </div>
-
-    <div class="feature-block">
-      <div class="feature-block-title">Full artist detail pages</div>
-      <p class="feature-block-desc">Tour history, recent releases, contact info, and a plain-language breakdown of why an artist scored the way it did — not just a bare number.</p>
-      <div class="feature-media">
-        <div class="feature-media-grid feature-media-grid--split">
-          <div class="feature-media-col">
-            <figure>
-              <img src="assets/case studies/tour-finder/artist info - full depth.webp" loading="lazy" alt="Artist detail page — overview tab with bio, tags, management info, and stats" />
-              <figcaption>Overview</figcaption>
-            </figure>
-            <figure>
-              <img src="assets/case studies/tour-finder/artist info - tours.webp" loading="lazy" alt="Artist detail page — tour history tab with biggest venues played and recent shows" />
-              <figcaption>Tour History</figcaption>
-            </figure>
-          </div>
-          <figure>
-            <img src="assets/case studies/tour-finder/artist info - personal links.webp" loading="lazy" alt="Artist detail page — releases and links tab with recent releases and social links" />
-            <figcaption>Releases &amp; Links</figcaption>
-          </figure>
-        </div>
-      </div>
-    </div>
-
-    <div class="feature-block">
-      <div class="feature-block-title">Personal artist log</div>
-      <p class="feature-block-desc">A record of who you've actually worked with, separate from suggested leads, which doubles as calibration data for the scoring system.</p>
-      <div class="feature-media">
-        <figure>
-          <div class="hand-frame" data-seed="42" style="--w:100%; --ar:auto;">
-            <img src="assets/case studies/tour-finder/personal artist log.webp" loading="lazy" alt="My Artists — a personal log of artists worked with, feeding back into scoring" />
-          </div>
-          <figcaption>My Artists — your own roster.</figcaption>
-        </figure>
-      </div>
-    </div>
-
-    <div class="feature-block">
-      <div class="feature-block-title">Adjustable genre preferences</div>
-      <p class="feature-block-desc">Drag genres up or down to reorder — scoring nudges toward your current priorities in real time, without excluding anything else.</p>
-      <div class="feature-media">
-        <figure>
-          <div class="hand-frame" data-seed="52" style="--w:100%; --ar:auto;">
-            <div class="video-crop">
-              <video src="assets/case studies/tour-finder/genre ranking.mp4" autoplay loop muted playsinline></video>
-            </div>
-          </div>
-          <figcaption>Reordering genre priorities.</figcaption>
-        </figure>
-      </div>
-    </div>
-
-    <div class="feature-block">
-      <div class="feature-block-title">New Tour Detected</div>
-      <p class="feature-block-desc">An unfiltered feed of confirmed tours already on sale but not yet underway, soonest first — pulled straight from ticketing data. Tracked artists surface immediately; anyone outside your roster needs a real multi-city run to qualify.</p>
-      <div class="feature-media">
-        <figure>
-          <div class="hand-frame" data-seed="62" style="--w:100%; --ar:auto;">
-            <div class="video-crop">
-              <video src="assets/case studies/tour-finder/new tour detected.mp4" autoplay loop muted playsinline></video>
-            </div>
-          </div>
-          <figcaption>The New Tour Detected feed, soonest tours first.</figcaption>
-        </figure>
-      </div>
-    </div>
-
-    <div class="feature-block">
-      <div class="feature-block-title">Automated + on-demand refresh</div>
-      <p class="feature-block-desc">New leads arrive automatically every week — or trigger a check yourself anytime and watch results roll in.</p>
-      <div class="feature-media">
-        <figure>
-          <div class="hand-frame" data-seed="72" style="--w:100%; --ar:auto;">
-            <div class="video-crop">
-              <video src="assets/case studies/tour-finder/scan for new leads.mp4" autoplay loop muted playsinline></video>
-            </div>
-          </div>
-          <figcaption>Triggering an on-demand scan.</figcaption>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── How It Was Built ── -->
-  <section id="how-it-was-built" data-reveal>
-    <h2>How It Was Built</h2>
+  <!-- ── Process (formerly How It Was Built) ── -->
+  <section id="process" data-reveal>
+    <h2>Process</h2>
     <figure>
       <div class="hand-frame" data-seed="82" style="--w:100%; --ar:auto;">
         <img src="assets/case studies/tour-finder/build-visual.webp" loading="lazy" alt="Architecture diagram — data sources feed an automation pipeline running weekly via GitHub Actions, writing to a GitHub repo with no database, which powers a site dashboard that syncs edits back" />
@@ -986,7 +729,7 @@
         <summary>
           <div class="built-card-head">
             <h3>Scoring</h3>
-            <p class="tech-lead">A weighted algorithm across the five factors behind the fit score above.</p>
+            <p class="tech-lead">A weighted algorithm across the five factors behind the fit score.</p>
           </div>
           <svg class="card-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
@@ -1017,7 +760,109 @@
     </div>
   </section>
 
-  <!-- ── Where It Stands ── -->
+  <!-- ── Final Product (formerly Key Features; feature headings rewritten to carry the point) ── -->
+  <section id="final-product" data-reveal>
+    <h2>Final Product</h2>
+    <p class="lead">One dashboard, one weekly loop: surface early leads, dig into who they are, keep the artists you've worked with feeding the next round, and cut whatever isn't a fit.</p>
+
+    <div class="feature-block">
+      <div class="feature-block-title">A 0–100 score for who's most worth reaching out to</div>
+      <p class="feature-block-desc">A 0–100 fit score built from five factors: touring history, venue scale match, how reachable an artist's team is, timing (a fresh release with no tour booked is the strongest signal), and momentum.</p>
+      <div class="feature-media">
+        <figure>
+          <div class="hand-frame" data-seed="32" style="--w:100%; --ar:auto;">
+            <div class="video-crop">
+              <video src="assets/case studies/tour-finder/artist score breakdown.mp4" autoplay loop muted playsinline></video>
+            </div>
+          </div>
+          <figcaption>Score breakdown for a scored lead.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="feature-block">
+      <div class="feature-block-title">Everything you'd cold-research about an artist, in one place</div>
+      <p class="feature-block-desc">Tour history, recent releases, contact info, and a plain-language breakdown of why an artist scored the way it did — not just a bare number.</p>
+      <div class="feature-media">
+        <div class="feature-media-grid feature-media-grid--split">
+          <div class="feature-media-col">
+            <figure>
+              <img src="assets/case studies/tour-finder/artist info - full depth.webp" loading="lazy" alt="Artist detail page — overview tab with bio, tags, management info, and stats" />
+              <figcaption>Overview</figcaption>
+            </figure>
+            <figure>
+              <img src="assets/case studies/tour-finder/artist info - tours.webp" loading="lazy" alt="Artist detail page — tour history tab with biggest venues played and recent shows" />
+              <figcaption>Tour History</figcaption>
+            </figure>
+          </div>
+          <figure>
+            <img src="assets/case studies/tour-finder/artist info - personal links.webp" loading="lazy" alt="Artist detail page — releases and links tab with recent releases and social links" />
+            <figcaption>Releases &amp; Links</figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-block">
+      <div class="feature-block-title">The artists you've worked with teach it who to suggest next</div>
+      <p class="feature-block-desc">A record of who you've actually worked with, separate from suggested leads, which doubles as calibration data for the scoring system.</p>
+      <div class="feature-media">
+        <figure>
+          <div class="hand-frame" data-seed="42" style="--w:100%; --ar:auto;">
+            <img src="assets/case studies/tour-finder/personal artist log.webp" loading="lazy" alt="My Artists — a personal log of artists worked with, feeding back into scoring" />
+          </div>
+          <figcaption>My Artists — your own roster.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="feature-block">
+      <div class="feature-block-title">Reorder your genres and the rankings shift in real time</div>
+      <p class="feature-block-desc">Drag genres up or down to reorder — scoring nudges toward your current priorities in real time, without excluding anything else.</p>
+      <div class="feature-media">
+        <figure>
+          <div class="hand-frame" data-seed="52" style="--w:100%; --ar:auto;">
+            <div class="video-crop">
+              <video src="assets/case studies/tour-finder/genre ranking.mp4" autoplay loop muted playsinline></video>
+            </div>
+          </div>
+          <figcaption>Reordering genre priorities.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="feature-block">
+      <div class="feature-block-title">Confirmed tours already on sale, before they're everywhere</div>
+      <p class="feature-block-desc">An unfiltered feed of confirmed tours already on sale but not yet underway, soonest first — pulled straight from ticketing data. Tracked artists surface immediately; anyone outside your roster needs a real multi-city run to qualify.</p>
+      <div class="feature-media">
+        <figure>
+          <div class="hand-frame" data-seed="62" style="--w:100%; --ar:auto;">
+            <div class="video-crop">
+              <video src="assets/case studies/tour-finder/new tour detected.mp4" autoplay loop muted playsinline></video>
+            </div>
+          </div>
+          <figcaption>The New Tour Detected feed, soonest tours first.</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="feature-block">
+      <div class="feature-block-title">Fresh leads every week — or the moment you ask</div>
+      <p class="feature-block-desc">New leads arrive automatically every week — or trigger a check yourself anytime and watch results roll in.</p>
+      <div class="feature-media">
+        <figure>
+          <div class="hand-frame" data-seed="72" style="--w:100%; --ar:auto;">
+            <div class="video-crop">
+              <video src="assets/case studies/tour-finder/scan for new leads.mp4" autoplay loop muted playsinline></video>
+            </div>
+          </div>
+          <figcaption>Triggering an on-demand scan.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Reflection (formerly Where It Stands) ── -->
   <section id="reflection" data-reveal style="margin-bottom: 48px;">
     <div class="closing-box">
       <div>
