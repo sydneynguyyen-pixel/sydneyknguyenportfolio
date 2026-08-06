@@ -4,8 +4,9 @@
     {
       "name": "static-site",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["serve.py", "8934"],
-      "port": 8934
+      "runtimeArgs": ["serve.py"],
+      "port": 8934,
+      "autoPort": true
     },
     {
       "name": "static-site-v3",

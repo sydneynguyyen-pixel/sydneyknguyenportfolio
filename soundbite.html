@@ -354,7 +354,6 @@
   @keyframes polfloat{from{opacity:0;transform:translateY(calc(-50% + 22px)) rotate(var(--r,0deg));}to{opacity:1;transform:translateY(-50%) rotate(var(--r,0deg));}}
   .polaroid{background:#fff;padding:9px 9px 6px;border-radius:2px;box-shadow:0 3px 9px rgba(0,0,0,0.08);}
   .polaroid .cap{font-family:'Mynerve',cursive;font-size:14.5px;color:var(--ink-soft);text-align:center;margin-top:7px;line-height:1.1;}
-  .polaroid .tape{position:absolute;top:-9px;left:50%;transform:translateX(-50%) rotate(-3deg);width:56px;height:18px;background:rgba(76,199,171,0.14);border:1px solid rgba(76,199,171,0.10);border-radius:1px;}
   .polaroid.photo{width:236px;}
   .polaroid.photo img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:#eee;border-radius:2px;}
   .title-block{text-align:center;width:min(680px,92%);}
@@ -465,14 +464,14 @@
 
 <div class="hero-pin" id="heroPin"><div class="hero-sticky"><div class="board" id="board">
   <div class="top-eyebrow">Case Study · soundbite</div>
-  <div class="piece pol polaroid photo p-left m-keep" style="left:-56px;top:12%;--r:0deg;--d:.05s;"><span class="tape"></span><img src="assets/soundbite/6.webp" alt="The lineup" loading="lazy"/><div class="cap">the lineup</div></div>
-  <div class="piece pol polaroid photo" style="left:-60px;top:38%;--r:0deg;--d:.12s;"><span class="tape"></span><img src="assets/soundbite/8.webp" alt="Recharge" loading="lazy"/><div class="cap">a quiet reset</div></div>
-  <div class="piece pol polaroid photo" style="left:-54px;top:64%;--r:0deg;--d:.18s;"><span class="tape"></span><img src="assets/soundbite/3.webp" alt="Energy pack" loading="lazy"/><div class="cap">energy</div></div>
-  <div class="piece pol polaroid photo" style="left:-60px;top:90%;--r:0deg;--d:.24s;"><span class="tape"></span><img src="assets/soundbite/10.webp" alt="On the run" loading="lazy"/><div class="cap">on the run</div></div>
-  <div class="piece pol polaroid photo p-right m-keep" style="right:-56px;top:14%;--r:0deg;--d:.1s;"><span class="tape"></span><img src="assets/soundbite/9.webp" alt="Focus" loading="lazy"/><div class="cap">focus</div></div>
-  <div class="piece pol polaroid photo" style="right:-54px;top:40%;--r:0deg;--d:.16s;"><span class="tape"></span><img src="assets/soundbite/4.webp" alt="Focus pack" loading="lazy"/><div class="cap">focus</div></div>
-  <div class="piece pol polaroid photo" style="right:-60px;top:66%;--r:0deg;--d:.22s;"><span class="tape"></span><img src="assets/soundbite/11.webp" alt="Comfort" loading="lazy"/><div class="cap">comfort</div></div>
-  <div class="piece pol polaroid photo" style="right:-54px;top:92%;--r:0deg;--d:.28s;"><span class="tape"></span><img src="assets/soundbite/1.webp" alt="Recharge pack" loading="lazy"/><div class="cap">recharge</div></div>
+  <div class="piece pol polaroid photo p-left m-keep" style="left:-56px;top:12%;--r:-7deg;--d:.05s;"><img src="assets/soundbite/6.webp" alt="The lineup" loading="lazy"/><div class="cap">the lineup</div></div>
+  <div class="piece pol polaroid photo" style="left:-60px;top:38%;--r:5deg;--d:.12s;"><img src="assets/soundbite/8.webp" alt="Recharge" loading="lazy"/><div class="cap">a quiet reset</div></div>
+  <div class="piece pol polaroid photo" style="left:-54px;top:64%;--r:-5deg;--d:.18s;"><img src="assets/soundbite/3.webp" alt="Energy pack" loading="lazy"/><div class="cap">energy</div></div>
+  <div class="piece pol polaroid photo" style="left:-60px;top:90%;--r:6deg;--d:.24s;"><img src="assets/soundbite/10.webp" alt="On the run" loading="lazy"/><div class="cap">on the run</div></div>
+  <div class="piece pol polaroid photo p-right m-keep" style="right:-56px;top:14%;--r:7deg;--d:.1s;"><img src="assets/soundbite/9.webp" alt="Focus" loading="lazy"/><div class="cap">focus</div></div>
+  <div class="piece pol polaroid photo" style="right:-54px;top:40%;--r:-6deg;--d:.16s;"><img src="assets/soundbite/4.webp" alt="Focus pack" loading="lazy"/><div class="cap">focus</div></div>
+  <div class="piece pol polaroid photo" style="right:-60px;top:66%;--r:5deg;--d:.22s;"><img src="assets/soundbite/11.webp" alt="Comfort" loading="lazy"/><div class="cap">comfort</div></div>
+  <div class="piece pol polaroid photo" style="right:-54px;top:92%;--r:-8deg;--d:.28s;"><img src="assets/soundbite/1.webp" alt="Recharge pack" loading="lazy"/><div class="cap">recharge</div></div>
   <div class="piece title-block" style="left:50%;top:48%;--d:0s;">
     <svg class="cs-sketch" viewBox="0 0 240 150" aria-hidden="true"><defs><filter id="sb-rough" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.016" numOctaves="2" seed="8" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.3" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g filter="url(#sb-rough)">
       <path pathLength="100" style="animation-delay:.05s" d="M76 90 C 76 46, 164 46, 164 90"/>

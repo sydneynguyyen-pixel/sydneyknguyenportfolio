@@ -35,7 +35,7 @@ class CleanURLHandler(SimpleHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get('PORT', 8000))
     httpd = HTTPServer(('', port), CleanURLHandler)
     print(f'Serving {os.getcwd()} on http://localhost:{port} (clean URLs enabled)')
     httpd.serve_forever()
