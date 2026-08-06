@@ -447,7 +447,7 @@
   .polaroid.photo{width:240px;}
   .polaroid.photo img,.polaroid.photo video{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#eee;border-radius:2px;}
   .title-block{text-align:center;width:min(680px,92%);}
-  .cs-sketch{display:block;width:150px;height:auto;margin:0 auto 8px;overflow:visible;}
+  .cs-sketch{display:block;width:180px;height:auto;margin:0 auto 8px;overflow:visible;}
   .cs-sketch path,.cs-sketch circle{stroke:#6b6b6b;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 1s ease forwards;}
   @keyframes draw{to{stroke-dashoffset:0;}}
   .hero-title{font-size:62px;font-weight:800;letter-spacing:-.02em;line-height:.94;}
@@ -564,15 +564,25 @@
   <div class="piece pol polaroid photo" style="right:-56px;top:92%;--r:-8deg;--d:.28s;"><img src="assets/case studies/tour-finder/artist info - tours.webp" alt="Tour history" loading="lazy"/><div class="cap">tour history</div></div>
   <div class="piece title-block" style="left:50%;top:48%;--d:0s;">
     <svg class="cs-sketch" viewBox="0 0 240 150" aria-hidden="true"><defs><filter id="tf-rough" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.3" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g filter="url(#tf-rough)">
-      <path pathLength="100" style="animation-delay:.05s" d="M44 48 Q120 24 196 48"/>
-      <path pathLength="100" style="animation-delay:.3s" d="M84 38 L84 50"/>
-      <path pathLength="100" style="animation-delay:.38s" d="M120 33 L120 46"/>
-      <path pathLength="100" style="animation-delay:.46s" d="M156 38 L156 50"/>
-      <path pathLength="100" style="animation-delay:.55s" d="M52 106 L188 106 L206 124 L34 124 Z"/>
-      <path pathLength="100" style="animation-delay:.72s" d="M44 80 L66 80 L66 106 L44 106 Z"/>
-      <path pathLength="100" style="animation-delay:.8s" d="M174 80 L196 80 L196 106 L174 106 Z"/>
-      <path pathLength="100" style="animation-delay:.9s" d="M120 106 L120 74"/>
-      <circle pathLength="100" style="animation-delay:.98s" cx="120" cy="70" r="4.5"/>
+      <!-- concert stage -->
+      <path pathLength="100" style="animation-delay:.05s" d="M46 48 Q120 22 194 48"/>
+      <path pathLength="100" style="animation-delay:.12s" d="M46 48 L194 48"/>
+      <path pathLength="100" style="animation-delay:.20s" d="M54 48 L54 106"/>
+      <path pathLength="100" style="animation-delay:.24s" d="M66 48 L66 106"/>
+      <path pathLength="100" style="animation-delay:.30s" d="M54 54 L66 66 L54 78 L66 90 L54 102"/>
+      <path pathLength="100" style="animation-delay:.22s" d="M186 48 L186 106"/>
+      <path pathLength="100" style="animation-delay:.26s" d="M174 48 L174 106"/>
+      <path pathLength="100" style="animation-delay:.32s" d="M186 54 L174 66 L186 78 L174 90 L186 102"/>
+      <path pathLength="100" style="animation-delay:.40s" d="M72 60 L168 60"/>
+      <path pathLength="100" style="animation-delay:.50s" d="M90 60 L90 67 M86 67 L94 67 L92 73 L88 73 Z M113 60 L113 67 M109 67 L117 67 L115 73 L111 73 Z M136 60 L136 67 M132 67 L140 67 L138 73 L134 73 Z M159 60 L159 67 M155 67 L163 67 L161 73 L157 73 Z"/>
+      <path pathLength="100" style="animation-delay:.56s" d="M98 106 L98 86 L114 86 L114 106"/>
+      <circle pathLength="100" style="animation-delay:.60s" cx="106" cy="92" r="3"/>
+      <circle pathLength="100" style="animation-delay:.62s" cx="106" cy="100" r="3"/>
+      <path pathLength="100" style="animation-delay:.58s" d="M126 106 L126 86 L142 86 L142 106"/>
+      <circle pathLength="100" style="animation-delay:.62s" cx="134" cy="92" r="3"/>
+      <circle pathLength="100" style="animation-delay:.64s" cx="134" cy="100" r="3"/>
+      <path pathLength="100" style="animation-delay:.70s" d="M60 106 L180 106"/>
+      <path pathLength="100" style="animation-delay:.78s" d="M44 124 L44 118 L60 118 L60 112 L180 112 L180 118 L196 118 L196 124 Z"/>
     </g></svg>
     <div class="hero-title">TOUR FINDER</div>
     <svg class="uline" viewBox="0 0 300 14" preserveAspectRatio="none"><path d="M5 9 C 70 3, 130 13, 175 7 S 260 3, 295 8"/></svg>
