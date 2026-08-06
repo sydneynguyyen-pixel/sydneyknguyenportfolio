@@ -12,7 +12,7 @@
 <meta property="og:type" content="article" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Mynerve&display=swap" rel="stylesheet" />
 <script src="nav.js"></script>
 <script src="music-player.js"></script>
 <script src="hand-frame.js"></script>
@@ -204,53 +204,6 @@
   .split-body p { margin-bottom: 0; font-size: 16px; }
   @media (max-width: 640px) { .split-text { grid-template-columns: 1fr; gap: 12px; } }
 
-  /* floating widget card — photo background with a scrim for readable white text */
-  .widget-card {
-    position: relative;
-    background:
-      linear-gradient(180deg, rgba(10,10,10,0.42) 0%, rgba(10,10,10,0.62) 100%),
-      url('assets/case studies/tour-finder/who-its-for-bg.webp') center / cover no-repeat;
-    border-radius: 20px;
-    padding: 64px 48px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.18);
-  }
-  .widget-card h2 { color: #fff; }
-  .widget-card p { color: rgba(255,255,255,0.88); }
-  .widget-card p.lead { color: #fff; }
-  @media (max-width: 640px) { .widget-card { padding: 40px 28px; } }
-
-  /* audience segment cards inside widget-card */
-  .audience-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-  .audience-card {
-    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 14px; padding: 20px 22px;
-  }
-  .audience-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .audience-card-icon { flex-shrink: 0; color: #fff; }
-  .audience-card-label { font-size: 15px; font-weight: 700; color: #fff; }
-  .audience-card p { font-size: 14.5px; line-height: 1.55; margin-bottom: 0; }
-  @media (max-width: 640px) { .audience-grid { grid-template-columns: 1fr; } }
-
-  /* Use Cases — compact horizontal step strip */
-  .workflow-strip {
-    display: flex; margin-top: 24px;
-    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
-  }
-  .workflow-step {
-    flex: 1; display: flex; align-items: flex-start; gap: 12px;
-    padding: 20px 16px; border-left: 1px solid var(--rule);
-  }
-  .workflow-step:first-child { border-left: none; padding-left: 0; }
-  .workflow-step-icon { flex-shrink: 0; color: var(--ink-faint); margin-top: 2px; }
-  .workflow-step-label { font-size: 15px; font-weight: 600; color: var(--ink); }
-  .workflow-step-gloss { font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin: 3px 0 0; }
-  @media (max-width: 700px) {
-    .workflow-strip { flex-direction: column; border-bottom: none; }
-    .workflow-step { border-left: none; padding: 16px 0; border-top: 1px solid var(--rule); }
-    .workflow-step:first-child { border-top: none; padding-top: 0; }
-    .workflow-step:last-child { padding-bottom: 0; }
-  }
-
   /* Key Features — media-forward blocks (name + desc + screenshot/video) */
   .feature-block { padding: 40px 0; border-top: 1px solid var(--rule); }
   .feature-block:last-child { padding-bottom: 0; }
@@ -291,10 +244,21 @@
   .built-card summary::marker { content: ''; }
   .built-card-head h3 { margin: 0 0 6px; font-size: 17px; font-weight: 800; }
   .built-card-head .tech-lead { margin: 0; }
-  .built-card-title-row { display: flex; align-items: center; gap: 10px; }
-  .built-card-icon { flex-shrink: 0; color: var(--ink-faint); }
   .card-chevron { flex-shrink: 0; color: var(--ink-faint); transition: transform 0.2s ease; }
   .built-card[open] .card-chevron { transform: rotate(180deg); }
+
+  /* Where it could go — compact business callout (single stat + monetization tiers) */
+  .opp-block { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--rule); }
+  .opp-grid { display: grid; grid-template-columns: minmax(150px, 230px) 1fr; gap: 32px; align-items: center; margin: 14px 0 12px; }
+  .opp-stat { display: flex; align-items: baseline; gap: 12px; }
+  .opp-stat-num { font-size: 60px; font-weight: 700; line-height: 0.9; letter-spacing: -0.02em; color: var(--ink); }
+  .opp-stat-label { font-size: 13px; color: var(--ink-soft); line-height: 1.4; }
+  .opp-tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .opp-tier { border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; background: var(--frame-bg); }
+  .opp-tier-name { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .opp-tier-who { font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
+  .opp-note { font-size: 13px; color: var(--ink-faint); line-height: 1.5; margin: 4px 0 0; }
+  @media (max-width: 640px) { .opp-grid { grid-template-columns: 1fr; gap: 20px; } .opp-tiers { grid-template-columns: 1fr; } }
   .built-card-body { padding: 0 24px 24px; }
   .tech-lead { font-size: 15px; color: var(--ink); font-weight: 500; margin-bottom: 10px; }
   .tech-list { list-style: none; margin: 0; padding: 0; }
@@ -465,6 +429,48 @@
       transition: none;
     }
   }
+
+  /* ══ Pinboard intro — full-viewport board with diagonal edge polaroids that
+     scales + fades on scroll to hand off to the case study below. Grey (#6b6b6b)
+     is used ONLY on the hand-drawn sketch / underline / cue — never body text.
+     No tape. Landscape (4:3) polaroids for this dashboard project. ══ */
+  .hero-pin{position:relative;height:200vh;}
+  .hero-sticky{position:sticky;top:0;height:100svh;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .board{position:relative;width:100%;height:100svh;}
+  .top-eyebrow{position:absolute;top:70px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint);z-index:5;white-space:nowrap;}
+  .piece{position:absolute;transform:translate(-50%,-50%) rotate(var(--r,0deg));opacity:0;animation:floatin .7s cubic-bezier(.16,1,.3,1) forwards;animation-delay:var(--d,0s);}
+  @keyframes floatin{from{opacity:0;transform:translate(-50%,calc(-50% + 24px)) rotate(var(--r,0deg)) scale(.95);}to{opacity:1;transform:translate(-50%,-50%) rotate(var(--r,0deg)) scale(1);}}
+  .pol{transform:translateY(-50%) rotate(var(--r,0deg));animation-name:polfloat;}
+  @keyframes polfloat{from{opacity:0;transform:translateY(calc(-50% + 22px)) rotate(var(--r,0deg));}to{opacity:1;transform:translateY(-50%) rotate(var(--r,0deg));}}
+  .polaroid{background:#fff;padding:9px 9px 6px;border-radius:2px;box-shadow:0 3px 9px rgba(0,0,0,0.08);}
+  .polaroid .cap{font-family:'Mynerve',cursive;font-size:14.5px;color:var(--ink-soft);text-align:center;margin-top:7px;line-height:1.1;}
+  .polaroid.photo{width:240px;}
+  .polaroid.photo img,.polaroid.photo video{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#eee;border-radius:2px;}
+  .title-block{text-align:center;width:min(680px,92%);}
+  .cs-sketch{display:block;width:180px;height:auto;margin:0 auto 8px;overflow:visible;}
+  .cs-sketch path,.cs-sketch circle{stroke:#6b6b6b;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;animation:draw 1s ease forwards;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  .hero-title{font-size:62px;font-weight:800;letter-spacing:-.02em;line-height:.94;}
+  .uline{display:block;height:14px;width:300px;margin:6px auto 16px;}
+  .uline path{stroke:#6b6b6b;stroke-width:5;fill:none;stroke-linecap:round;}
+  .hero-sub{font-size:19px;color:var(--ink-soft);max-width:460px;margin:0 auto;line-height:1.5;}
+  .scroll-cue{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);text-align:center;color:#6b6b6b;z-index:6;}
+  .scroll-cue .lbl{font-family:'Mynerve',cursive;font-size:18px;margin-bottom:2px;}
+  .scroll-cue svg{width:22px;height:22px;animation:bob 1.6s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+  .toc{opacity:0;transform:translateX(-8px);pointer-events:none;transition:opacity .35s ease,transform .35s ease;}
+  .toc.revealed{opacity:1;transform:none;pointer-events:auto;}
+  @media (max-width:820px){
+    .hero-title{font-size:42px;} .polaroid.photo{width:170px;}
+    .polaroid:not(.m-keep){display:none;}
+    .p-left{left:-40px !important;top:20% !important;} .p-right{right:-40px !important;left:auto !important;top:80% !important;}
+    .uline{width:220px;} .hero-sub{font-size:15px;max-width:270px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hero-pin{height:auto;} .hero-sticky{position:relative;height:100svh;}
+    .board{transform:none !important;opacity:1 !important;} .piece{opacity:1;animation:none;}
+    .cs-sketch path,.cs-sketch circle{stroke-dashoffset:0;animation:none;} .scroll-cue svg{animation:none;}
+  }
 </style>
 </head>
 <body>
@@ -491,7 +497,7 @@
 <div class="mob-drawer" id="mobDrawer">
   <div class="mob-drawer-header">
     <div class="mob-drawer-identity">
-      <img src="assets/avatar.png" class="mob-drawer-avatar" alt="Sydney">
+      <img src="assets/profile pictures/pfp 1.jpg" class="mob-drawer-avatar" alt="Sydney">
       <div>
         <div class="mob-drawer-name">Sydney Nguyen</div>
         <div class="mob-drawer-role">UX/UI Designer</div>
@@ -540,15 +546,50 @@
 
 <nav class="toc" aria-label="Table of contents">
   <div class="toc-label">Contents</div>
-  <a href="#background">Background</a>
-  <a href="#concept">Concept</a>
-  <a href="#who-its-for">Who It's For</a>
-  <a href="#business-opportunity">Business Opportunity</a>
-  <a href="#use-cases">Use Cases</a>
-  <a href="#key-features">Key Features</a>
-  <a href="#how-it-was-built">How It Was Built</a>
-  <a href="#reflection">Where It Stands</a>
+  <a href="#context">Context</a>
+  <a href="#final-product">Final Product</a>
+  <a href="#process">Process</a>
+  <a href="#reflection">Reflection</a>
 </nav>
+
+<div class="hero-pin" id="heroPin"><div class="hero-sticky"><div class="board" id="board">
+  <div class="top-eyebrow">Case Study · Tour Finder</div>
+  <div class="piece pol polaroid photo p-left m-keep" style="left:-60px;top:12%;--r:-7deg;--d:.05s;"><video src="assets/case studies/tour-finder/scan for new leads.mp4" autoplay loop muted playsinline></video><div class="cap">scan for leads</div></div>
+  <div class="piece pol polaroid photo" style="left:-56px;top:38%;--r:5deg;--d:.12s;"><img src="assets/case studies/tour-finder/backstage.webp" alt="Backstage" loading="lazy"/><div class="cap">backstage</div></div>
+  <div class="piece pol polaroid photo" style="left:-64px;top:64%;--r:-5deg;--d:.18s;"><img src="assets/case studies/tour-finder/artist info - full depth.webp" alt="Artist detail" loading="lazy"/><div class="cap">artist detail</div></div>
+  <div class="piece pol polaroid photo" style="left:-56px;top:90%;--r:6deg;--d:.24s;"><video src="assets/case studies/tour-finder/new tour detected.mp4" autoplay loop muted playsinline></video><div class="cap">new tours</div></div>
+  <div class="piece pol polaroid photo p-right m-keep" style="right:-60px;top:14%;--r:7deg;--d:.1s;"><video src="assets/case studies/tour-finder/artist score breakdown.mp4" autoplay loop muted playsinline></video><div class="cap">score breakdown</div></div>
+  <div class="piece pol polaroid photo" style="right:-56px;top:40%;--r:-6deg;--d:.16s;"><img src="assets/case studies/tour-finder/concert.webp" alt="The crowd" loading="lazy"/><div class="cap">the crowd</div></div>
+  <div class="piece pol polaroid photo" style="right:-64px;top:66%;--r:5deg;--d:.22s;"><img src="assets/case studies/tour-finder/personal artist log.webp" alt="Your roster" loading="lazy"/><div class="cap">your roster</div></div>
+  <div class="piece pol polaroid photo" style="right:-56px;top:92%;--r:-8deg;--d:.28s;"><img src="assets/case studies/tour-finder/artist info - tours.webp" alt="Tour history" loading="lazy"/><div class="cap">tour history</div></div>
+  <div class="piece title-block" style="left:50%;top:48%;--d:0s;">
+    <svg class="cs-sketch" viewBox="0 0 240 150" aria-hidden="true"><defs><filter id="tf-rough" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.3" xChannelSelector="R" yChannelSelector="G"/></filter></defs><g filter="url(#tf-rough)">
+      <!-- concert stage -->
+      <path pathLength="100" style="animation-delay:.05s" d="M46 48 Q120 22 194 48"/>
+      <path pathLength="100" style="animation-delay:.12s" d="M46 48 L194 48"/>
+      <path pathLength="100" style="animation-delay:.20s" d="M54 48 L54 106"/>
+      <path pathLength="100" style="animation-delay:.24s" d="M66 48 L66 106"/>
+      <path pathLength="100" style="animation-delay:.30s" d="M54 54 L66 66 L54 78 L66 90 L54 102"/>
+      <path pathLength="100" style="animation-delay:.22s" d="M186 48 L186 106"/>
+      <path pathLength="100" style="animation-delay:.26s" d="M174 48 L174 106"/>
+      <path pathLength="100" style="animation-delay:.32s" d="M186 54 L174 66 L186 78 L174 90 L186 102"/>
+      <path pathLength="100" style="animation-delay:.40s" d="M72 60 L168 60"/>
+      <path pathLength="100" style="animation-delay:.50s" d="M90 60 L90 67 M86 67 L94 67 L92 73 L88 73 Z M113 60 L113 67 M109 67 L117 67 L115 73 L111 73 Z M136 60 L136 67 M132 67 L140 67 L138 73 L134 73 Z M159 60 L159 67 M155 67 L163 67 L161 73 L157 73 Z"/>
+      <path pathLength="100" style="animation-delay:.56s" d="M98 106 L98 86 L114 86 L114 106"/>
+      <circle pathLength="100" style="animation-delay:.60s" cx="106" cy="92" r="3"/>
+      <circle pathLength="100" style="animation-delay:.62s" cx="106" cy="100" r="3"/>
+      <path pathLength="100" style="animation-delay:.58s" d="M126 106 L126 86 L142 86 L142 106"/>
+      <circle pathLength="100" style="animation-delay:.62s" cx="134" cy="92" r="3"/>
+      <circle pathLength="100" style="animation-delay:.64s" cx="134" cy="100" r="3"/>
+      <path pathLength="100" style="animation-delay:.70s" d="M60 106 L180 106"/>
+      <path pathLength="100" style="animation-delay:.78s" d="M44 124 L44 118 L60 118 L60 112 L180 112 L180 118 L196 118 L196 124 Z"/>
+    </g></svg>
+    <div class="hero-title">TOUR FINDER</div>
+    <svg class="uline" viewBox="0 0 300 14" preserveAspectRatio="none"><path d="M5 9 C 70 3, 130 13, 175 7 S 260 3, 295 8"/></svg>
+    <div class="hero-sub">Surfacing artists likely to tour, before anyone else notices.</div>
+  </div>
+  <div class="scroll-cue"><div class="lbl">let the show begin</div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+</div></div></div>
 
 <div class="wrap">
 
@@ -579,198 +620,47 @@
     </dl>
 
     <nav class="jump">
-      <a href="#background">Background</a>
-      <a href="#concept">Concept</a>
-      <a href="#who-its-for">Who It's For</a>
-      <a href="#business-opportunity">Business Opportunity</a>
-      <a href="#use-cases">Use Cases</a>
-      <a href="#key-features">Key Features</a>
-      <a href="#how-it-was-built">How It Was Built</a>
-      <a href="#reflection">Where It Stands</a>
+      <a href="#context">Context</a>
+      <a href="#final-product">Final Product</a>
+      <a href="#process">Process</a>
+      <a href="#reflection">Reflection</a>
     </nav>
   </header>
 
-  <!-- ── Background ── -->
-  <section id="background" data-reveal>
-    <h2>Background</h2>
+  <!-- ── Context (Background + Concept compressed; audience + why-it-matters folded in) ── -->
+  <section id="context" data-reveal>
+    <h2>Context</h2>
+    <p class="lead">In live music, the roles that run tours are filled before a tour is ever announced — through personal networks, by whoever notices an artist is about to go out and reaches out first.</p>
     <figure>
       <div class="hand-frame" data-seed="12" style="--w:100%; --ar:auto;">
         <img src="assets/case studies/tour-finder/backstage.webp" loading="lazy" alt="Backstage at a live show" style="object-fit:cover; max-height:420px;" />
       </div>
     </figure>
-    <p>The idea came from watching someone close to me navigate this exact problem — they work in live music, coordinating tours and production for touring artists. Tour manager and production coordinator roles are almost never publicly listed. They're filled through personal networks, word of mouth, or someone in the industry noticing an artist is about to tour and reaching out first.</p>
-    <p>I watched how they actually found work: manually researching artists, guessing who might be gearing up for a tour, checking if they already had representation, cold-emailing when they spotted an opening. It worked — but only for whichever artists happened to come to mind, and it didn't scale.</p>
-  </section>
+    <p>The idea came from watching someone close to me do exactly this — coordinating tours and production, finding work by manually researching artists, guessing who might be gearing up, checking if they already had representation, and cold-emailing when they spotted an opening. It worked, but only for whichever artists happened to come to mind, and it didn't scale.</p>
 
-  <!-- ── Concept ── -->
-  <section id="concept" data-reveal>
-    <h2>Concept</h2>
+    <div class="split-text">
+      <div class="split-accent">
+        <p>Opportunity in this kind of work is often invisible until it's too late.</p>
+      </div>
+      <div class="split-body">
+        <p>By the time a tour is publicly announced, someone's usually already been hired to run it. Tour Finder is a discovery tool, not a job board: it surfaces artists showing real signs of touring soon — a fresh release with no tour booked yet, a comeback after time away, growing show frequency — and ranks them by likely fit, while there's still a window to reach out.</p>
+      </div>
+    </div>
     <figure>
       <div class="hand-frame" data-seed="22" style="--w:100%; --ar:auto;">
         <img src="assets/case studies/tour-finder/concert.webp" loading="lazy" alt="A live concert crowd" style="object-fit:cover; max-height:420px;" />
       </div>
     </figure>
-    <p class="lead">Tour Finder is a discovery tool, not a job board.</p>
-    <p>Instead of listing open positions — which mostly don't exist in this industry — it surfaces artists showing real signs of touring soon: a fresh release with no tour booked yet, a comeback after time away, growing show frequency. It ranks them by likely fit for someone with specific touring experience and scale.</p>
-
-    <div class="split-text">
-      <div class="split-accent">
-        <p>The core idea: opportunity in this kind of work is often invisible until it's too late.</p>
-      </div>
-      <div class="split-body">
-        <p>By the time a tour is publicly announced, someone's usually already been hired to run it. This tool tries to surface the window before that happens.</p>
-      </div>
-    </div>
+    <p>It's built first for the independent crew who live this problem — tour managers and production, working gig to gig. But the same early-tour signal is a qualified-lead pipeline for anyone who sells into tours: travel agencies, staffing companies, agents and vendors. One prediction, many buyers — and the edge is timing.</p>
   </section>
 
-  <!-- ── Who It's For ── -->
-  <section id="who-its-for" data-reveal>
-    <div class="widget-card">
-      <h2>Who This Is For</h2>
-      <p class="lead">The same early-tour signal that helps one person find their next gig is a qualified-lead pipeline for any company that sells into tours.</p>
-      <div class="audience-grid">
-        <div class="audience-card">
-          <div class="audience-card-head">
-            <svg class="audience-card-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></svg>
-            <div class="audience-card-label">Independent crew</div>
-          </div>
-          <p>TMs &amp; production, gig to gig</p>
-        </div>
-        <div class="audience-card">
-          <div class="audience-card-head">
-            <svg class="audience-card-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
-            <div class="audience-card-label">Travel agencies</div>
-          </div>
-          <p>Flights, buses, hotels for touring parties</p>
-        </div>
-        <div class="audience-card">
-          <div class="audience-card-head">
-            <svg class="audience-card-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
-            <div class="audience-card-label">Staffing companies</div>
-          </div>
-          <p>Placing TMs, coordinators, crew</p>
-        </div>
-        <div class="audience-card">
-          <div class="audience-card-head">
-            <svg class="audience-card-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></svg>
-            <div class="audience-card-label">Agents &amp; vendors</div>
-          </div>
-          <p>Spotting rising acts early</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Business Opportunity ── -->
-  <section id="business-opportunity" data-reveal>
-    <h2>Business Opportunity</h2>
-    <p class="lead">One prediction, many buyers — the insight that a tour is coming before it's announced is worth money to everyone who sells into tours.</p>
-
-    <div class="built-grid">
-      <details class="built-card">
-        <summary>
-          <div class="built-card-head">
-            <div class="built-card-title-row">
-              <svg class="built-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              <h3>Timing is the edge</h3>
-            </div>
-          </div>
-          <svg class="card-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="built-card-body">
-          <p>By the time a tour is public, the roles and vendors are locked. Everyone who services a tour faces the same closing window the crew does; the early signal gets them in first.</p>
-        </div>
-      </details>
-
-      <details class="built-card">
-        <summary>
-          <div class="built-card-head">
-            <div class="built-card-title-row">
-              <svg class="built-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
-              <h3>Measured in lead time won</h3>
-            </div>
-          </div>
-          <svg class="card-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="built-card-body">
-          <p>The metric that matters isn't the fit score, it's how many weeks ahead of a public announcement an act gets flagged. One landed account off an early lead covers a year of the tool.</p>
-        </div>
-      </details>
-
-      <details class="built-card">
-        <summary>
-          <div class="built-card-head">
-            <div class="built-card-title-row">
-              <svg class="built-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg>
-              <h3>Leads become a pipeline</h3>
-            </div>
-          </div>
-          <svg class="card-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="built-card-body">
-          <p>The personal log becomes a team funnel: surfaced → contacted → responded → signed.</p>
-        </div>
-      </details>
-
-      <details class="built-card">
-        <summary>
-          <div class="built-card-head">
-            <div class="built-card-title-row">
-              <svg class="built-card-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              <h3>How it could grow</h3>
-            </div>
-          </div>
-          <svg class="card-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </summary>
-        <div class="built-card-body">
-          <p>Free personal tier, paid per-seat for agencies, data/API licensing for vendors. Beachhead: entertainment travel agencies.</p>
-        </div>
-      </details>
-    </div>
-  </section>
-
-  <!-- ── Use Cases ── -->
-  <section id="use-cases" data-reveal>
-    <h2>Use Cases</h2>
-    <p class="lead">How it fits into the week — from first signal to a shortlist worth emailing.</p>
-    <div class="workflow-strip">
-      <div class="workflow-step">
-        <svg class="workflow-step-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><path d="M16.24 7.76A6 6 0 1 0 8.23 16.67"/><path d="M12 18h.01"/><path d="M17.99 11.66A6 6 0 0 1 15.77 16.67"/><circle cx="12" cy="12" r="2"/><path d="m13.41 10.59 5.66-5.66"/></svg>
-        <div>
-          <div class="workflow-step-label">Discover</div>
-          <p class="workflow-step-gloss">A weekly-refreshed feed surfaces artists showing early signs of touring.</p>
-        </div>
-      </div>
-      <div class="workflow-step">
-        <svg class="workflow-step-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
-        <div>
-          <div class="workflow-step-label">Research</div>
-          <p class="workflow-step-gloss">Each lead's tour history, venue scale, and contacts in one view — no digging.</p>
-        </div>
-      </div>
-      <div class="workflow-step">
-        <svg class="workflow-step-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v8l3-3 3 3V2"/><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"/></svg>
-        <div>
-          <div class="workflow-step-label">Track</div>
-          <p class="workflow-step-gloss">Log the artists you've actually worked with to sharpen future recommendations.</p>
-        </div>
-      </div>
-      <div class="workflow-step">
-        <svg class="workflow-step-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg>
-        <div>
-          <div class="workflow-step-label">Filter</div>
-          <p class="workflow-step-gloss">Dismiss wrong-scale, wrong-genre, or already-managed acts to cut the noise.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Key Features ── -->
-  <section id="key-features" data-reveal>
-    <h2>Key Features</h2>
+  <!-- ── Final Product (formerly Key Features; feature headings rewritten to carry the point) ── -->
+  <section id="final-product" data-reveal>
+    <h2>Final Product</h2>
+    <p class="lead">One dashboard, one weekly loop: surface early leads, dig into who they are, keep the artists you've worked with feeding the next round, and cut whatever isn't a fit.</p>
 
     <div class="feature-block">
-      <div class="feature-block-title">Scored leads</div>
+      <div class="feature-block-title">A 0–100 score for who's most worth reaching out to</div>
       <p class="feature-block-desc">A 0–100 fit score built from five factors: touring history, venue scale match, how reachable an artist's team is, timing (a fresh release with no tour booked is the strongest signal), and momentum.</p>
       <div class="feature-media">
         <figure>
@@ -785,7 +675,7 @@
     </div>
 
     <div class="feature-block">
-      <div class="feature-block-title">Full artist detail pages</div>
+      <div class="feature-block-title">Everything you'd cold-research about an artist, in one place</div>
       <p class="feature-block-desc">Tour history, recent releases, contact info, and a plain-language breakdown of why an artist scored the way it did — not just a bare number.</p>
       <div class="feature-media">
         <div class="feature-media-grid feature-media-grid--split">
@@ -808,7 +698,7 @@
     </div>
 
     <div class="feature-block">
-      <div class="feature-block-title">Personal artist log</div>
+      <div class="feature-block-title">The artists you've worked with teach it who to suggest next</div>
       <p class="feature-block-desc">A record of who you've actually worked with, separate from suggested leads, which doubles as calibration data for the scoring system.</p>
       <div class="feature-media">
         <figure>
@@ -821,7 +711,7 @@
     </div>
 
     <div class="feature-block">
-      <div class="feature-block-title">Adjustable genre preferences</div>
+      <div class="feature-block-title">Reorder your genres and the rankings shift in real time</div>
       <p class="feature-block-desc">Drag genres up or down to reorder — scoring nudges toward your current priorities in real time, without excluding anything else.</p>
       <div class="feature-media">
         <figure>
@@ -836,7 +726,7 @@
     </div>
 
     <div class="feature-block">
-      <div class="feature-block-title">New Tour Detected</div>
+      <div class="feature-block-title">Confirmed tours already on sale, before they're everywhere</div>
       <p class="feature-block-desc">An unfiltered feed of confirmed tours already on sale but not yet underway, soonest first — pulled straight from ticketing data. Tracked artists surface immediately; anyone outside your roster needs a real multi-city run to qualify.</p>
       <div class="feature-media">
         <figure>
@@ -851,7 +741,7 @@
     </div>
 
     <div class="feature-block">
-      <div class="feature-block-title">Automated + on-demand refresh</div>
+      <div class="feature-block-title">Fresh leads every week — or the moment you ask</div>
       <p class="feature-block-desc">New leads arrive automatically every week — or trigger a check yourself anytime and watch results roll in.</p>
       <div class="feature-media">
         <figure>
@@ -866,9 +756,9 @@
     </div>
   </section>
 
-  <!-- ── How It Was Built ── -->
-  <section id="how-it-was-built" data-reveal>
-    <h2>How It Was Built</h2>
+  <!-- ── Process (formerly How It Was Built) ── -->
+  <section id="process" data-reveal>
+    <h2>Process</h2>
     <figure>
       <div class="hand-frame" data-seed="82" style="--w:100%; --ar:auto;">
         <img src="assets/case studies/tour-finder/build-visual.webp" loading="lazy" alt="Architecture diagram — data sources feed an automation pipeline running weekly via GitHub Actions, writing to a GitHub repo with no database, which powers a site dashboard that syncs edits back" />
@@ -915,7 +805,7 @@
         <summary>
           <div class="built-card-head">
             <h3>Scoring</h3>
-            <p class="tech-lead">A weighted algorithm across the five factors behind the fit score above.</p>
+            <p class="tech-lead">A weighted algorithm across the five factors behind the fit score.</p>
           </div>
           <svg class="card-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </summary>
@@ -946,7 +836,7 @@
     </div>
   </section>
 
-  <!-- ── Where It Stands ── -->
+  <!-- ── Reflection (formerly Where It Stands) ── -->
   <section id="reflection" data-reveal style="margin-bottom: 48px;">
     <div class="closing-box">
       <div>
@@ -958,6 +848,23 @@
         <p>Keeping the dashboard's local edits in sync with the backend without silently losing data turned out to be the real challenge. Early on, a returning visit could overwrite newer backend fields with a browser's stale local copy. Fixing it meant reconciling local and backend state on every visit instead of just trusting whichever one wrote last.</p>
         <p style="margin-top:14px;"><strong>Continuing:</strong> wiring genre preferences into the same sync path artist-logging already uses · tuning scoring weights as more real leads come in · opening this up beyond one user with accounts and sign-in · exploring paywalled and business-tier APIs for data depth I can't reach today.</p>
       </div>
+    </div>
+
+    <!-- Where it could go — business detail restored (condensed) from the pre-refactor Business Opportunity section -->
+    <div class="opp-block">
+      <p class="section-label">Where it could go</p>
+      <div class="opp-grid">
+        <div class="opp-stat">
+          <span class="opp-stat-num">1</span>
+          <span class="opp-stat-label">landed account off an early lead covers a year of the tool</span>
+        </div>
+        <div class="opp-tiers">
+          <div class="opp-tier"><div class="opp-tier-name">Free</div><div class="opp-tier-who">Personal tier</div></div>
+          <div class="opp-tier"><div class="opp-tier-name">Per-seat</div><div class="opp-tier-who">Agencies</div></div>
+          <div class="opp-tier"><div class="opp-tier-name">Licensing</div><div class="opp-tier-who">Data / API for vendors</div></div>
+        </div>
+      </div>
+      <p class="opp-note">The metric that matters isn't the fit score — it's how many weeks ahead of a public announcement an act gets flagged. Beachhead: entertainment travel agencies.</p>
     </div>
   </section>
 
@@ -1222,6 +1129,20 @@ function mobDrawerClose() {
   document.addEventListener('mouseout', function(e) {
     if (e.target.closest && e.target.closest('figure img')) document.body.classList.remove('cursor-hover');
   });
+})();
+</script>
+
+<script>
+(function(){ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var pin=document.getElementById('heroPin'),board=document.getElementById('board'),cue=document.querySelector('.scroll-cue');
+  if(!pin||!board)return;
+  function s(){var vh=window.innerHeight,total=pin.offsetHeight-vh;var p=Math.min(Math.max(window.scrollY/total,0),1);board.style.transform='scale('+(1+0.08*p)+')';board.style.opacity=1-Math.min(p/0.8,1);if(cue)cue.style.opacity=1-Math.min(p*2,1);}
+  window.addEventListener('scroll',s,{passive:true});s();
+})();
+(function(){ var toc=document.querySelector('.toc');if(!toc)return;var pin=document.getElementById('heroPin');
+  if(!pin){toc.classList.add('revealed');return;}
+  function t(){toc.classList.toggle('revealed',window.scrollY>pin.offsetHeight-window.innerHeight*0.6);}
+  window.addEventListener('scroll',t,{passive:true});t();
 })();
 </script>
 
