@@ -121,23 +121,21 @@
      break out to a wider max, centred on that same axis, for a narrow-text /
      wide-media rhythm. Centering uses `left` (not transform) so it never fights
      the data-reveal / drift transforms already on these wrappers. */
-  .wide {
-    --wide-w: min(900px, calc(100vw - 40px));
-    width: var(--wide-w);
-    position: relative;
-    left: calc((100% - var(--wide-w)) / 2);
-  }
+  /* Media aligned to the body-text column: paragraphs are `max-width:640px`,
+     left-aligned. `100%` here is the 672px band (padding box), 32px wider than
+     the text — so we cap to 640px and left-align (left:0), matching paragraph
+     edges exactly. On narrow viewports min() yields 100%, so media and text
+     both go full-width together. */
+  .wide,
   .wide-phones {
-    --wide-w: min(760px, calc(100vw - 40px));
+    --wide-w: min(100%, 640px);
     width: var(--wide-w);
     position: relative;
-    left: calc((100% - var(--wide-w)) / 2);
+    left: 0;
   }
   @media (min-width: 1180px) {
-    /* Where the left-pinned TOC is shown, keep the centred wide media clear of
-       it: symmetric side margins ≥ the TOC zone (rail 150px + 16px gap = 166px). */
-    .wide        { --wide-w: min(900px, calc(100vw - 2 * (clamp(24px, 4vw, 72px) + 166px))); }
-    .wide-phones { --wide-w: min(760px, calc(100vw - 2 * (clamp(24px, 4vw, 72px) + 166px))); }
+    .wide        { --wide-w: min(100%, 640px); }
+    .wide-phones { --wide-w: min(100%, 640px); }
   }
 
   /* ══ FigJam pinboard intro — full-viewport board with edge polaroids that
