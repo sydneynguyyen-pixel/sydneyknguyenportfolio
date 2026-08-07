@@ -247,18 +247,6 @@
   .card-chevron { flex-shrink: 0; color: var(--ink-faint); transition: transform 0.2s ease; }
   .built-card[open] .card-chevron { transform: rotate(180deg); }
 
-  /* Where it could go — compact business callout (single stat + monetization tiers) */
-  .opp-block { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--rule); }
-  .opp-grid { display: grid; grid-template-columns: minmax(150px, 230px) 1fr; gap: 32px; align-items: center; margin: 14px 0 12px; }
-  .opp-stat { display: flex; align-items: baseline; gap: 12px; }
-  .opp-stat-num { font-size: 60px; font-weight: 700; line-height: 0.9; letter-spacing: -0.02em; color: var(--ink); }
-  .opp-stat-label { font-size: 13px; color: var(--ink-soft); line-height: 1.4; }
-  .opp-tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .opp-tier { border: 1px solid var(--rule); border-radius: 12px; padding: 14px 16px; background: var(--frame-bg); }
-  .opp-tier-name { font-size: 15px; font-weight: 600; color: var(--ink); }
-  .opp-tier-who { font-size: 13px; color: var(--ink-soft); margin-top: 3px; }
-  .opp-note { font-size: 13px; color: var(--ink-faint); line-height: 1.5; margin: 4px 0 0; }
-  @media (max-width: 640px) { .opp-grid { grid-template-columns: 1fr; gap: 20px; } .opp-tiers { grid-template-columns: 1fr; } }
   .built-card-body { padding: 0 24px 24px; }
   .tech-lead { font-size: 15px; color: var(--ink); font-weight: 500; margin-bottom: 10px; }
   .tech-list { list-style: none; margin: 0; padding: 0; }
@@ -848,23 +836,6 @@
         <p>Keeping the dashboard's local edits in sync with the backend without silently losing data turned out to be the real challenge. Early on, a returning visit could overwrite newer backend fields with a browser's stale local copy. Fixing it meant reconciling local and backend state on every visit instead of just trusting whichever one wrote last.</p>
         <p style="margin-top:14px;"><strong>Continuing:</strong> wiring genre preferences into the same sync path artist-logging already uses · tuning scoring weights as more real leads come in · opening this up beyond one user with accounts and sign-in · exploring paywalled and business-tier APIs for data depth I can't reach today.</p>
       </div>
-    </div>
-
-    <!-- Where it could go — business detail restored (condensed) from the pre-refactor Business Opportunity section -->
-    <div class="opp-block">
-      <p class="section-label">Where it could go</p>
-      <div class="opp-grid">
-        <div class="opp-stat">
-          <span class="opp-stat-num">1</span>
-          <span class="opp-stat-label">landed account off an early lead covers a year of the tool</span>
-        </div>
-        <div class="opp-tiers">
-          <div class="opp-tier"><div class="opp-tier-name">Free</div><div class="opp-tier-who">Personal tier</div></div>
-          <div class="opp-tier"><div class="opp-tier-name">Per-seat</div><div class="opp-tier-who">Agencies</div></div>
-          <div class="opp-tier"><div class="opp-tier-name">Licensing</div><div class="opp-tier-who">Data / API for vendors</div></div>
-        </div>
-      </div>
-      <p class="opp-note">The metric that matters isn't the fit score — it's how many weeks ahead of a public announcement an act gets flagged. Beachhead: entertainment travel agencies.</p>
     </div>
   </section>
 
