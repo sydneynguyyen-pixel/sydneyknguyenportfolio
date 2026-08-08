@@ -4869,268 +4869,222 @@ body.cursor-click .cursor-dot {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   ARCHIVE OF WORK — stack browser (#marketing section)
-   Four stacks fan on hover; clicking one opens its item row below.
-   Item cards reuse .pcard / .pcard-img / .pcard-title / .pcard-sub.
-   Built by initStacks() in script.js. Namespaced under .stacks.
+   "more things I've made" — paper archive gallery (#archive section)
+   Replaces the old stack browser. A warm-paper zone at the foot of the
+   desktop homepage: four EQUAL project tiles (2×2) + two MEDIUM tiles
+   (2×1), each a white cover that fills with a muted, looped <video> on
+   hover; below them, three full-width "paper drawer" chips that open a
+   scrapbook shadowbox. Built statically in index.html; thumbnails,
+   hover-video and the shadowbox are wired by initArchive() in script.js
+   from CREATIVE_ASSETS (Graphic Design, Photography) and the #mkw-panels
+   modal (Branding & Marketing). Namespaced .arch-*; titles use --font-sans.
+   Lives in #desktop-canvas (>720px); the phone layout is #mobile-view.
    ══════════════════════════════════════════════════════════════ */
-.stacks {
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* ── Tunables — size, scatter, and gaps in ONE place ──────────────
-     Retune the whole component from here; nothing below hard-codes these. */
-  --stack-size: 176px;      /* cover card edge — smaller so four fit across   */
-  --sub-gap: 34px;          /* gap from the cover's BOTTOM edge down to its
-                               label. Layers peek UP now, so nothing sits below
-                               the cover — this is pure cover-to-label breathing */
-  --cover-radius: 18px;     /* corner radius on the cover + under-layers      */
-
-  /* Under-layer resting scatter — offset (x, y) + rotation, one per layer.
-     All four peek UPWARD (negative y) with only a slight sideways splay, so the
-     pile reads as a stack that's slightly askew — not a fan opened at rest. The
-     outer pair (3,4) peeks up a touch more than the inner pair (1,2). Horizontal
-     offsets are ~a third of the old wide spread; rotations roughly halved.
-     Transform-only: these never change the container's size. */
-  --l1-x:  -6px; --l1-y: -10px; --l1-rot: -3deg;   /* inner, slight left  */
-  --l2-x:   7px; --l2-y: -13px; --l2-rot:  2.5deg; /* inner, slight right */
-  --l3-x:  -5px; --l3-y: -17px; --l3-rot:  3.5deg; /* outer, slight left  */
-  --l4-x:   6px; --l4-y: -20px; --l4-rot: -2.5deg; /* outer, slight right */
-
-  /* One flat row of four, centered in the shared 900px .section-inner. Each
-     column is an equal fraction and the stack is centered inside it, so the
-     gaps between all four read even with no stretched/dead columns. The drawer
-     is the 5th grid child; it spans the full width (grid-column: 1 / -1) and,
-     because its `order` is higher than every stack, always lands below the row.
-     On the ≤720px 2×2 fallback its order is overridden to slot it row-aware. */
-  /* Layers peek UPWARD now, so the pile's spread reaches above the cover — this
-     reserves room between the "Archive" heading and the top of the piles so a
-     hovered stack's raised layers never touch the heading. */
-  padding-top: 26px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  justify-items: center;
-  align-items: start;
-  column-gap: 28px;
+#archive {
+  --arch-paper: #f1ece1; --arch-ink: #2f2b24; --arch-frame: #3a352c;
+  --arch-soft: #8a8477;  --arch-green: #3f7d5a; --arch-screen: #f4f1ea;
 }
-
-/* ── A single stack: a bounded container (cover + under-layers) with its
-   label below. Fixed width; the scatter lives inside via transforms only, so a
-   stack can never blow out its grid cell. ── */
-.stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: var(--stack-size);
-  color: #1a1a1a;
-  border: none; background: none;
-  position: relative;   /* stacking context so a hover lift can rise above neighbours */
-  z-index: 1;
-  cursor: pointer;
-}
-.stack:hover, .stack:focus-within { z-index: 10; }
-.stack:focus-visible { outline: none; }
-.stack:focus-visible .stack-cover { border-color: #1A1A1A; box-shadow: 0 0 0 3px rgba(26,26,26,0.18); }
-
-/* Pile: the bounded box — exactly --stack-size square. Cover on top, 4 layers
-   behind scattered around it. overflow stays visible so the scatter shows, but
-   the box itself never grows (layers are position:absolute + transform-only). */
-.stack-pile {
+.arch {
   position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-}
-.stack-layer,
-.stack-cover {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--cover-radius);
-  transition: transform 0.34s var(--ease), opacity 0.34s var(--ease), filter 0.34s var(--ease), border-color 0.2s ease;
-}
-/* Depth from REAL work — each layer carries an item thumbnail from the stack's
-   own contents (built in initStacks), so the spread-on-hover reveals actual
-   pieces. Centre pivot so the layers read as scattered cards set down, not a
-   hinged fan. White card backing shows while the image loads / behind any
-   transparency. */
-.stack-layer {
-  background: #fff;
-  border: 1px solid rgba(0,0,0,0.07);
+  background: var(--arch-paper);
+  color: var(--arch-ink);
+  border-radius: 22px;
+  padding: 46px 40px 54px;
   overflow: hidden;
-  transform-origin: 50% 50%;
-  opacity: 0;             /* hidden at rest — the pile reads as a single cover; layers appear only on hover */
-  filter: grayscale(1);   /* revealed in B&W first, then resolve to color as they spread (hover, below) */
-  pointer-events: none;   /* decorative only — the cover is the hit target */
 }
-.stack-layer img { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* z-order: outer pair behind inner pair behind cover. */
-.stack-layer-3, .stack-layer-4 { z-index: 1; }
-.stack-layer-1, .stack-layer-2 { z-index: 2; }
-/* Resting scatter — each layer to a different quadrant (constants above). */
-.stack-layer-1 { transform: translate(var(--l1-x), var(--l1-y)) rotate(var(--l1-rot)); }
-.stack-layer-2 { transform: translate(var(--l2-x), var(--l2-y)) rotate(var(--l2-rot)); }
-.stack-layer-3 { transform: translate(var(--l3-x), var(--l3-y)) rotate(var(--l3-rot)); }
-.stack-layer-4 { transform: translate(var(--l4-x), var(--l4-y)) rotate(var(--l4-rot)); }
-
-.stack-cover {
-  z-index: 4;
-  /* The hand-drawn ink (.stack-outline) IS the cover's frame now — this border
-     stays transparent so it never competes with the ink. Kept as a 1px box (not
-     removed) so the focus-visible ring and the is-active selected state can still
-     colour it without shifting the cover by a pixel. */
-  border: 1px solid transparent;
-  overflow: hidden;
-  background: #fff;      /* covers are logos on white — card reads as white */
+/* subtle paper grain */
+.arch::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: .05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
-.stack-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.arch > * { position: relative; z-index: 1; }
 
-/* Hand-drawn outline on the cover — the same shared pen as the case-study cards
-   (built in initStacks). It REPLACES the old grey cover border: the ink is the
-   cover's frame, shown at rest, not a hover-only accent (the cards are transparent
-   text tiles that only become cards on hover; a cover is always a card, so its
-   frame is always drawn). An absolutely-positioned SVG that never affects layout
-   and is free to overshoot past the cover edge, so it lives in .stack-pile (which
-   is overflow:visible) rather than inside .stack-cover (overflow:hidden would clip
-   it). Sits just above the cover; the cover is stationary on hover, so the ink
-   rides with it as the layers spread. */
-.stack-outline {
-  position: absolute;
-  inset: 0;
-  overflow: visible;
-  pointer-events: none;
-  z-index: 5;                 /* above the cover (z-index 4) */
-}
-
-/* Hover — the pile opens UPWARD along each layer's existing lean: the vertical
-   push grows more than the sideways one, so it lifts open rather than fanning
-   wide. Proportional to the restrained rest — noticeably more open, still tight.
-   (x ×1.5, y ×1.8, rot ×1.35.) */
-@media (hover: hover) {
-  /* No border-colour change on hover — the hand-drawn ink is the frame in every
-     state, so a solid border would just double up behind the wobble. */
-  /* Layers resolve to full opacity + full color as they spread — the reveal is
-     opacity + color + movement, landing together on the same curve/duration. */
-  .stack:hover .stack-layer { opacity: 1; filter: grayscale(0); }
-  .stack:hover .stack-layer-1 { transform: translate(calc(var(--l1-x) * 1.5), calc(var(--l1-y) * 1.8)) rotate(calc(var(--l1-rot) * 1.35)); }
-  .stack:hover .stack-layer-2 { transform: translate(calc(var(--l2-x) * 1.5), calc(var(--l2-y) * 1.8)) rotate(calc(var(--l2-rot) * 1.35)); }
-  .stack:hover .stack-layer-3 { transform: translate(calc(var(--l3-x) * 1.5), calc(var(--l3-y) * 1.8)) rotate(calc(var(--l3-rot) * 1.35)); }
-  .stack:hover .stack-layer-4 { transform: translate(calc(var(--l4-x) * 1.5), calc(var(--l4-y) * 1.8)) rotate(calc(var(--l4-rot) * 1.35)); }
-}
-
-/* Active/selected stack — highlighted; layers stay tucked at rest (no fan). */
-.stack.is-active .stack-cover { border-color: #1A1A1A; }
-
-/* ── Stack label — the sole text now (titles removed; the cover carries the
-   name). Sits below the pile with real clearance, centered under the cover,
-   styled as a label rather than faint caption copy. ── */
-.stack-label {
-  margin-top: var(--sub-gap);
-  text-align: center;
+.arch-title {
   font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.35;
-  letter-spacing: 0.005em;
-  color: #4a4a46;
-  max-width: 100%;
+  font-size: 40px; font-weight: 800; letter-spacing: -0.02em;
+  margin: 0; color: var(--arch-ink); text-transform: lowercase;
+}
+.arch-uline { display: block; width: 280px; height: 12px; margin: 4px 0 32px; }
+.arch-uline path { stroke: var(--arch-green); stroke-width: 5; fill: none; stroke-linecap: round; }
+
+/* ── grid: 4 equal tiles (2×2) + 2 medium tiles (2×1) ── */
+.arch-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 182px; gap: 22px; }
+.arch-cell { position: relative; }
+.arch-c-moove     { grid-column: 1/3; grid-row: 1/3; }
+.arch-c-pantry    { grid-column: 3/5; grid-row: 1/3; }
+.arch-c-soundbite { grid-column: 1/3; grid-row: 3/5; }
+.arch-c-keeb      { grid-column: 3/5; grid-row: 3/5; }
+.arch-c-m3        { grid-column: 1/3; grid-row: 5/6; }
+.arch-c-lwb       { grid-column: 3/5; grid-row: 5/6; }
+
+/* ── project tile: white cover at rest ── */
+.arch-tile {
+  position: relative; display: block; height: 100%; width: 100%; overflow: hidden;
+  text-decoration: none; color: var(--arch-ink); background: #fff; cursor: pointer;
+  border: none; font: inherit; text-align: left;
+  border-radius: 16px 13px 18px 12px; box-shadow: 0 14px 30px -22px rgba(50,40,20,.55);
+}
+.arch-tile:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 3px; }
+.arch-frame {
+  position: absolute; inset: 3px; border: 1.7px solid var(--arch-frame);
+  border-radius: 15px 12px 17px 11px; filter: url(#arch-rough);
+  pointer-events: none; opacity: .5; z-index: 4;
+}
+.arch-head {
+  position: absolute; left: 16px; right: 16px; top: 13px; z-index: 2;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
+}
+.arch-name { font-family: var(--font-sans); font-weight: 700; font-size: 16px; letter-spacing: -0.01em; text-transform: lowercase; }
+.arch-c-m3 .arch-name, .arch-c-lwb .arch-name { font-size: 14px; }
+.arch-tag {
+  font-family: var(--font-sans); font-size: 10px; font-weight: 700; letter-spacing: .03em;
+  background: var(--arch-paper); color: var(--arch-ink); padding: 3px 8px;
+  border-radius: 20px; white-space: nowrap; border: 1.1px solid rgba(58,53,44,.5); flex: 0 0 auto;
+}
+/* small hand-drawn doodle, top-right — visually secondary, never over the title */
+.arch-doodle { position: absolute; right: 14px; top: 40px; width: 62px; height: 42px; z-index: 2; opacity: .85; }
+.arch-c-m3 .arch-doodle, .arch-c-lwb .arch-doodle { top: auto; bottom: 12px; }
+.arch-doodle svg { width: 100%; height: 100%; overflow: visible; }
+.arch-doodle path, .arch-doodle circle, .arch-doodle rect, .arch-doodle line {
+  fill: none; stroke: var(--arch-frame); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; filter: url(#arch-rough);
+}
+/* resting "screenshot" area — accent bar + peeking screens (or real cover.webp) */
+/* full-tile positioning context; holds real cover.webp + placeholder peek */
+.arch-screen { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+/* placeholder "app screenshots" peeking up from the BOTTOM (see covers.html);
+   the subtitle keeps the space above them. Only tall/equal tiles have room. */
+.arch-peek { position: absolute; left: 16px; right: 16px; bottom: -8px; height: 48%; }
+.arch-c-m3 .arch-peek, .arch-c-lwb .arch-peek { display: none; }
+.arch-pk {
+  position: absolute; bottom: 0; top: 14px; width: 52%; border-radius: 12px 12px 0 0;
+  border: 5px solid #fff; border-bottom: none; overflow: hidden;
+  box-shadow: 0 14px 28px -16px rgba(30,25,10,.5);
+  background: linear-gradient(180deg, var(--arch-acc, var(--arch-green)), color-mix(in srgb, var(--arch-acc, var(--arch-green)) 22%, #fff));
+}
+.arch-pk::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 14px; background: rgba(255,255,255,.55); }
+.arch-pk.a { left: 4%; transform: rotate(-6deg); }
+.arch-pk.b { left: 44%; transform: rotate(5deg); z-index: 2; }
+.arch-subtitle {
+  position: absolute; left: 16px; right: 78px; top: 40px; z-index: 1;
+  font-family: var(--font-sans); font-size: 12px; line-height: 1.35; color: var(--arch-soft);
+}
+.arch-c-m3 .arch-subtitle, .arch-c-lwb .arch-subtitle { right: 78px; top: 42px; }
+/* real cover art (optional export) — hides itself on error → CSS cover shows */
+.arch-cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+
+/* hover: full-colour video fills the tile; title stays visible in white */
+.arch-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 3; opacity: 0; transition: opacity .28s var(--ease, ease); background: #2a2622; pointer-events: none; }
+.arch-vidname {
+  position: absolute; left: 16px; top: 13px; z-index: 4; color: #fff; font-family: var(--font-sans);
+  font-weight: 700; font-size: 16px; letter-spacing: -0.01em; text-transform: lowercase;
+  text-shadow: 0 1px 8px rgba(0,0,0,.5); opacity: 0; transition: opacity .28s var(--ease, ease);
+}
+.arch-c-m3 .arch-vidname, .arch-c-lwb .arch-vidname { font-size: 14px; }
+.arch-tile.is-playing .arch-vid,
+.arch-tile.is-playing .arch-vidname { opacity: 1; }
+.arch-tile.is-playing .arch-frame { opacity: .35; }
+
+/* "launching soon" chip (keeb sim placeholder) */
+.arch-soon {
+  position: absolute; right: 14px; bottom: 14px; z-index: 2;
+  font-family: var(--font-sans); font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--arch-soft); background: var(--arch-paper);
+  border: 1.1px solid rgba(58,53,44,.4); padding: 3px 8px; border-radius: 20px;
+}
+.arch-tile.is-soon { cursor: default; }
+
+/* ── folder drawers — full-width white chip over a stack of paper ── */
+.arch-drawers { margin-top: 26px; display: flex; flex-direction: column; gap: 24px; }
+.arch-chip { position: relative; }
+.arch-stackline {
+  position: absolute; left: 0; right: 0; height: 100%; border-radius: 14px 12px 15px 11px;
+  background: #fbf9f4; border: 1.4px solid rgba(58,53,44,.4); box-shadow: 0 6px 14px -10px rgba(50,40,20,.5);
+}
+.arch-stackline.s1 { transform: translateY(7px) rotate(.5deg); }
+.arch-stackline.s2 { transform: translateY(13px) rotate(-.5deg); }
+.arch-card {
+  position: relative; z-index: 2; min-height: 102px; background: #fff; border-radius: 14px 12px 15px 11px;
+  display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 24px;
+  overflow: hidden; text-decoration: none; color: var(--arch-ink); cursor: pointer; width: 100%;
+  text-align: left; font: inherit; border: none;
+}
+.arch-card:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 3px; }
+.arch-fr { position: absolute; inset: 3px; border: 1.7px solid var(--arch-frame); border-radius: 13px 11px 14px 10px; filter: url(#arch-rough); opacity: .5; pointer-events: none; }
+.arch-lbl .arch-nm { font-family: var(--font-sans); font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
+.arch-lbl .arch-cnt { font-family: var(--font-sans); font-size: 12px; color: var(--arch-soft); letter-spacing: .02em; margin-top: 3px; text-transform: uppercase; }
+.arch-thumbs { display: flex; gap: 10px; align-items: center; }
+.arch-thumbs .arch-t {
+  width: 64px; height: 64px; background: #fff; padding: 4px 4px 9px; border-radius: 2px;
+  box-shadow: 0 5px 10px -6px rgba(40,30,10,.5); border: 1px solid #eee; flex: 0 0 auto;
+}
+.arch-thumbs .arch-t img, .arch-thumbs .arch-t i { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 1px; background: #ded8c9; }
+.arch-thumbs .arch-t:nth-child(1) { transform: rotate(-3deg); }
+.arch-thumbs .arch-t:nth-child(3) { transform: rotate(2.5deg); }
+.arch-open2 { font-family: var(--font-sans); font-size: 12px; font-weight: 700; margin-left: 18px; white-space: nowrap; color: var(--arch-ink); }
+
+/* ── paper shadowbox modal ── */
+body.arch-sb-lock { overflow: hidden; }
+.arch-shadowbox { position: fixed; inset: 0; z-index: 1200; display: none; }
+.arch-shadowbox.open { display: block; }
+.arch-sb-overlay { position: absolute; inset: 0; background: rgba(28,24,18,.55); backdrop-filter: blur(2px); }
+.arch-sb-sheet {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-.6deg);
+  width: min(880px, 92vw); max-height: 86vh; overflow: auto; background: #f7f2e7; color: var(--arch-ink);
+  padding: 30px 34px 40px; box-shadow: 0 40px 90px -30px rgba(20,14,6,.7);
+  /* hand-drawn deckle edge */
+  border-radius: 6px; filter: url(#arch-rough);
+}
+.arch-sb-sheet::before {
+  content: ""; position: absolute; inset: 6px; border: 1.6px solid rgba(58,53,44,.35);
+  border-radius: 4px; filter: url(#arch-rough); pointer-events: none;
+}
+.arch-sb-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.arch-sb-title { font-family: var(--font-sans); font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
+.arch-sb-sub { font-family: var(--font-sans); font-size: 12.5px; color: var(--arch-soft); margin-top: 4px; text-transform: uppercase; letter-spacing: .03em; }
+.arch-sb-close {
+  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; background: transparent;
+  border: none; cursor: pointer; color: var(--arch-frame);
+}
+.arch-sb-close svg { width: 100%; height: 100%; }
+.arch-sb-close path { stroke: var(--arch-frame); stroke-width: 2.4; stroke-linecap: round; fill: none; filter: url(#arch-rough); }
+.arch-sb-close:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 2px; }
+/* scrapbook of white-framed prints at gentle angles */
+.arch-sb-prints { display: flex; flex-wrap: wrap; gap: 20px 18px; justify-content: center; align-items: flex-start; }
+.arch-print {
+  background: #fff; padding: 8px 8px 26px; border-radius: 2px; box-shadow: 0 12px 24px -14px rgba(30,22,8,.6);
+  cursor: pointer; border: none; width: 190px;
+}
+.arch-print:nth-child(3n+1) { transform: rotate(-2.4deg); }
+.arch-print:nth-child(3n+2) { transform: rotate(1.8deg); }
+.arch-print:nth-child(3n+3) { transform: rotate(-1deg); }
+.arch-print img { display: block; width: 100%; height: 150px; object-fit: cover; background: #ded8c9; }
+.arch-print .cap { font-family: var(--font-sans); font-size: 11.5px; color: var(--arch-ink); margin-top: 8px; text-align: center; line-height: 1.3; }
+.arch-print:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 3px; }
+
+/* ── responsive: 4 → 2 columns (the desktop canvas hides ≤720px, but keep
+   the section graceful down to tablet); drawers stay full-width bars. ── */
+@media (max-width: 1000px) {
+  .arch-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 168px; }
+  .arch-c-moove     { grid-column: 1/2; grid-row: 1/3; }
+  .arch-c-pantry    { grid-column: 2/3; grid-row: 1/3; }
+  .arch-c-soundbite { grid-column: 1/2; grid-row: 3/5; }
+  .arch-c-keeb      { grid-column: 2/3; grid-row: 3/5; }
+  .arch-c-m3        { grid-column: 1/3; grid-row: 5/6; }
+  .arch-c-lwb       { grid-column: 1/3; grid-row: 6/7; }
+  .arch-card { flex-wrap: wrap; }
+}
+@media (max-width: 620px) {
+  .arch { padding: 34px 20px 40px; }
+  .arch-title { font-size: 30px; }
+  .arch-grid { grid-template-columns: 1fr; grid-auto-rows: 200px; }
+  .arch-grid > .arch-cell { grid-column: 1/2 !important; grid-row: auto !important; }
+  .arch-thumbs .arch-t:nth-child(4) { display: none; }
 }
 
-/* ── Drawer: the clicked stack's items as a wrapping GRID, appearing directly
-   under that stack's ROW. Two drawer slots exist in the DOM (one between the
-   two rows, one after them); only the slot under the active stack's row is
-   populated. No horizontal scroll, no arrows, no peek — all items show at
-   once and the grid grows as tall as it needs. ── */
-.stack-drawer {
-  grid-column: 1 / -1;           /* full container width, below the row */
-  order: 10;                     /* after all four stacks (orders 1–4)  */
-  margin-top: 40px;
-  overflow: hidden;              /* clip the enter/leave y-shift */
-}
-.stack-drawer:empty { margin-top: 0; } /* no gap when nothing is open */
-
-/* Wrapping grid — 4 per row at desktop, spanning the full shared container so
-   its left edge lines up with the stacks + heading above it. Photo & Video and
-   Art hold more items, so their grids simply wrap to more rows and run tall —
-   that's expected. */
-.stack-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 32px 24px;
-}
-
-/* Item card — the shared .pcard, filling its grid cell. */
-.stack-item {
-  width: auto;
-  display: block;
-  color: #1a1a1a;
-  position: relative;
-}
-.stack-item .pcard-img { position: relative; }
-
-/* ↗ badge — external-link cards ONLY. Signals a new tab before the click. */
-.stack-item-arrow {
-  position: absolute;
-  top: 10px; right: 10px;
-  width: 26px; height: 26px;
-  display: grid; place-items: center;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.9);
-  border: 1px solid rgba(0,0,0,0.08);
-  color: #1a1a1a;
-  font-size: 13px; line-height: 1;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: transform 0.2s var(--ease), background 0.2s ease;
-  z-index: 2;
-}
-.stack-item:hover .stack-item-arrow { transform: translate(1px,-1px); background:#fff; }
-
-/* Neutral placeholder tile (until real item images land). */
-.stack-item-ph {
-  display: grid; place-items: center;
-  background: repeating-linear-gradient(-45deg,#ECEAE6 0 12px,#E7E4DF 12px 24px);
-  color: #b0aca4;
-  font-size: 13px; font-weight: 500; text-align: center; padding: 12px;
-}
-
-/* Enter / leave motion for the drawer contents (AnimatePresence-style).
-   Cards fade + rise with a per-card stagger; the stagger is capped so a long
-   stack (11+ items) still finishes in ~0.5s instead of trickling for a second. */
-.stack-drawer.is-entering .stack-item {
-  animation: stackItemIn 0.32s var(--ease) both;
-  animation-delay: calc(min(var(--i), 6) * 0.08s);   /* cap total stagger ≈ 0.48s */
-}
-@keyframes stackItemIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.stack-drawer.is-leaving .stack-grid {
-  opacity: 0; transform: translateY(10px);
-  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
-}
-
-/* ── Narrow (≤720px): four-across won't fit, so degrade to a 2×2. The drawer
-   then slots ROW-AWARE — between the rows for a top stack (indices 0–1), below
-   both rows for a bottom stack (2–3) — driven entirely by [data-active-row]
-   overriding the drawer's grid `order`. (order 2 → after stack #2 / before #3;
-   the base order 10 already sits it below everything for a bottom stack.) ── */
-@media (max-width: 720px) {
-  .stacks { --stack-size: 132px; grid-template-columns: repeat(2, 1fr); column-gap: 20px; row-gap: 40px; }
-  .stacks[data-active-row="top"] .stack-drawer { order: 2; margin-top: 0; }
-  .stacks[data-active-row="top"] .stack-drawer:not(:empty) { margin: 24px 0; }
-  .stack-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
-}
-
-/* ── Reduced motion: keep the resting scatter, no spread, no stagger. ── */
+/* ── reduced motion: no hover video, no sheet wobble ── */
 @media (prefers-reduced-motion: reduce) {
-  .stack-layer, .stack-cover { transition: none !important; }
-  /* No spread — hover holds each layer at its resting scatter position and its
-     resting opacity (no brighten). */
-  .stack:hover .stack-layer { opacity: 0.4; }
-  .stack:hover .stack-layer-1 { transform: translate(var(--l1-x), var(--l1-y)) rotate(var(--l1-rot)); }
-  .stack:hover .stack-layer-2 { transform: translate(var(--l2-x), var(--l2-y)) rotate(var(--l2-rot)); }
-  .stack:hover .stack-layer-3 { transform: translate(var(--l3-x), var(--l3-y)) rotate(var(--l3-rot)); }
-  .stack:hover .stack-layer-4 { transform: translate(var(--l4-x), var(--l4-y)) rotate(var(--l4-rot)); }
-  .stack-drawer.is-entering .stack-item { animation: none; }
-  .stack-drawer.is-leaving .stack-grid { transition: none; }
+  .arch-vid, .arch-vidname { transition: none; }
+  .arch-sb-sheet { transform: translate(-50%, -50%); }
 }
 
 /* Base widget — matches the case-study card treatment: flat, transparent,

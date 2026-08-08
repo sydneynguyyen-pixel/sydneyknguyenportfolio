@@ -1878,8 +1878,8 @@ function applyMusicState(saved) {
   }
 
   // ── Triggers (delegated on the document) ──
-  // Delegated globally so it works for the stack item cards (built by
-  // initStacks) as well as any other [data-mkw-open] trigger on the page.
+  // Delegated globally so it works for the archive Branding & Marketing prints
+  // (built by initArchive) as well as any other [data-mkw-open] trigger.
   document.addEventListener('click', e => {
     const trigger = e.target.closest('.mkw-summary, [data-mkw-open]');
     if (!trigger) return;
@@ -1903,344 +1903,152 @@ function applyMusicState(saved) {
 })();
 
 
-// ── Archive of Work — stack browser (#marketing section) ──────────────────
-// Builds the four stacks and their item drawer. EDIT CONTENT HERE: the STACKS
-// array is the single source of truth for covers, titles, subtitles and items.
-//   • cover  — swappable top-card asset (assets/stacks/<id>-cover.*)
-//   • item.type 'link'  → external new tab, gets the ↗ badge
-//   • item.type 'page'  → internal case-study page, same tab, no badge (item.href)
-//   • item.type 'modal' → opens in place; item.key names an #mkw-panels panel
-//     (panel-<key>). A modal item with key:null is a not-yet-wired placeholder.
-//   • item.img null → neutral placeholder tile until a real image is dropped in.
-// Subtitles marked PLACEHOLDER need final copy.
-(function initStacks() {
-  const stacksEl = document.getElementById('stacks');
-  const drawer   = document.getElementById('stack-drawer');
-  if (!stacksEl || !drawer) return;
+// ── "more things I've made" — paper archive gallery (#archive) ────────────
+// Replaces the old stack browser (initStacks). Two responsibilities:
+//   1. Project tiles: white cover at rest → muted, looped <video> on hover.
+//      Skipped entirely on touch (no hover) and under prefers-reduced-motion;
+//      a missing/broken clip just keeps the cover. keeb sim has no clip.
+//   2. Paper-drawer chips → a scrapbook "shadowbox" modal. Graphic Design and
+//      Photography are image sets (reuse CREATIVE_ASSETS + the ring lightbox);
+//      Branding & Marketing reuses the existing #mkw-panels modal via
+//      [data-mkw-open]. Modal: close on ✕ / overlay / Esc, focus-trapped,
+//      page scroll locked, focus restored to the opening chip.
+(function initArchive() {
+  const root = document.getElementById('archive');
+  if (!root) return;
 
+  const canHover = matchMedia('(hover: hover)').matches;
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Under-layers always render at this depth, regardless of how many items a
-  // stack holds — so all four piles read as equally thick.
-  const LAYER_DEPTH = 4;
-  // First two indices are the "top row" of the ≤720px 2×2 fallback (used only
-  // to place the drawer row-aware there; on desktop it's one flat row of four).
-  const PER_ROW = 2;
 
-  const STACKS = [
-    {
-      id: 'design',
-      title: 'Design',
-      subtitle: 'Product design & UX/UI case studies', // PLACEHOLDER copy
-      cover: 'assets/product design stack cover.webp',
-      items: [
-        { title: 'soundbite', sub: 'Physical snack paired with audio', type: 'page',
-          img: 'assets/case studies/soundbite/soundbite-thumb.webp',
-          href: 'soundbite' },
-        { title: 'Pantry Pop!', sub: 'Vibe-coded food blindbox simulator', type: 'link',
-          img: 'assets/pantry pop widget cover.png',
-          href: 'https://pantry-pop.netlify.app/' },
-        { title: 'moove', sub: 'Mobility & flexibility app', type: 'link',
-          img: 'assets/icons/moove-thumb.webp',
-          href: 'https://www.figma.com/deck/3zplTzhPjCf7GXCt6mZaHF/Moove-Slide-Deck?node-id=1-259&t=Rtj5TUFG31wYuwHL-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1' },
-        { title: 'Past / Present / Future', sub: 'Tech across three generations', type: 'link',
-          img: 'assets/icons/ppf-thumb.webp',
-          href: 'https://www.figma.com/proto/MDJjsmm2Hyi5fHFBFJLIBn/m3-past-present-future-site?node-id=1-2&t=km5SQGWGHu2ioRcs-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=1' },
-      ],
-    },
-    {
-      id: 'marketing',
-      title: 'Marketing & Branding',
-      subtitle: 'Campaigns, brand identity & content', // PLACEHOLDER copy
-      cover: 'assets/marketing & brand stack cover.webp',
-      items: [
-        // Item thumbnails ("covers") pulled from each item's OWN modal content —
-        // swappable slots: drop custom cover art in here to override.
-        { title: 'Little Wins Bakehouse', sub: 'Brand identity & packaging', type: 'modal', key: 'lwb', img: 'assets/little wins bakehouse/new flavor announcements/5.webp' },
-        { title: 'Nora AI', sub: 'UX/UI & marketing content', type: 'modal', key: 'nora', img: 'assets/thumbs/nora-yt-thumb.jpg' },
-        { title: 'HALIENE', sub: 'Concert content & merch', type: 'modal', key: 'haliene', img: 'assets/thumbs/haliene jersey.webp' },
-        { title: 'Alpha Phi Omega', sub: 'Rush graphics & event media', type: 'modal', key: 'apo', img: 'assets/stacks/art/gd-fall-rush.webp' },
-        // @visualsbyskn moved to the Photo & Video stack (below) — modal unchanged.
-        { title: 'Designer Drains', sub: 'Storefront UI & email', type: 'modal', key: 'designer-drains', img: 'assets/thumbs/designer drains amazon storefront.webp' },
-      ],
-    },
-    {
-      id: 'photo-video',
-      title: 'Photo & Video',
-      subtitle: 'Photography & videography',
-      cover: 'assets/photos & videos stack cover.webp',
-      // @visualsbyskn (moved from Marketing, modal unchanged) + photos migrated
-      // from the hero arc.
-      items: [
-        // Cover pulled from content — swappable slot. Note: every ph-* photo is
-        // also a Photo item below, so this thumbnail duplicates one; swap in a
-        // unique cover (e.g. the @visualsbyskn avatar) here to avoid that.
-        { title: '@visualsbyskn', sub: 'Graduation & portrait photography', type: 'modal', key: 'photography', img: 'assets/stacks/photo-video/ph-couple.webp' },
-        { title: 'Sunset', sub: 'Nikon Z7, Lightroom · 2022', type: 'modal', key: 'pv-01', img: 'assets/stacks/photo-video/ph-sunset.webp' },
-        { title: 'Confetti', sub: 'iPhone, Lightroom · 2023', type: 'modal', key: 'pv-02', img: 'assets/stacks/photo-video/ph-confetti.webp' },
-        { title: 'Koi', sub: 'Nikon Z7, Lightroom · 2025', type: 'modal', key: 'pv-03', img: 'assets/stacks/photo-video/ph-koi.webp' },
-        { title: 'Bryant', sub: 'iPhone, Lightroom · 2025', type: 'modal', key: 'pv-04', img: 'assets/stacks/photo-video/ph-bryant.webp' },
-        { title: 'Joshua', sub: 'Canon, Lightroom · 2021', type: 'modal', key: 'pv-05', img: 'assets/stacks/photo-video/ph-joshua.webp' },
-        { title: 'Temple', sub: 'Nikon Z7, Lightroom · 2025', type: 'modal', key: 'pv-06', img: 'assets/stacks/photo-video/ph-temple.webp' },
-        { title: 'Space Needle', sub: 'Nikon Z7, Lightroom · 2024', type: 'modal', key: 'pv-07', img: 'assets/stacks/photo-video/ph-space-needle.webp' },
-        { title: 'Vendor', sub: 'Nikon Z7, Lightroom · 2025', type: 'modal', key: 'pv-08', img: 'assets/stacks/photo-video/ph-vendor.webp' },
-        { title: 'Friends', sub: 'Nikon Z7, Lightroom · 2025', type: 'modal', key: 'pv-10', img: 'assets/stacks/photo-video/ph-friends.webp' },
-        { title: 'Glitter', sub: 'Nikon Z7, Lightroom · 2023', type: 'modal', key: 'pv-11', img: 'assets/stacks/photo-video/ph-glitter.webp' },
-        { title: 'Flowers', sub: 'Nikon Z7, Lightroom · 2024', type: 'modal', key: 'pv-12', img: 'assets/stacks/photo-video/ph-flowers.webp' },
-        { title: 'Champagne', sub: 'Nikon Z7, Lightroom · 2022', type: 'modal', key: 'pv-13', img: 'assets/stacks/photo-video/ph-champagne.webp' },
-        { title: 'Celebrate', sub: 'Nikon Z7, Lightroom · 2022', type: 'modal', key: 'pv-14', img: 'assets/stacks/photo-video/ph-grad-conf.webp' },
-        { title: 'Bffs', sub: 'Nikon Z7, Lightroom · 2023', type: 'modal', key: 'pv-15', img: 'assets/stacks/photo-video/ph-bffs.webp' },
-        { title: 'Hugs', sub: 'Nikon Z7, Lightroom · 2021', type: 'modal', key: 'pv-16', img: 'assets/stacks/photo-video/ph-hugs.webp' },
-      ],
-    },
-    {
-      id: 'art',
-      title: 'Art & Graphic Design',
-      subtitle: 'Illustration & graphic design',
-      cover: 'assets/art & graphics stack cover.webp',
-      // Graphic design + artwork migrated from the hero arc.
-      items: [
-        { title: 'UCR Alpha Phi Omega Rush Flyer', sub: 'Canva, Procreate, Photoshop · 2023', type: 'modal', key: 'ag-01', img: 'assets/stacks/art/gd-fall-rush.webp' },
-        { title: 'Designer Drains Product Brochure', sub: 'Canva, Photoshop · 2025', type: 'modal', key: 'ag-02', img: 'assets/stacks/art/gd-brochure.webp' },
-        { title: 'UCR Alpha Phi Omega Rush Flyer', sub: 'Canva, Medibang Paint Pro · 2022', type: 'modal', key: 'ag-03', img: 'assets/stacks/art/gd-spring-rush.webp' },
-        { title: 'UCR ASPB Spring Quarter Campaign', sub: 'Photoshop · 2022', type: 'modal', key: 'ag-04', img: 'assets/stacks/art/gd-aspb.webp' },
-        { title: 'UCR ASPB Mock Concert Flyer', sub: 'Illustrator · 2022', type: 'modal', key: 'ag-05', img: 'assets/stacks/art/gd-concert.webp' },
-        { title: 'Adobe Ambassador Flyer', sub: 'Illustrator, Canva · 2025', type: 'modal', key: 'ag-06', img: 'assets/stacks/art/adobe ambassador flyer.webp' },
-        { title: 'Fruit Plate Illustration', sub: 'Procreate · 2026', type: 'modal', key: 'ag-07', img: 'assets/stacks/art/fruit plate illustration.webp' },
-        { title: 'Music Album Illustration', sub: 'Medibang Paint Pro · 2022', type: 'modal', key: 'ag-08', img: 'assets/stacks/art/art-music-album.webp' },
-        { title: 'Official Jersey for HALIENE Water EP', sub: 'Procreate, Photoshop · 2025', type: 'modal', key: 'ag-09', img: 'assets/stacks/art/art-haliene.webp' },
-        { title: 'Tree Illustration', sub: 'Procreate · 2025', type: 'modal', key: 'ag-10', img: 'assets/stacks/art/art-tree.webp' },
-      ],
-    },
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const prettyName = (src) => src.split('/').pop().replace(/\.[^.]+$/, '')
+    .replace(/^ph-/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+  /* ── 1. hover video (desktop pointer + motion allowed only) ── */
+  if (canHover && !reduceMotion) {
+    root.querySelectorAll('.arch-tile[data-clip]').forEach((tile) => {
+      const clip = tile.getAttribute('data-clip');
+      const vid = tile.querySelector('.arch-vid');
+      if (!clip || !vid) return;
+      let wired = false, dead = false;
+      const wire = () => {
+        if (wired) return;
+        wired = true;
+        vid.innerHTML =
+          '<source src="' + clip + '.webm" type="video/webm">' +
+          '<source src="' + clip + '.mp4" type="video/mp4">';
+        vid.addEventListener('error', () => { dead = true; tile.classList.remove('is-playing'); }, true);
+        vid.addEventListener('playing', () => { if (!dead) tile.classList.add('is-playing'); });
+        vid.load();
+      };
+      tile.addEventListener('pointerenter', () => {
+        if (dead) return;
+        wire();
+        const p = vid.play();
+        if (p && p.catch) p.catch(() => {});
+      });
+      tile.addEventListener('pointerleave', () => {
+        tile.classList.remove('is-playing');
+        if (wired && !dead) { try { vid.pause(); vid.currentTime = 0; } catch (e) {} }
+      });
+    });
+  }
+
+  /* ── 2. collections (reuse existing data) ── */
+  const gd = (CREATIVE_ASSETS.graphic.rows || []).flat().filter((r) => r.img)
+    .map((r) => ({ img: r.img, title: r.title, meta: [r.medium, r.year].filter(Boolean).join(' · ') }));
+  const ph = [...(CREATIVE_ASSETS.photo.rows1 || []), ...(CREATIVE_ASSETS.photo.rows2 || [])]
+    .filter((r) => r.src)
+    .map((r) => ({ img: r.src, title: prettyName(r.src), meta: [r.medium, r.year].filter(Boolean).join(' · ') }));
+  // Branding & Marketing: folded in from the old Marketing stack — each opens
+  // its existing #mkw-panels panel (panel-<mkw>) via the delegated listener.
+  const mk = [
+    { img: 'assets/thumbs/nora-yt-thumb.jpg', title: 'Nora AI', meta: 'UX/UI & marketing content', mkw: 'nora' },
+    { img: 'assets/thumbs/haliene jersey.webp', title: 'HALIENE', meta: 'Concert content & merch', mkw: 'haliene' },
+    { img: 'assets/stacks/art/gd-fall-rush.webp', title: 'Alpha Phi Omega', meta: 'Rush graphics & event media', mkw: 'apo' },
+    { img: 'assets/thumbs/designer drains amazon storefront.webp', title: 'Designer Drains', meta: 'Storefront UI & email', mkw: 'designer-drains' },
   ];
 
-  let activeId = null;
+  const COLLECTIONS = {
+    graphic:   { title: 'Graphic Design',       sub: gd.length + ' pieces · posters, editorial & illustration', items: gd, type: 'image' },
+    photo:     { title: 'Photography',          sub: ph.length + ' photos · travel & portraits',                items: ph, type: 'image' },
+    marketing: { title: 'Branding & Marketing', sub: mk.length + ' projects · brand, social & merch',           items: mk, type: 'modal' },
+  };
 
-  // Under-layer markup — pulled from the stack's OWN item thumbnails so the
-  // spread-on-hover reveals real work, not neutral fills. The four DOM slots map
-  // to fixed scatter/z-index classes (see CSS); we always emit LAYER_DEPTH of
-  // them, cycling the available images if a stack has fewer, so every pile reads
-  // at equal depth. The <img> is inside an absolutely-positioned, transform-only
-  // layer → it can never affect the stack's box size. Non-interactive: the whole
-  // stack is one hit target (pointer-events on the layers is off in CSS).
-  const LAYER_CLASS = ['stack-layer-3', 'stack-layer-4', 'stack-layer-1', 'stack-layer-2'];
-  function buildLayers(stack) {
-    const imgs = stack.items.map(it => it.img).filter(Boolean);
-    let html = '';
-    for (let n = 0; n < LAYER_DEPTH; n++) {
-      const src = imgs.length ? imgs[n % imgs.length] : null;
-      html += '<div class="stack-layer ' + LAYER_CLASS[n] + '" aria-hidden="true">' +
-                (src ? '<img src="' + src + '" alt="" loading="lazy" />' : '') +
-              '</div>';
+  /* fill each chip's count + 4-thumbnail strip, wire the open */
+  root.querySelectorAll('.arch-card[data-drawer]').forEach((card) => {
+    const col = COLLECTIONS[card.getAttribute('data-drawer')];
+    if (!col) return;
+    const cnt = card.querySelector('[data-count]');
+    if (cnt) cnt.textContent = col.sub.toUpperCase();
+    const th = card.querySelector('[data-thumbs]');
+    if (th) {
+      th.innerHTML = col.items.slice(0, 4).map((it) =>
+        '<div class="arch-t"><img src="' + esc(it.img) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'"></div>'
+      ).join('');
     }
-    return html;
-  }
-
-  // ── Build the single row of four stacks ──
-  STACKS.forEach((stack, idx) => {
-    const el = document.createElement('div');
-    el.className = 'stack';
-    el.dataset.stack = stack.id;
-    el.dataset.index = idx;
-    el.style.order = idx + 1;   // keeps the drawer's CSS order slot deterministic
-    el.setAttribute('role', 'button');
-    el.setAttribute('tabindex', '0');
-    el.setAttribute('aria-pressed', 'false');
-    el.setAttribute('aria-label', 'Open ' + stack.title);
-    el.innerHTML =
-      '<div class="stack-pile">' +
-        buildLayers(stack) +
-        '<div class="stack-cover"><img src="' + stack.cover + '" alt="' + stack.title + '" /></div>' +
-      '</div>' +
-      '<div class="stack-label"></div>';
-    // Titles removed — the cover art carries the category name now. The label
-    // (former subtitle) is the only text; the accessible name lives on the
-    // stack's aria-label + the cover img alt, so screen readers still get it.
-    el.querySelector('.stack-label').textContent = stack.subtitle;
-    el.addEventListener('click', () => toggleStack(stack.id));
-    el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStack(stack.id); }
-    });
-    stacksEl.insertBefore(el, drawer);   // stacks before the drawer → drawer stays last
+    card.addEventListener('click', () => openShadowbox(col));
   });
 
-  // ── Hand-drawn outline on each stack COVER ──
-  // The SAME shared pen as the case-study cards (window.__handStroke). The covers
-  // are much smaller than the cards (~176px vs ~388px), and the pen's amplitudes
-  // are absolute px, so the raw hand reads ~2× heavier/wobblier here. To keep the
-  // CHARACTER but the cards' restraint, we scale only the size-dependent amplitudes
-  // (wobble, weight, weight-swell, corner + end overshoot) by cover/card size —
-  // i.e. the cover reads like the same hand "photographed smaller." The frequency
-  // and taper ratios are scale-invariant and stay put, so the number of wobbles and
-  // the tapering ends are unchanged. Only the per-stack seed differs so the four
-  // don't look stamped.
-  //
-  // Covers ONLY — the under-layers stay bare (real images at lowered opacity).
-  // The SVG lives in .stack-pile (overflow:visible) rather than inside .stack-cover
-  // (overflow:hidden would clip the overshoot + non-closure), pinned to the cover's
-  // box at inset:0 and sitting just above it. The cover doesn't move on hover — only
-  // the layers spread — so an inset:0 SVG rides with the cover automatically.
-  //
-  // Authored at the cover's OWN live pixel size with a 1:1 viewBox and refit on
-  // load/resize — same approach as buildCardOutline; the scale tracks --stack-size
-  // (176px desktop / 132px on the ≤720px 2×2) so the restraint holds at any size.
-  const SVGNS = 'http://www.w3.org/2000/svg';
-  const CARD_REF = 388;   // representative case-study card size the pen was tuned at
-  function buildStackOutline(stackEl) {
-    const pen = window.__handStroke;
-    const pile = stackEl && stackEl.querySelector('.stack-pile');
-    if (!pen || !pile) return;
-    const w = Math.round(pile.offsetWidth), h = Math.round(pile.offsetHeight);
-    if (!w || !h) return;                          // hidden (e.g. mobile canvas) — skip
-    let svg = pile.querySelector('.stack-outline');
-    if (svg && +svg.dataset.w === w && +svg.dataset.h === h) return; // box unchanged
-    // Scale the absolute-px amplitudes down to the cover's proportion of a card.
-    const B = pen.PEN, s = w / CARD_REF;
-    const over = {
-      AMPLITUDE:        B.AMPLITUDE * s,
-      WEIGHT:           B.WEIGHT * s,
-      WEIGHT_VARIATION: B.WEIGHT_VARIATION * s,
-      CORNER_OVERSHOOT: B.CORNER_OVERSHOOT * s,
-      END_OVERSHOOT:    B.END_OVERSHOOT * s,
-    };
-    // r 18 ≈ the cover's own --cover-radius; ins -1 traces just outside the edge.
-    const d = pen((+stackEl.dataset.index || 0) * 13 + 7, w, h, 18, -1, over);
-    if (!svg) {
-      svg = document.createElementNS(SVGNS, 'svg');
-      svg.setAttribute('class', 'stack-outline');
-      svg.setAttribute('aria-hidden', 'true');
-      pile.appendChild(svg);                       // last child → above the cover
-    }
-    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-    svg.style.width = w + 'px';
-    svg.style.height = h + 'px';
-    svg.dataset.w = w; svg.dataset.h = h;
-    svg.innerHTML = `<path d="${d}" fill="#1a1a1a"/>`;
-  }
-  const stackEls = stacksEl.querySelectorAll('.stack');
-  const buildAllOutlines = () => stackEls.forEach(buildStackOutline);
-  buildAllOutlines();                              // reading offsetWidth forces layout
-  window.addEventListener('load', buildAllOutlines);
-  if ('ResizeObserver' in window) {
-    const ro = new ResizeObserver(entries => entries.forEach(e => {
-      const st = e.target.closest('.stack'); if (st) buildStackOutline(st);
-    }));
-    stackEls.forEach(st => { const p = st.querySelector('.stack-pile'); if (p) ro.observe(p); });
-  }
-  window.addEventListener('resize', buildAllOutlines);
+  /* ── 3. shadowbox modal ── */
+  const sb = document.getElementById('arch-shadowbox');
+  const sbTitle = document.getElementById('arch-sb-title');
+  const sbSub = document.getElementById('arch-sb-sub');
+  const sbPrints = document.getElementById('arch-sb-prints');
+  let sbLastFocus = null;
 
-  // ── Item card ──
-  function itemCard(item, i) {
-    const isAnchor = item.type === 'link' || item.type === 'page';
-    const el = isAnchor ? document.createElement('a') : document.createElement('div');
-    el.className = 'stack-item pcard';
-    el.style.setProperty('--i', i);
-
-    const imgWrap = document.createElement('div');
-    imgWrap.className = 'pcard-img';
-    if (item.img) {
-      const img = document.createElement('img');
-      img.src = item.img; img.alt = item.title; img.loading = 'lazy';
-      imgWrap.appendChild(img);
-    } else {
-      const ph = document.createElement('div');
-      ph.className = 'stack-item-ph';
-      ph.style.width = '100%'; ph.style.height = '100%';
-      ph.textContent = item.title;
-      imgWrap.appendChild(ph);
-    }
-
-    const titleEl = document.createElement('div');
-    titleEl.className = 'pcard-title'; titleEl.textContent = item.title;
-    const subEl = document.createElement('div');
-    subEl.className = 'pcard-sub'; subEl.textContent = item.sub;
-
-    if (item.type === 'link') {
-      // ↗ badge — external links only. New-tab intent shown before the click.
-      const arrow = document.createElement('span');
-      arrow.className = 'stack-item-arrow'; arrow.setAttribute('aria-hidden', 'true');
-      arrow.textContent = '↗';
-      imgWrap.appendChild(arrow);
-      el.setAttribute('href', item.href);
-      el.setAttribute('target', '_blank');
-      el.setAttribute('rel', 'noopener noreferrer');
-    } else if (item.type === 'page') {
-      // Internal case-study page — same-tab navigation, no ↗ badge.
-      el.setAttribute('href', item.href);
-    } else if (item.key) {
-      // Modal — reuses the #mkw-panels system via document-delegated handler.
-      el.setAttribute('role', 'button');
-      el.setAttribute('tabindex', '0');
-      el.setAttribute('data-mkw-open', item.key);
-      el.setAttribute('aria-haspopup', 'dialog');
-      el.setAttribute('aria-controls', 'panel-' + item.key);
-      el.setAttribute('aria-label', 'Open ' + item.title);
-    }
-    // (modal item with key:null → inert placeholder, no handler)
-
-    el.appendChild(imgWrap);
-    el.appendChild(titleEl);
-    el.appendChild(subEl);
-    return el;
-  }
-
-  // ── Drawer render — spill the stack's items as a wrapping grid ──
-  // One drawer, always directly below the single row. On the ≤720px 2×2 the
-  // drawer is slotted row-aware in CSS via [data-active-row]; the JS just says
-  // which row the active stack sits in.
-  function renderDrawer(stack, index) {
-    drawer.innerHTML = '';
-    const grid = document.createElement('div');
-    grid.className = 'stack-grid';
-    stack.items.forEach((it, i) => grid.appendChild(itemCard(it, i)));
-    drawer.appendChild(grid);
-    stacksEl.dataset.activeRow = index < PER_ROW ? 'top' : 'bottom';
-
-    // enter animation (capped stagger, handled in CSS)
-    drawer.classList.remove('is-leaving');
-    if (!reduceMotion) {
-      drawer.classList.add('is-entering');
-      // Longest card: delay(≈0.48s) + duration(0.32s); clear the flag after.
-      setTimeout(() => drawer.classList.remove('is-entering'), 1000);
-    }
-  }
-
-  // ── Open / close / switch (AnimatePresence-style) ──
-  function toggleStack(id) {
-    if (activeId === id) { closeStack(); return; }
-    const prevActive = activeId;
-    activeId = id;
-    const index = STACKS.findIndex(s => s.id === id);
-    STACKS.forEach(s => {
-      const el = stacksEl.querySelector('[data-stack="' + s.id + '"]');
-      const on = s.id === id;
-      el.classList.toggle('is-active', on);
-      el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  function openShadowbox(col) {
+    if (!sb) return;
+    sbTitle.textContent = col.title;
+    sbSub.textContent = col.sub;
+    sbPrints.innerHTML = col.items.map((it, i) => {
+      const cap = esc(it.title || '');
+      const inner = '<img src="' + esc(it.img) + '" alt="' + cap + '" loading="lazy" onerror="this.style.visibility=\'hidden\'"><div class="cap">' + cap + '</div>';
+      return (col.type === 'modal')
+        ? '<button class="arch-print" type="button" data-mkw-open="' + esc(it.mkw) + '" data-sb-mkw="1">' + inner + '</button>'
+        : '<button class="arch-print" type="button" data-print="' + i + '">' + inner + '</button>';
+    }).join('');
+    // image prints → existing ring lightbox
+    sbPrints.querySelectorAll('[data-print]').forEach((btn) => {
+      const it = col.items[+btn.getAttribute('data-print')];
+      btn.addEventListener('click', () => {
+        if (typeof openRingLightbox === 'function') openRingLightbox(it.img, it.title, it.meta);
+      });
     });
-    const stack = STACKS[index];
-    if (prevActive && !reduceMotion) {
-      if (drawer.children.length) drawer.classList.add('is-leaving');  // animate outgoing grid out
-      setTimeout(() => renderDrawer(stack, index), 200);               // then swap in the new one
-    } else {
-      renderDrawer(stack, index);
-    }
+    // marketing prints carry [data-mkw-open] (opened by the delegated listener);
+    // we just close the shadowbox so the panel isn't behind it.
+    sbPrints.querySelectorAll('[data-sb-mkw]').forEach((btn) => {
+      btn.addEventListener('click', () => closeShadowbox());
+    });
+    sbLastFocus = document.activeElement;
+    sb.classList.add('open');
+    document.body.classList.add('arch-sb-lock');
+    document.addEventListener('keydown', onSbKey, true);
+    const closeBtn = sb.querySelector('.arch-sb-close');
+    if (closeBtn) closeBtn.focus();
   }
 
-  function closeStack() {
-    activeId = null;
-    STACKS.forEach(s => {
-      const el = stacksEl.querySelector('[data-stack="' + s.id + '"]');
-      el.classList.remove('is-active');
-      el.setAttribute('aria-pressed', 'false');
-    });
-    if (!drawer.children.length) return;
-    if (!reduceMotion) {
-      drawer.classList.add('is-leaving');
-      setTimeout(() => { drawer.innerHTML = ''; drawer.classList.remove('is-leaving'); }, 200);
-    } else {
-      drawer.innerHTML = '';
-    }
-    delete stacksEl.dataset.activeRow;
+  function closeShadowbox() {
+    if (!sb) return;
+    sb.classList.remove('open');
+    document.body.classList.remove('arch-sb-lock');
+    document.removeEventListener('keydown', onSbKey, true);
+    if (sbLastFocus && sbLastFocus.focus) sbLastFocus.focus();
   }
+
+  function onSbKey(e) {
+    if (e.key === 'Escape') { e.preventDefault(); closeShadowbox(); return; }
+    if (e.key !== 'Tab') return;
+    const list = [...sb.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')]
+      .filter((el) => el.offsetParent !== null);
+    if (!list.length) return;
+    const first = list[0], last = list[list.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+
+  if (sb) sb.querySelectorAll('[data-sb-close]').forEach((el) => el.addEventListener('click', closeShadowbox));
 })();
 
 
