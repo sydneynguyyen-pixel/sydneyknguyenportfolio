@@ -163,6 +163,174 @@ the chips fade in on scroll. Match my existing styling. List files changed.
 
 ---
 
+## Prompt 6 — Archive section: white canvas + folder-row with an inline gallery reveal
+
+```
+Vanilla HTML/CSS/JS portfolio. Read index.html (#archive section, ~line
+219–353, plus the #arch-rough filter def around line 470) and style.css
+(.arch-* rules, ~line 4871–5088) first. I prototyped the target look/motion as
+a static HTML mock (attached as archive-full-mock.html) — match it as closely
+as you can, adapting to my real markup, data source, and existing shadowbox.
+
+Right now #archive ("more things I've made") is a warm-paper scrapbook zone:
+--arch-paper #f1ece1 background, a paper-grain SVG texture on .arch::before.
+It holds 6 project tiles (.arch-grid > .arch-cell > .arch-tile, unchanged by
+this prompt) and 3 full-width "paper drawer" bars (.arch-drawers > .arch-chip
+> .arch-card for Graphic Design / Photography / Branding & Marketing) that
+each open the scrapbook modal (#arch-shadowbox), populated by initArchive()
+in script.js from CREATIVE_ASSETS (graphic/photo) and the #mkw-panels data
+(branding).
+
+Changes:
+
+1. Background: change .arch's background from --arch-paper to plain white
+   (#fff or #fbfbfa) and remove the .arch::before paper-grain texture
+   entirely. No dot grid, no texture — flat white.
+
+2. Ink borders: reuse the EXISTING #arch-rough filter (already defined in
+   index.html, baseFrequency 0.012 / numOctaves 2 / seed 4 / scale 2.4) —
+   don't create a new filter or change its values, it's already tuned right.
+   Keep it applied to .arch-tile via .arch-frame as today. Add the same
+   treatment (thin 1.5px black ink border, ~2–3px inset, filter:url(#arch-rough),
+   opacity ~.5) to the new folder icons and gallery thumbnails below.
+
+3. Replace the 3 full-width .arch-chip/.arch-card drawer bars with a single
+   straight horizontal row (.folder-row, flex, centered, ~60–70px gap) of 3
+   folder icons — simple two-tone folder shape (back + tab + lid), one accent
+   color per category (reuse each category's existing accent if there is one,
+   otherwise pick 3 tasteful tones). Label + item count sit centered below
+   each folder (keep reusing the data-count wiring initArchive() already
+   populates).
+
+4. Accordion behavior — only one folder open at a time:
+   - Click a closed folder: its lid does a quick 3D flip open (bottom-anchored
+     rotateX, ~-125deg, .4–.5s, bouncy/overshoot easing); any other open
+     folder closes first.
+   - Click the open folder again, or click outside the folder row/gallery:
+     closes it (lid flips shut).
+   - Click a different folder while one is open: swap directly to the new
+     category, no need to fully close first.
+
+5. Inline gallery reveal: below the folder row, reveal a single horizontal
+   row of 6 thumbnails for the open category (wrap on narrow viewports),
+   pulled from the same CREATIVE_ASSETS / mkw data initArchive() already
+   reads — first 6 items. Each thumbnail only shows its item name on
+   :hover, as a small dark pill that fades in below/over the card (hidden at
+   rest, so the row stays clean). Stagger each thumbnail's fade+slight
+   slide-up-in by ~40ms.
+
+6. End the gallery row with a small "view full set ↗" control that opens the
+   EXISTING #arch-shadowbox for that category — don't rebuild the shadowbox,
+   just call whatever function the old .arch-card buttons called
+   (grep `data-drawer`) so all the current scrapbook-browsing behavior keeps
+   working unchanged.
+
+7. Animate the reveal itself with the CSS `grid-template-rows: 0fr → 1fr`
+   trick (wrap the gallery in a grid container that transitions
+   grid-template-rows, with an inner `overflow:hidden` child) so the whole
+   white .arch card visibly grows taller as the gallery opens and shrinks
+   back on close — no JS height measuring, no layout jump.
+
+8. Respect prefers-reduced-motion: skip the lid flip and the stagger, just
+   crossfade the gallery content in/out.
+
+Keep the 6 project tiles above completely untouched in content and behavior —
+only the background context changes (paper → white). Don't touch the Case
+Studies section above it. List every file you changed and tell me exactly
+what to click to test.
+```
+
+---
+
+## Prompt 7 — Hero cursor: photo trail instead of the dot/ring
+
+```
+Vanilla HTML/CSS/JS portfolio. Read index.html (the hero, .hero-section#home,
+~line 150–196) and script.js first — specifically the "Custom Cursor" IIFE
+(~line 1451–1481, drives #cursor-dot/#cursor-ring off a document-wide
+mousemove) and the "Cursor Sparkle" IIFE right after it (~line 1484 on,
+spawns colored star/shape glyphs on a document-wide mousemove too). I
+prototyped the target behavior as a static mock (attached,
+hero-cursor-trail-mock.html) — match its timing/sizing, adapted to my real
+markup and cursor code.
+
+I want a different cursor ONLY inside the hero (#home): instead of the
+dot/ring (and instead of the star sparkles), moving the mouse there leaves a
+trail of small photos behind it, pulled from assets/Cursor Icons/. Outside
+the hero, the existing dot/ring + sparkle cursor should behave exactly as it
+does today — don't touch that code's logic, just scope it.
+
+1. Asset prep: assets/Cursor Icons/ has messy hashed filenames (and one huge
+   reference screenshot that should NOT be in the pool). Copy the 24 photo
+   files into a new assets/cursor-trail/ folder with clean lowercase-hyphen
+   names, EXCLUDING "Screenshot 2026-08-05 at 12.57.49 PM.png". Use this
+   mapping (source hash → new name):
+     0cfad3657af53e901fa87c80ab4abca4.jpg  → apple-stars.jpg
+     5d658129db61ccb38368c2c85211d410.jpg  → flower-stars.jpg
+     7c343ad9a80f9964224ac6977da1a5a1.jpg  → clover.jpg
+     7c775f1fb64c2b7bd55f447b139f7145.jpg  → swirl-pastel.jpg
+     8c926428b9e64e56fd91415b5dcc20a2.jpg  → rain-dots-blue.jpg
+     9bfec0a177c6c804538701eb7ccc75e3.jpg  → confetti-street.jpg
+     a8571e2fc5c8c0a3e49214b0063c101b.jpg  → kiwi-stars.jpg
+     c9babd0f37e3c681a2ed811bfc61b994.jpg  → pixel-ghost.jpg
+     cec3f70e43a97c9ca32dace8548c83c5.jpg  → red-dots.jpg
+     d0b1b9a12e93e9500d7efce07a8c3c2c.jpg  → diagonal-landscape.jpg
+     f193a9a231adb26e6d50abea3ac25be4.jpg  → water-beads.jpg
+     190b08570ea1bacdcdfe7483413c9ea8.jpg  → star-spiral.jpg
+     1ee53d13cd5eb629f97babd10d7a2591.jpg  → meadow-bokeh.jpg
+     239c4ff41082912ced564a443dd5f006.jpg  → dot-collage.jpg
+     32a71df10a9ca3a39d09e418fe304049.jpg  → garden-cutout.jpg
+     4b581ec31fc991a1b43608c0fba95073.jpg  → gummy-bears.jpg
+     5c4473507c8e73e6fbb58c0a642189b2.jpg  → sparkle-grass.jpg
+     8b192e1e837c4983fae0258f140d10f8.jpg  → dance-figures.jpg
+     8eb9b2cbfc55c00b2f4658a13638e1e5.jpg  → sheet-music-bokeh.jpg
+     b0a6b0eeade838edb582b3b30c98b8d9.jpg  → ocean-sparkle.jpg
+     ba18db7082c83d59cfb5d47ac8cbcd96.jpg  → soda-bottles.jpg
+     cc78deaa146cca6e3aab3761d0adc828.jpg  → file-icons-sky.jpg
+     d4f056517ae3bd57421481c3252990e2.jpg  → moss-pixel.jpg
+     f544d281209e44a9d8f6522dc1e94b14.jpg  → orchid-pastel.jpg
+   (Note: clover-spiral / 9302e8b78051429bae50c90ed2ce9858.jpg is deliberately
+   EXCLUDED — not part of the pool.) Git is case-sensitive on GitHub Pages
+   even though macOS isn't — double check the copied filenames exactly match
+   what you reference in JS.
+
+2. New JS module in script.js, e.g. "Hero Cursor Trail": on mousemove
+   *inside #home only*, spawn a trail image at the cursor position, but only
+   when the pointer has moved at least 42px since the last spawn (not every
+   pixel). Pick a random photo from the pool, never repeating the immediately
+   previous pick. Cap at 22 concurrent trail elements (skip spawning past the
+   cap rather than queueing).
+
+   Each trail element: a plain <img>, no border-radius, no border, no padding
+   or background frame — just the raw photo. Randomize its size between 30–46px
+   per spawn (not fixed). Randomize rotation ±12deg and a small ±5px position
+   jitter. Animate in with a quick scale(.4→1)/opacity(0→1) pop
+   (~150–180ms, cubic-bezier(.34,1.56,.64,1)), hold briefly, then over ~700ms
+   fade out while shrinking slightly and drifting up ~14px, then remove the
+   element from the DOM (~1s total lifecycle).
+
+3. Scoping: while the pointer is over #home, hide the native cursor
+   (cursor:none) and suppress the existing dot/ring + sparkle spawning — the
+   cleanest way is to check `e.target.closest('#home')` at the top of both
+   existing mousemove listeners and early-return when true (don't move
+   dot/ring, don't roll the sparkle spawn chance), rather than duplicating or
+   rewriting that logic. When the pointer leaves #home, dot/ring and sparkles
+   resume normally immediately.
+
+4. prefers-reduced-motion: disable the photo trail entirely and just leave
+   the normal dot/ring cursor active in the hero too.
+
+5. Touch/mobile: this is mousemove-only, so it should naturally no-op on
+   touch — just confirm you're not accidentally hiding the cursor or breaking
+   tap targets in #home on touch devices.
+
+Don't change anything about the dot/ring/sparkle behavior outside #home.
+List every file you changed (including the new assets/cursor-trail/ files)
+and tell me exactly where to move my mouse to test.
+```
+
+---
+
 ## Suggested order & why
 
 1. **About/Resume pages** first — independent, low-risk, and gives the hero nav real targets.
