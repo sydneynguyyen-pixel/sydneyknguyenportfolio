@@ -1457,6 +1457,9 @@ function placeSticker(file, x, y) {
   let ringX = 0, ringY = 0;
 
   document.addEventListener('mousemove', e => {
+    // Inside #home the photo trail takes over (unless reduced-motion disabled
+    // it, in which case __heroTrailActive is unset and the dot/ring stay live).
+    if (window.__heroTrailActive && e.target.closest('#home')) return;
     dot.style.left  = e.clientX + 'px';
     dot.style.top   = e.clientY + 'px';
     // Ring follows with slight lag via requestAnimationFrame
@@ -1507,6 +1510,8 @@ function placeSticker(file, x, y) {
   let lastTime = 0;
 
   document.addEventListener('mousemove', e => {
+    // Suppress sparkles inside #home while the photo trail is active.
+    if (window.__heroTrailActive && e.target.closest('#home')) return;
     const now = Date.now();
     if (now - lastTime < 30) return; // max ~33 sparkles/sec
     lastTime = now;
@@ -1532,6 +1537,71 @@ function placeSticker(file, x, y) {
     `;
     document.body.appendChild(el);
     el.addEventListener('animationend', () => el.remove(), { once: true });
+  });
+})();
+
+
+// ── Hero Cursor Trail ────────────────────────────────────────
+// Inside #home only, moving the mouse leaves a trail of small raw photos.
+// It replaces the dot/ring + sparkle in the hero: when this trail is active
+// (window.__heroTrailActive), those two IIFEs early-return over #home. Under
+// prefers-reduced-motion the trail is disabled and never sets that flag, so
+// the normal dot/ring + sparkle keep working in the hero too.
+(function() {
+  const hero = document.getElementById('home');
+  if (!hero) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Filenames must match assets/cursor-trail/ exactly (GitHub Pages is
+  // case-sensitive). 24 photos; the reference screenshot + clover-spiral are
+  // intentionally not in the pool.
+  const POOL = [
+    'apple-stars.jpg', 'flower-stars.jpg', 'clover.jpg', 'swirl-pastel.jpg',
+    'rain-dots-blue.jpg', 'confetti-street.jpg', 'kiwi-stars.jpg', 'pixel-ghost.jpg',
+    'red-dots.jpg', 'diagonal-landscape.jpg', 'water-beads.jpg', 'star-spiral.jpg',
+    'meadow-bokeh.jpg', 'dot-collage.jpg', 'garden-cutout.jpg', 'gummy-bears.jpg',
+    'sparkle-grass.jpg', 'dance-figures.jpg', 'sheet-music-bokeh.jpg', 'ocean-sparkle.jpg',
+    'soda-bottles.jpg', 'file-icons-sky.jpg', 'moss-pixel.jpg', 'orchid-pastel.jpg',
+  ];
+  const BASE = 'assets/cursor-trail/';
+  const MOVE_THRESHOLD = 42;   // px the pointer must travel before another spawn
+  const MAX_TRAILS = 22;       // hard cap on concurrent trail photos
+  let lastX = null, lastY = null, lastIdx = -1, count = 0;
+
+  // Signal the dot/ring + sparkle IIFEs to stand down over #home.
+  window.__heroTrailActive = true;
+
+  hero.addEventListener('mousemove', (e) => {
+    if (lastX !== null) {
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      if (dx * dx + dy * dy < MOVE_THRESHOLD * MOVE_THRESHOLD) return;
+    }
+    lastX = e.clientX; lastY = e.clientY;
+    if (count >= MAX_TRAILS) return;   // skip (don't queue) past the cap
+
+    // random photo, never the immediately previous one
+    let idx = Math.floor(Math.random() * POOL.length);
+    if (POOL.length > 1 && idx === lastIdx) idx = (idx + 1) % POOL.length;
+    lastIdx = idx;
+
+    const size = Math.random() * 16 + 30;      // 30–46px
+    const rot  = (Math.random() - 0.5) * 24;   // ±12deg
+    const jx   = (Math.random() - 0.5) * 10;   // ±5px position jitter
+    const jy   = (Math.random() - 0.5) * 10;
+
+    const img = document.createElement('img');
+    img.className = 'hero-cursor-trail';
+    img.src = BASE + POOL[idx];
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    img.style.left  = (e.clientX + jx) + 'px';
+    img.style.top   = (e.clientY + jy) + 'px';
+    img.style.width = size + 'px';
+    img.style.setProperty('--rot', rot + 'deg');
+
+    document.body.appendChild(img);
+    count++;
+    img.addEventListener('animationend', () => { img.remove(); count--; }, { once: true });
   });
 })();
 

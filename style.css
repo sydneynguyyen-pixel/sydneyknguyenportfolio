@@ -2801,6 +2801,33 @@ body.cursor-click .cursor-dot {
   100% { opacity: 0; transform: scale(0.1) translate(var(--tx), var(--ty)) rotate(360deg); }
 }
 
+/* ── Hero Cursor Trail — raw photo trail that follows the pointer inside #home
+   (spawned by the "Hero Cursor Trail" IIFE in script.js). Just the photo: no
+   frame, border, radius or background. Per-spawn size/rotation set inline;
+   --rot carries the random tilt so it holds through the whole lifecycle. ── */
+.hero-cursor-trail {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  user-select: none;
+  display: block;
+  height: auto;                 /* width set inline → raw photo aspect ratio */
+  transform-origin: center;
+  will-change: transform, opacity;
+  animation: hero-trail 1000ms both;
+}
+@keyframes hero-trail {
+  /* pop in (~170ms) with a bouncy overshoot */
+  0%   { opacity: 0; transform: translate(-50%,-50%) translateY(0) rotate(var(--rot,0deg)) scale(0.4);
+         animation-timing-function: cubic-bezier(.34,1.56,.64,1); }
+  17%  { opacity: 1; transform: translate(-50%,-50%) translateY(0) rotate(var(--rot,0deg)) scale(1); }
+  /* brief hold, then ease out */
+  30%  { opacity: 1; transform: translate(-50%,-50%) translateY(0) rotate(var(--rot,0deg)) scale(1);
+         animation-timing-function: ease-out; }
+  /* ~700ms fade: shrink slightly + drift up 14px */
+  100% { opacity: 0; transform: translate(-50%,-50%) translateY(-14px) rotate(var(--rot,0deg)) scale(0.85); }
+}
+
 /* ── Draggable — universal shadow on all desktop items ───── */
 .draggable {
   cursor: grab;
@@ -4369,6 +4396,15 @@ body.cursor-click .cursor-dot {
   z-index: 25;
   overflow: visible;
 }
+
+/* ── Image arc HIDDEN for now (2026-08-12) ─────────────────────────────
+   Hides the orbiting hero photo arc while keeping the center avatar / name /
+   tagline / "open to work". Nothing is deleted — the #ring-stage markup, the
+   "Art Ring" builder in script.js, and the ARC_PHOTOS assets are all intact.
+   To reinstate the arc, delete this block. */
+.ring-stage { display: none !important; }
+.ring-drag-zone { pointer-events: none !important; } /* no arc → no spin surface */
+/* ─────────────────────────────────────────────────────────────────────── */
 
 /* Drag-to-spin hit area — starts below the case-study cards so it never
    blocks their hover/click events, which sit at a lower z-index above this. */
