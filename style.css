@@ -4922,205 +4922,159 @@ body.cursor-click .cursor-dot {
 }
 .arch {
   position: relative;
-  background: var(--arch-paper);
+  background: #fff;            /* flat white — no paper texture / dot grid */
   color: var(--arch-ink);
   border-radius: 22px;
   padding: 46px 40px 54px;
   overflow: hidden;
 }
-/* subtle paper grain */
-.arch::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0; opacity: .05;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-}
 .arch > * { position: relative; z-index: 1; }
 
+/* matches .section-heading ("Case Studies") — same size/weight, no underline */
 .arch-title {
   font-family: var(--font-sans);
-  font-size: 40px; font-weight: 800; letter-spacing: -0.02em;
-  margin: 0; color: var(--arch-ink); text-transform: lowercase;
+  font-size: 28px; font-weight: 600; letter-spacing: -0.02em;
+  margin: 0 0 28px; color: #1a1a1a; text-transform: lowercase;
 }
-.arch-uline { display: block; width: 280px; height: 12px; margin: 4px 0 32px; }
-.arch-uline path { stroke: var(--arch-green); stroke-width: 5; fill: none; stroke-linecap: round; }
 
-/* ── grid: 4 equal tiles (2×2) + 2 medium tiles (2×1) ── */
-.arch-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 182px; gap: 22px; }
-.arch-cell { position: relative; }
-.arch-c-moove     { grid-column: 1/3; grid-row: 1/3; }
-.arch-c-pantry    { grid-column: 3/5; grid-row: 1/3; }
-.arch-c-soundbite { grid-column: 1/3; grid-row: 3/5; }
-.arch-c-keeb      { grid-column: 3/5; grid-row: 3/5; }
-.arch-c-m3        { grid-column: 1/3; grid-row: 5/6; }
-.arch-c-lwb       { grid-column: 3/5; grid-row: 5/6; }
+/* ══ moving-slots reel: a diagonal "bookshelf" of square cards ══
+   Every card is the SAME size and faces the SAME way (tilted left), evenly
+   stepped with constant left-over-right stacking. The reel auto-slides;
+   hover lifts a card + shows its pill / splays a folder; click opens it.
+   All cards are built by initArchive(). */
+.reel { --card-w: 216px; --card-h: 216px; position: relative; margin-top: 22px; }
+.reel-stage {
+  position: relative; height: 310px;
+  touch-action: pan-y; cursor: grab; user-select: none;
+}
+.reel-stage:active,
+.reel-stage.is-drag { cursor: grabbing; }
+.reel-stage:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 4px; border-radius: 14px; }
+/* NOT preserve-3d: each card carries its own perspective() in its transform,
+   so plain z-index (left always over right) decides the stacking. */
+.reel-track { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.reel-card {
+  position: absolute; left: calc(var(--card-w) / -2); top: calc(var(--card-h) / -2);
+  width: var(--card-w); height: var(--card-h); margin: 0; padding: 0;
+  background: #fff; overflow: visible; cursor: pointer; border: none;
+  /* the brushed outline is a .reel-ink SVG (shared handStroke pen), not a border */
+  border-radius: 12px;
+  box-shadow: 0 18px 34px -20px rgba(40,30,12,.6);
+  will-change: transform;
+  /* NO transform transition — the rAF motion engine sets it every frame;
+     a transition here would lag and fight it. */
+}
+.reel-card:not(.reel-folder) > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; }
+.reel-card:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 3px; }
+/* brushed ink ribbon (built by brush() in script.js with the shared pen) —
+   overlays its element edge-to-edge, free to wobble a hair past it */
+.reel-ink {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  overflow: visible; pointer-events: none; z-index: 6;
+}
+/* keeb sim / soundtrails placeholders (no cover art) */
+.reel-card.is-soon { display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(140deg, #3c414a, #23272d); }
+.reel-soon-label { font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.82); padding: 0 14px; line-height: 1.5; }
 
-/* ── project tile: white cover at rest ── */
-.arch-tile {
-  position: relative; display: block; height: 100%; width: 100%; overflow: hidden;
-  text-decoration: none; color: var(--arch-ink); background: #fff; cursor: pointer;
-  border: none; font: inherit; text-align: left;
-  border-radius: 16px 13px 18px 12px; box-shadow: 0 14px 30px -22px rgba(50,40,20,.55);
+/* ── category folder cards: white squares (same footprint + brushed outline
+   as the posters) with three thumbs fanned in the upper half and the label
+   below. Hovering (which also lifts the whole card) splays the thumbs. ── */
+.rf-item {
+  position: absolute; width: 78px; height: 62px;
+  border-radius: 7px; background: #ded8c9;   /* brushed outline via .reel-ink */
+  box-shadow: 0 6px 14px -8px rgba(30,22,8,.45);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
 }
-.arch-tile:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 3px; }
-.arch-frame {
-  position: absolute; inset: 3px; border: 1.7px solid var(--arch-frame);
-  border-radius: 15px 12px 17px 11px; filter: url(#arch-rough);
-  pointer-events: none; opacity: .5; z-index: 4;
-}
-.arch-head {
-  position: absolute; left: 16px; right: 16px; top: 13px; z-index: 2;
-  display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;
-}
-.arch-name { font-family: var(--font-sans); font-weight: 700; font-size: 16px; letter-spacing: -0.01em; text-transform: lowercase; }
-.arch-c-m3 .arch-name, .arch-c-lwb .arch-name { font-size: 14px; }
-.arch-tag {
-  font-family: var(--font-sans); font-size: 10px; font-weight: 700; letter-spacing: .03em;
-  background: var(--arch-paper); color: var(--arch-ink); padding: 3px 8px;
-  border-radius: 20px; white-space: nowrap; border: 1.1px solid rgba(58,53,44,.5); flex: 0 0 auto;
-}
-/* small hand-drawn doodle, top-right — visually secondary, never over the title */
-.arch-doodle { position: absolute; right: 14px; top: 40px; width: 62px; height: 42px; z-index: 2; opacity: .85; }
-.arch-c-m3 .arch-doodle, .arch-c-lwb .arch-doodle { top: auto; bottom: 12px; }
-.arch-doodle svg { width: 100%; height: 100%; overflow: visible; }
-.arch-doodle path, .arch-doodle circle, .arch-doodle rect, .arch-doodle line {
-  fill: none; stroke: var(--arch-frame); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; filter: url(#arch-rough);
-}
-/* resting "screenshot" area — accent bar + peeking screens (or real cover.webp) */
-/* full-tile positioning context; holds real cover.webp + placeholder peek */
-.arch-screen { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-/* placeholder "app screenshots" peeking up from the BOTTOM (see covers.html);
-   the subtitle keeps the space above them. Only tall/equal tiles have room. */
-.arch-peek { position: absolute; left: 16px; right: 16px; bottom: -8px; height: 48%; }
-.arch-c-m3 .arch-peek, .arch-c-lwb .arch-peek { display: none; }
-.arch-pk {
-  position: absolute; bottom: 0; top: 14px; width: 52%; border-radius: 12px 12px 0 0;
-  border: 5px solid #fff; border-bottom: none; overflow: hidden;
-  box-shadow: 0 14px 28px -16px rgba(30,25,10,.5);
-  background: linear-gradient(180deg, var(--arch-acc, var(--arch-green)), color-mix(in srgb, var(--arch-acc, var(--arch-green)) 22%, #fff));
-}
-.arch-pk::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 14px; background: rgba(255,255,255,.55); }
-.arch-pk.a { left: 4%; transform: rotate(-6deg); }
-.arch-pk.b { left: 44%; transform: rotate(5deg); z-index: 2; }
-.arch-subtitle {
-  position: absolute; left: 16px; right: 78px; top: 40px; z-index: 1;
-  font-family: var(--font-sans); font-size: 12px; line-height: 1.35; color: var(--arch-soft);
-}
-.arch-c-m3 .arch-subtitle, .arch-c-lwb .arch-subtitle { right: 78px; top: 42px; }
-/* real cover art (optional export) — hides itself on error → CSS cover shows */
-.arch-cover-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+.rf-item img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 7px; }
+.rf-i1 { left: 18px; top: 44px; transform: rotate(-9deg); }
+.rf-i2 { left: 66px; top: 34px; transform: rotate(3deg); z-index: 2; }
+.rf-i3 { left: 114px; top: 45px; transform: rotate(10deg); }
+.reel-folder.is-hover .rf-i1 { transform: translate(-9px, -8px) rotate(-15deg); }
+.reel-folder.is-hover .rf-i2 { transform: translateY(-12px) rotate(1deg); }
+.reel-folder.is-hover .rf-i3 { transform: translate(9px, -7px) rotate(16deg); }
+.rf-label { position: absolute; left: 14px; right: 14px; bottom: 54px; text-align: center; font-family: var(--font-sans); color: #2b2b26; pointer-events: none; }
+.rf-label .t { display: block; font-size: 15px; font-weight: 700; letter-spacing: -.01em; text-transform: lowercase; }
+.rf-label .c { display: block; margin-top: 3px; font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; opacity: .55; }
 
-/* hover: full-colour video fills the tile; title stays visible in white */
-.arch-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 3; opacity: 0; transition: opacity .28s var(--ease, ease); background: #2a2622; pointer-events: none; }
-.arch-vidname {
-  position: absolute; left: 16px; top: 13px; z-index: 4; color: #fff; font-family: var(--font-sans);
-  font-weight: 700; font-size: 16px; letter-spacing: -0.01em; text-transform: lowercase;
-  text-shadow: 0 1px 8px rgba(0,0,0,.5); opacity: 0; transition: opacity .28s var(--ease, ease);
+/* ── detail deck: fills under the shelf when a card is clicked ──
+   Projects: hand-drawn framed image left, blurb + skill/tool pills right.
+   Folders (.is-folder): title left, square-thumb grid gallery right
+   (each thumb → ring lightbox). Built by openDeck() in script.js. */
+.reel-deck {
+  display: flex; align-items: center; gap: 46px;
+  max-width: 880px; margin: 42px auto 8px; padding: 0 10px;
+  font-family: var(--font-sans); color: var(--arch-ink);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .35s ease, transform .35s ease;
 }
-.arch-c-m3 .arch-vidname, .arch-c-lwb .arch-vidname { font-size: 14px; }
-.arch-tile.is-playing .arch-vid,
-.arch-tile.is-playing .arch-vidname { opacity: 1; }
-.arch-tile.is-playing .arch-frame { opacity: .35; }
+.reel-deck.open { opacity: 1; transform: none; }
+.reel-deck[hidden] { display: none; }
+.rd-media {
+  position: relative;          /* anchors its brushed .reel-ink frame */
+  flex: 0 0 44%; background: #fff; padding: 10px;
+  border-radius: 16px;         /* brushed frame comes from the ink SVG */
+}
+/* every deck cover is cropped to the past/present/future frame (1024×662) so
+   the panel is the same height whichever card you open */
+.rd-media img,
+.rd-media video {
+  display: block; width: 100%; border-radius: 10px;
+  aspect-ratio: 1024 / 662; object-fit: cover; object-position: center;
+}
+.rd-media-soon {
+  display: flex; align-items: center; justify-content: center; height: 220px;
+  font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--arch-soft);
+}
+.rd-body { flex: 1; min-width: 0; }
+.rd-title { font-size: 27px; font-weight: 800; letter-spacing: -.01em; margin: 0 0 10px; }
+.rd-sub { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--arch-soft); margin-bottom: 14px; }
+.rd-desc { font-size: 15.5px; line-height: 1.65; margin: 0 0 18px; color: #3a352c; }
+.rd-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.rd-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 14px; border-radius: 999px;
+  background: #f1ede3; color: #57503f;
+  font-size: 12.5px; font-weight: 600; white-space: nowrap;
+}
+.rd-tools .rd-pill { background: #fff; border: 1px solid #e4dfd3; }
+.rd-pill img { width: 16px; height: 16px; object-fit: contain; border-radius: 3px; }
+.rd-link { display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 700; color: var(--arch-green); text-decoration: none; }
+.rd-link:hover { text-decoration: underline; }
+/* folder variant: title column + scrollable square grid */
+.reel-deck.is-folder { align-items: flex-start; }
+.reel-deck.is-folder .rd-body { flex: 0 0 30%; }
+.rd-grid {
+  flex: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px;
+  max-height: 400px; overflow-y: auto; padding: 3px 8px 14px 3px;
+}
+.rd-thumb { position: relative; border: none; background: none; padding: 0; cursor: pointer; border-radius: 11px; transition: transform .18s ease; }
+.rd-thumb img {
+  display: block; width: 100%; aspect-ratio: 1; object-fit: cover;
+  border-radius: 11px;         /* brushed outline via .reel-ink */
+  background: #e7e2d6;
+}
+.rd-thumb:hover { transform: translateY(-3px); }
+.rd-thumb:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 3px; }
 
-/* "launching soon" chip (keeb sim placeholder) */
-.arch-soon {
-  position: absolute; right: 14px; bottom: 14px; z-index: 2;
-  font-family: var(--font-sans); font-size: 10px; font-weight: 700; letter-spacing: .04em;
-  text-transform: uppercase; color: var(--arch-soft); background: var(--arch-paper);
-  border: 1.1px solid rgba(58,53,44,.4); padding: 3px 8px; border-radius: 20px;
-}
-.arch-tile.is-soon { cursor: default; }
-
-/* ── folder drawers — full-width white chip over a stack of paper ── */
-.arch-drawers { margin-top: 26px; display: flex; flex-direction: column; gap: 24px; }
-.arch-chip { position: relative; }
-.arch-stackline {
-  position: absolute; left: 0; right: 0; height: 100%; border-radius: 14px 12px 15px 11px;
-  background: #fbf9f4; border: 1.4px solid rgba(58,53,44,.4); box-shadow: 0 6px 14px -10px rgba(50,40,20,.5);
-}
-.arch-stackline.s1 { transform: translateY(7px) rotate(.5deg); }
-.arch-stackline.s2 { transform: translateY(13px) rotate(-.5deg); }
-.arch-card {
-  position: relative; z-index: 2; min-height: 102px; background: #fff; border-radius: 14px 12px 15px 11px;
-  display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 24px;
-  overflow: hidden; text-decoration: none; color: var(--arch-ink); cursor: pointer; width: 100%;
-  text-align: left; font: inherit; border: none;
-}
-.arch-card:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 3px; }
-.arch-fr { position: absolute; inset: 3px; border: 1.7px solid var(--arch-frame); border-radius: 13px 11px 14px 10px; filter: url(#arch-rough); opacity: .5; pointer-events: none; }
-.arch-lbl .arch-nm { font-family: var(--font-sans); font-size: 22px; font-weight: 800; letter-spacing: -0.01em; }
-.arch-lbl .arch-cnt { font-family: var(--font-sans); font-size: 12px; color: var(--arch-soft); letter-spacing: .02em; margin-top: 3px; text-transform: uppercase; }
-.arch-thumbs { display: flex; gap: 10px; align-items: center; }
-.arch-thumbs .arch-t {
-  width: 64px; height: 64px; background: #fff; padding: 4px 4px 9px; border-radius: 2px;
-  box-shadow: 0 5px 10px -6px rgba(40,30,10,.5); border: 1px solid #eee; flex: 0 0 auto;
-}
-.arch-thumbs .arch-t img, .arch-thumbs .arch-t i { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 1px; background: #ded8c9; }
-.arch-thumbs .arch-t:nth-child(1) { transform: rotate(-3deg); }
-.arch-thumbs .arch-t:nth-child(3) { transform: rotate(2.5deg); }
-.arch-open2 { font-family: var(--font-sans); font-size: 12px; font-weight: 700; margin-left: 18px; white-space: nowrap; color: var(--arch-ink); }
-
-/* ── paper shadowbox modal ── */
-body.arch-sb-lock { overflow: hidden; }
-.arch-shadowbox { position: fixed; inset: 0; z-index: 1200; display: none; }
-.arch-shadowbox.open { display: block; }
-.arch-sb-overlay { position: absolute; inset: 0; background: rgba(28,24,18,.55); backdrop-filter: blur(2px); }
-.arch-sb-sheet {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-.6deg);
-  width: min(880px, 92vw); max-height: 86vh; overflow: auto; background: #f7f2e7; color: var(--arch-ink);
-  padding: 30px 34px 40px; box-shadow: 0 40px 90px -30px rgba(20,14,6,.7);
-  /* hand-drawn deckle edge */
-  border-radius: 6px; filter: url(#arch-rough);
-}
-.arch-sb-sheet::before {
-  content: ""; position: absolute; inset: 6px; border: 1.6px solid rgba(58,53,44,.35);
-  border-radius: 4px; filter: url(#arch-rough); pointer-events: none;
-}
-.arch-sb-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
-.arch-sb-title { font-family: var(--font-sans); font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
-.arch-sb-sub { font-family: var(--font-sans); font-size: 12.5px; color: var(--arch-soft); margin-top: 4px; text-transform: uppercase; letter-spacing: .03em; }
-.arch-sb-close {
-  flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%; background: transparent;
-  border: none; cursor: pointer; color: var(--arch-frame);
-}
-.arch-sb-close svg { width: 100%; height: 100%; }
-.arch-sb-close path { stroke: var(--arch-frame); stroke-width: 2.4; stroke-linecap: round; fill: none; filter: url(#arch-rough); }
-.arch-sb-close:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 2px; }
-/* scrapbook of white-framed prints at gentle angles */
-.arch-sb-prints { display: flex; flex-wrap: wrap; gap: 20px 18px; justify-content: center; align-items: flex-start; }
-.arch-print {
-  background: #fff; padding: 8px 8px 26px; border-radius: 2px; box-shadow: 0 12px 24px -14px rgba(30,22,8,.6);
-  cursor: pointer; border: none; width: 190px;
-}
-.arch-print:nth-child(3n+1) { transform: rotate(-2.4deg); }
-.arch-print:nth-child(3n+2) { transform: rotate(1.8deg); }
-.arch-print:nth-child(3n+3) { transform: rotate(-1deg); }
-.arch-print img { display: block; width: 100%; height: 150px; object-fit: cover; background: #ded8c9; }
-.arch-print .cap { font-family: var(--font-sans); font-size: 11.5px; color: var(--arch-ink); margin-top: 8px; text-align: center; line-height: 1.3; }
-.arch-print:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 3px; }
-
-/* ── responsive: 4 → 2 columns (the desktop canvas hides ≤720px, but keep
-   the section graceful down to tablet); drawers stay full-width bars. ── */
+/* ── responsive: the desktop canvas hides ≤720px, but keep the reel graceful
+   down to tablet by shrinking the cards + stage. ── */
 @media (max-width: 1000px) {
-  .arch-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 168px; }
-  .arch-c-moove     { grid-column: 1/2; grid-row: 1/3; }
-  .arch-c-pantry    { grid-column: 2/3; grid-row: 1/3; }
-  .arch-c-soundbite { grid-column: 1/2; grid-row: 3/5; }
-  .arch-c-keeb      { grid-column: 2/3; grid-row: 3/5; }
-  .arch-c-m3        { grid-column: 1/3; grid-row: 5/6; }
-  .arch-c-lwb       { grid-column: 1/3; grid-row: 6/7; }
-  .arch-card { flex-wrap: wrap; }
+  .reel { --card-w: 188px; --card-h: 188px; }
+  .reel-stage { height: 276px; }
 }
 @media (max-width: 620px) {
   .arch { padding: 34px 20px 40px; }
   .arch-title { font-size: 30px; }
-  .arch-grid { grid-template-columns: 1fr; grid-auto-rows: 200px; }
-  .arch-grid > .arch-cell { grid-column: 1/2 !important; grid-row: auto !important; }
-  .arch-thumbs .arch-t:nth-child(4) { display: none; }
+  .reel { --card-w: 156px; --card-h: 156px; }
+  .reel-stage { height: 240px; }
+  .reel-d-title { font-size: 22px; }
 }
 
-/* ── reduced motion: no hover video, no sheet wobble ── */
+/* ── reduced motion: JS disables the drift + eases instantly; kill the
+   remaining CSS transitions too. ── */
 @media (prefers-reduced-motion: reduce) {
-  .arch-vid, .arch-vidname { transition: none; }
-  .arch-sb-sheet { transform: translate(-50%, -50%); }
+  .rf-item, .reel-deck, .rd-thumb { transition: none; }
 }
 
 /* Base widget — matches the case-study card treatment: flat, transparent,

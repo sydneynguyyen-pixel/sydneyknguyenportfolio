@@ -1973,152 +1973,416 @@ function applyMusicState(saved) {
 })();
 
 
-// ── "more things I've made" — paper archive gallery (#archive) ────────────
-// Replaces the old stack browser (initStacks). Two responsibilities:
-//   1. Project tiles: white cover at rest → muted, looped <video> on hover.
-//      Skipped entirely on touch (no hover) and under prefers-reduced-motion;
-//      a missing/broken clip just keeps the cover. keeb sim has no clip.
-//   2. Paper-drawer chips → a scrapbook "shadowbox" modal. Graphic Design and
-//      Photography are image sets (reuse CREATIVE_ASSETS + the ring lightbox);
-//      Branding & Marketing reuses the existing #mkw-panels modal via
-//      [data-mkw-open]. Modal: close on ✕ / overlay / Esc, focus-trapped,
-//      page scroll locked, focus restored to the opening chip.
+// ── "more things I've made" — moving-slots reel (#archive) ────────────────
+// A diagonal "bookshelf" reel of NINE cards: six projects (soundtrails, moove,
+// soundbite, keeb sim, pantry pop, past/present/future) + three category
+// FOLDERS (branding & marketing, art & graphics, photography) holding the
+// CREATIVE_ASSETS sets.
+// All cards are equal-size squares tilted the same way (facing left), evenly
+// stepped; stacking is constant left-over-right — no card ever jumps the stack.
+//   • CONTINUOUS motion: the shelf position is a float eased toward a target
+//     every animation frame — trackpad scroll, drag flings and the idle drift
+//     all accumulate into one fluid glide (no per-step CSS transitions), with
+//     a soft snap to the nearest slot once input goes quiet
+//   • hover lifts a card slightly (folders also splay their peeking items —
+//     no labels/pills pop over the cards themselves)
+//   • click a project → detail deck under the shelf (framed image — or its
+//     walkthrough video, where there is one — blurb, skill + tool pills,
+//     link); click a folder → deck with its tools + a grid gallery (pieces
+//     open the ring lightbox, marketing clients open their #mkw-panels
+//     modal); arrow keys also navigate
 (function initArchive() {
   const root = document.getElementById('archive');
   if (!root) return;
+  const stage = root.querySelector('[data-reel-stage]');
+  const track = root.querySelector('[data-reel-track]');
+  if (!stage || !track) return;
 
-  const canHover = matchMedia('(hover: hover)').matches;
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   const esc = (s) => String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const prettyName = (src) => src.split('/').pop().replace(/\.[^.]+$/, '')
     .replace(/^ph-/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  const metaOf = (r) => [r.medium, r.year].filter(Boolean).join(' · ');
 
-  /* ── 1. hover video (desktop pointer + motion allowed only) ── */
-  if (canHover && !reduceMotion) {
-    root.querySelectorAll('.arch-tile[data-clip]').forEach((tile) => {
-      const clip = tile.getAttribute('data-clip');
-      const vid = tile.querySelector('.arch-vid');
-      if (!clip || !vid) return;
-      let wired = false, dead = false;
-      const wire = () => {
-        if (wired) return;
-        wired = true;
-        vid.innerHTML =
-          '<source src="' + clip + '.webm" type="video/webm">' +
-          '<source src="' + clip + '.mp4" type="video/mp4">';
-        vid.addEventListener('error', () => { dead = true; tile.classList.remove('is-playing'); }, true);
-        vid.addEventListener('playing', () => { if (!dead) tile.classList.add('is-playing'); });
-        vid.load();
-      };
-      tile.addEventListener('pointerenter', () => {
-        if (dead) return;
-        wire();
-        const p = vid.play();
-        if (p && p.catch) p.catch(() => {});
-      });
-      tile.addEventListener('pointerleave', () => {
-        tile.classList.remove('is-playing');
-        if (wired && !dead) { try { vid.pause(); vid.currentTime = 0; } catch (e) {} }
-      });
-    });
-  }
-
-  /* ── 2. collections (reuse existing data) ── */
-  const gd = (CREATIVE_ASSETS.graphic.rows || []).flat().filter((r) => r.img)
-    .map((r) => ({ img: r.img, title: r.title, meta: [r.medium, r.year].filter(Boolean).join(' · ') }));
-  const ph = [...(CREATIVE_ASSETS.photo.rows1 || []), ...(CREATIVE_ASSETS.photo.rows2 || [])]
-    .filter((r) => r.src)
-    .map((r) => ({ img: r.src, title: prettyName(r.src), meta: [r.medium, r.year].filter(Boolean).join(' · ') }));
-  // Branding & Marketing: folded in from the old Marketing stack — each opens
-  // its existing #mkw-panels panel (panel-<mkw>) via the delegated listener.
+  /* ── build the card list: 6 projects + 3 category folders ── */
+  // creative sets live INSIDE the folders (folder click → deck grid → each
+  // piece opens the ring lightbox, except the branding & marketing clients
+  // which open their existing #mkw-panels modal via `mkw`).
+  const toPiece = (r) => ({ img: r.img, title: r.title, meta: metaOf(r) });
+  // branding & marketing — the five client/brand engagements; covers pulled
+  // from each one's own panel content.
   const mk = [
+    { img: 'assets/little wins bakehouse/new flavor announcements/5.webp', title: 'Little Wins Bakehouse', meta: 'Brand identity & packaging', mkw: 'lwb' },
     { img: 'assets/thumbs/nora-yt-thumb.jpg', title: 'Nora AI', meta: 'UX/UI & marketing content', mkw: 'nora' },
     { img: 'assets/thumbs/haliene jersey.webp', title: 'HALIENE', meta: 'Concert content & merch', mkw: 'haliene' },
     { img: 'assets/stacks/art/gd-fall-rush.webp', title: 'Alpha Phi Omega', meta: 'Rush graphics & event media', mkw: 'apo' },
     { img: 'assets/thumbs/designer drains amazon storefront.webp', title: 'Designer Drains', meta: 'Storefront UI & email', mkw: 'designer-drains' },
   ];
+  // art & graphics — the full graphic-design + artwork sets together
+  const artg = [
+    ...(CREATIVE_ASSETS.graphic.rows || []).flat().filter((r) => r.img),
+    ...(CREATIVE_ASSETS.artwork.rows || []).flat().filter((r) => r.img && !r.empty),
+  ].map(toPiece);
+  const ph = [...(CREATIVE_ASSETS.photo.rows1 || []), ...(CREATIVE_ASSETS.photo.rows2 || [])]
+    .filter((r) => r.src)
+    .map((r) => ({ img: r.src, title: prettyName(r.src), meta: metaOf(r) }));
 
-  const COLLECTIONS = {
-    graphic:   { title: 'Graphic Design',       sub: gd.length + ' pieces · posters, editorial & illustration', items: gd, type: 'image' },
-    photo:     { title: 'Photography',          sub: ph.length + ' photos · travel & portraits',                items: ph, type: 'image' },
-    marketing: { title: 'Branding & Marketing', sub: mk.length + ' projects · brand, social & merch',           items: mk, type: 'modal' },
+  // tool pills shown in the detail deck (icons already in assets/icons/;
+  // entries without an icon render as a text-only pill)
+  const TOOLS = {
+    figma:       { label: 'Figma',       icon: 'assets/icons/icon-figma.webp' },
+    figjam:      { label: 'FigJam',      icon: 'assets/icons/figjam.webp' },
+    miro:        { label: 'Miro',        icon: 'assets/icons/miro.webp' },
+    procreate:   { label: 'Procreate',   icon: 'assets/icons/procreate-logo_480x480.webp' },
+    canva:       { label: 'Canva',       icon: 'assets/icons/canva-3d-icon-free-png.webp' },
+    capcut:      { label: 'CapCut',      icon: 'assets/icons/Capcut-icon.svg.webp' },
+    photoshop:   { label: 'Photoshop',   icon: 'assets/icons/Adobe_Photoshop_CC_icon.svg.webp' },
+    illustrator: { label: 'Illustrator', icon: 'assets/icons/Adobe_Illustrator_CC_icon.svg.webp' },
+    lightroom:   { label: 'Lightroom',   icon: 'assets/icons/lightroom-icon.png' },
+    claude:      { label: 'Claude',      icon: 'assets/icons/claude icon.webp' },
+    medibang:    { label: 'Medibang Paint Pro' },
+    nikon:       { label: 'Nikon Z7' },
+    canon:       { label: 'Canon' },
+    iphone:      { label: 'iPhone' },
+  };
+  const toolPills = (keys) => {
+    const ts = (keys || []).map((k) => TOOLS[k]).filter(Boolean);
+    return ts.length ? '<div class="rd-tags rd-tools">' + ts.map((t) =>
+      '<span class="rd-pill">' + (t.icon ? '<img src="' + esc(t.icon) + '" alt="">' : '') + esc(t.label) + '</span>').join('') + '</div>' : '';
   };
 
-  /* fill each chip's count + 4-thumbnail strip, wire the open */
-  root.querySelectorAll('.arch-card[data-drawer]').forEach((card) => {
-    const col = COLLECTIONS[card.getAttribute('data-drawer')];
-    if (!col) return;
-    const cnt = card.querySelector('[data-count]');
-    if (cnt) cnt.textContent = col.sub.toUpperCase();
-    const th = card.querySelector('[data-thumbs]');
-    if (th) {
-      th.innerHTML = col.items.slice(0, 4).map((it) =>
-        '<div class="arch-t"><img src="' + esc(it.img) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'"></div>'
-      ).join('');
+  const ITEMS = [
+    { img: 'assets/soundtrails/soundtrails-cover.jpg', title: 'soundtrails', tag: 'Data · Web',
+      href: 'https://soundtrails.netlify.app/', blank: true,
+      panelTitle: 'Sound Trails',
+      video: 'assets/soundtrails/soundtrails.mp4',
+      desc: 'A week of my listening history mapped onto the places I was in — every song leaves a colored trail across the city, and zooming all the way in lands you in the floor plan of my room.',
+      skills: ['Data Viz', 'Web', 'Vibe-coded'], tools: ['claude'] },
+    { img: 'assets/icons/moove-thumb.webp', title: 'moove', tag: 'Concept · UX/UI',
+      href: 'https://www.figma.com/deck/3zplTzhPjCf7GXCt6mZaHF/Moove-Slide-Deck?node-id=1-259&t=Rtj5TUFG31wYuwHL-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1', blank: true,
+      panelTitle: 'Moove',
+      desc: 'A mobility and flexibility app concept with adaptive routines that meet you where your body is that day.',
+      skills: ['UX/UI', 'Health & Wellness'], tools: ['figma'] },
+    { img: 'assets/case studies/soundbite/soundbite-thumb.webp', title: 'soundbite', tag: 'Concept',
+      href: 'soundbite',
+      panelTitle: 'Soundbite',
+      desc: 'A sensory-enhanced snack concept pairing mood-based flavors with QR-triggered 3D spatial audio — scan the wrapper, put on headphones, and a soundscape matched to that flavor’s mood plays while you eat.',
+      skills: ['Concept', 'Sensory Design'], tools: ['figma', 'procreate', 'canva', 'capcut'] },
+    { img: 'assets/keeb sim/keeb-cover.jpg', title: 'keeb sim', tag: 'Web · Sim',
+      href: 'https://keebsim.netlify.app/', blank: true,
+      panelTitle: 'Keeb Sim',
+      video: 'assets/keeb sim/keeb-sim.mp4',
+      desc: 'A mechanical keyboard simulator — pick a switch, paint the keycaps, hear every keypress, then type a test on the board you just built.',
+      skills: ['Web', 'Vibe-coded', '3D'], tools: ['claude'] },
+    { img: 'assets/pantry pop widget cover.png', title: 'pantry pop', tag: 'Vibe-coded',
+      href: 'https://pantry-pop.netlify.app/', blank: true,
+      panelTitle: 'Pantry Pop!',
+      desc: 'A vibe-coded food blindbox simulator — pull from the pantry and see what snack you get.',
+      skills: ['Product Design', 'Vibe-coded'], tools: ['canva', 'claude'] },
+    { img: 'assets/icons/ppf-thumb.webp', title: 'past / present / future', tag: 'Web',
+      href: 'https://www.figma.com/proto/MDJjsmm2Hyi5fHFBFJLIBn/m3-past-present-future-site?node-id=1-2&t=km5SQGWGHu2ioRcs-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=1', blank: true,
+      panelTitle: 'Past/Present/Future',
+      desc: 'A speculative design site visualizing technology across three generations — how the everyday tools we live with looked, look, and might look.',
+      skills: ['UX/UI', 'UX Research', 'Wireframing & Prototyping'], tools: ['figma'] },
+    { folderKey: 'marketing', title: 'branding & marketing', panelTitle: 'Branding & Marketing',
+      count: mk.length + ' clients', items: mk,
+      tools: ['canva', 'photoshop', 'illustrator', 'lightroom', 'capcut'] },
+    { folderKey: 'artgraphics', title: 'art & graphics', panelTitle: 'Art & Graphics',
+      count: artg.length + ' pieces', items: artg,
+      tools: ['procreate', 'medibang', 'photoshop', 'illustrator', 'canva'] },
+    { folderKey: 'photo', title: 'photography', panelTitle: 'Photography',
+      count: ph.length + ' photos', items: ph,
+      tools: ['nikon', 'canon', 'iphone', 'lightroom'] },
+  ];
+  const N = ITEMS.length;
+  if (!N) return;
+
+  /* ── build card DOM ── */
+  // posters: just the cover image (no hover label).
+  // folders: white squares (same footprint as posters) with three thumbs
+  //          fanned in the upper half + label below; the thumbs splay a
+  //          little on hover.
+  ITEMS.forEach((it, i) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'reel-card' + (it.soon ? ' is-soon' : '') + (it.folderKey ? ' reel-folder' : '');
+    card.tabIndex = -1;
+    card.setAttribute('aria-label', it.title + (it.soon ? ' — launching soon' : (it.folderKey ? ' — ' + it.count : (it.tag ? ' — ' + it.tag : ''))));
+    card.dataset.idx = i;
+    if (it.folderKey) {
+      // white square card (same footprint as the posters): three thumbs
+      // fanned in the upper half + label below — everything inside the card.
+      // Each thumb is a SPAN wrapping its img so the brushed ink SVG can live
+      // alongside the image.
+      card.innerHTML = it.items.slice(0, 3).map((p, k) =>
+          '<span class="rf-item rf-i' + (k + 1) + '">' +
+            '<img src="' + esc(p.img) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+          '</span>').join('') +
+        '<span class="rf-label"><span class="t">' + esc(it.title) + '</span><span class="c">' + esc(it.count) + '</span></span>';
+    } else if (it.soon) {
+      const lb = document.createElement('span');
+      lb.className = 'reel-soon-label';
+      lb.textContent = it.title + ' · launching soon';
+      card.appendChild(lb);
+    } else {
+      const im = document.createElement('img');
+      im.src = it.img; im.alt = ''; im.loading = 'lazy';
+      im.addEventListener('error', () => { im.style.visibility = 'hidden'; });
+      card.appendChild(im);
     }
-    card.addEventListener('click', () => openShadowbox(col));
+    card.addEventListener('pointerenter', () => { hovered = i; card.classList.add('is-hover'); });
+    card.addEventListener('pointerleave', () => { if (hovered === i) hovered = -1; card.classList.remove('is-hover'); });
+    track.appendChild(card);
+  });
+  const cards = [...track.children];
+
+  /* ── brushed ink outlines ──
+     The site's shared hand-drawn pen (window.__handStroke — the same filled
+     variable-width ribbon that outlines the case-study cards) drawn as an
+     absolutely-positioned SVG on each element, NEVER a flat CSS border.
+     Small elements get proportionally restrained pen overrides, like the
+     old stack covers did. Rebuilt on resize (sizes change via media queries)
+     and whenever the deck re-renders. */
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const THUMB_PEN = { AMPLITUDE: 1.3, CORNER_OVERSHOOT: 2.5, END_OVERSHOOT: 7,  WEIGHT: 1.5, WEIGHT_VARIATION: 0.7, SAMPLES: 100 };
+  const FRAME_PEN = { AMPLITUDE: 2.6, CORNER_OVERSHOOT: 5,   END_OVERSHOOT: 18, WEIGHT: 2.8, WEIGHT_VARIATION: 1.3 };
+  let inkSeed = 11;
+  function brush(el, r, over) {
+    const hs = window.__handStroke;
+    if (!hs || !el) return;
+    const w = Math.round(el.offsetWidth), h = Math.round(el.offsetHeight);
+    if (!w || !h) return;
+    let svg = el.querySelector(':scope > .reel-ink');
+    if (svg && +svg.dataset.w === w && +svg.dataset.h === h) return;  // box unchanged
+    if (!svg) {
+      svg = document.createElementNS(SVGNS, 'svg');
+      svg.setAttribute('class', 'reel-ink');
+      svg.setAttribute('aria-hidden', 'true');
+      el.appendChild(svg);
+      svg.dataset.seed = String(inkSeed = (inkSeed * 13 + 7) % 997);  // one hand, not stamped
+    }
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    svg.dataset.w = w; svg.dataset.h = h;
+    svg.innerHTML = '<path d="' + hs(+svg.dataset.seed, w, h, r, -1, over) + '" fill="#1a1a1a"/>';
+  }
+  function brushShelf() {
+    cards.forEach((card) => {
+      brush(card, 12);
+      card.querySelectorAll('.rf-item').forEach((s) => brush(s, 7, THUMB_PEN));
+    });
+  }
+  function brushDeck() {
+    if (!deck || deck.hidden) return;
+    const media = deck.querySelector('.rd-media');
+    if (media) brush(media, 16, FRAME_PEN);
+    deck.querySelectorAll('.rd-thumb').forEach((b) => brush(b, 11, THUMB_PEN));
+  }
+  brushShelf();
+  let inkResizeT = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(inkResizeT);
+    inkResizeT = setTimeout(() => { brushShelf(); brushDeck(); }, 150);
   });
 
-  /* ── 3. shadowbox modal ── */
-  const sb = document.getElementById('arch-shadowbox');
-  const sbTitle = document.getElementById('arch-sb-title');
-  const sbSub = document.getElementById('arch-sb-sub');
-  const sbPrints = document.getElementById('arch-sb-prints');
-  let sbLastFocus = null;
+  /* ── continuous "bookshelf" motion engine ──
+     The shelf position (`offset`) is a FLOAT in card units, eased toward
+     `target` every animation frame with a frame-rate-independent lerp — so
+     wheel deltas, drag flings and the idle drift all pour into one fluid
+     glide instead of restarting a per-step CSS transition. The shelf is
+     FINITE: the target clamps to the first/last card, so scrolling stops at
+     either end (the idle drift parks there too). EVERY card faces the same
+     way (THETA); stacking is CONSTANT left-over-right (z falls with screen
+     x, never changed by hover); hovering only lifts a card vertically. */
+  const THETA = -34;        // uniform tilt — negative = every card faces LEFT (like the ref)
+  const STEP = 150;         // px between successive cards (slight overlap)
+  const DRIFT = 0.16;       // idle auto-drift, cards per second
+  const EASE = 9;           // offset→target lerp rate (higher = snappier)
+  let offset = 0, target = 0;
+  let hovered = -1, deckIdx = -1;
+  let dragging = false, lastInput = 0;
+  const lifts = new Array(N).fill(0);   // per-card eased hover lift
 
-  function openShadowbox(col) {
-    if (!sb) return;
-    sbTitle.textContent = col.title;
-    sbSub.textContent = col.sub;
-    sbPrints.innerHTML = col.items.map((it, i) => {
-      const cap = esc(it.title || '');
-      const inner = '<img src="' + esc(it.img) + '" alt="' + cap + '" loading="lazy" onerror="this.style.visibility=\'hidden\'"><div class="cap">' + cap + '</div>';
-      return (col.type === 'modal')
-        ? '<button class="arch-print" type="button" data-mkw-open="' + esc(it.mkw) + '" data-sb-mkw="1">' + inner + '</button>'
-        : '<button class="arch-print" type="button" data-print="' + i + '">' + inner + '</button>';
-    }).join('');
-    // image prints → existing ring lightbox
-    sbPrints.querySelectorAll('[data-print]').forEach((btn) => {
-      const it = col.items[+btn.getAttribute('data-print')];
-      btn.addEventListener('click', () => {
-        if (typeof openRingLightbox === 'function') openRingLightbox(it.img, it.title, it.meta);
+  function render() {
+    cards.forEach((el, i) => {
+      const o = i - offset;
+      // constant left-over-right: z falls as screen-x grows (hover never changes it)
+      el.style.zIndex = String(100 - Math.round(o) * 2);
+      lifts[i] += (((i === hovered) ? -16 : 0) - lifts[i]) * 0.18;
+      // each card carries its OWN perspective() so z-index (not 3D depth)
+      // decides stacking — the track is deliberately NOT preserve-3d.
+      // (.arch clips overflow, so off-stage cards just slide out of the panel)
+      el.style.transform = 'translateX(' + (o * STEP).toFixed(2) + 'px) translateY(' + lifts[i].toFixed(2) + 'px) perspective(1000px) rotateY(' + THETA + 'deg)';
+    });
+  }
+
+  let lastT = 0;
+  function tick(t) {
+    const dt = Math.min(0.05, Math.max(0.001, (t - lastT) / 1000)); lastT = t;
+    if (!reduceMotion && !paused && !dragging && deckIdx < 0) {
+      target += DRIFT * dt;                    // idle drift — the "autoplay"
+    } else if (!dragging && t - lastInput > 250) {
+      // soft snap: once input goes quiet, gently magnet to the nearest slot
+      target += (Math.round(target) - target) * Math.min(1, dt * 5);
+    }
+    target = Math.min(N - 1, Math.max(0, target));   // finite shelf: hard stop at the ends
+    const k = reduceMotion ? 1 : 1 - Math.exp(-dt * EASE);
+    offset += (target - offset) * k;
+    if (Math.abs(target - offset) < 0.0005) offset = target;
+    render();
+    requestAnimationFrame(tick);
+  }
+
+  /* ── open a card (click / Enter): everything opens the detail deck under
+     the shelf — projects show framed image + blurb + skill/tool pills + link;
+     folders show their title + a square-thumb grid gallery (each thumb →
+     ring lightbox). Clicking the same card again folds the deck away. ── */
+  const deck = root.querySelector('[data-reel-deck]');
+  function openItem(i) {
+    if (deckIdx === i) { closeDeck(); return; }
+    openDeck(i);
+  }
+  function openDeck(i) {
+    if (!deck) return;
+    const it = ITEMS[i];
+    deckIdx = i;
+    target = i;                                      // glide the clicked card to centre
+    lastInput = performance.now();
+    deck.classList.toggle('is-folder', !!it.folderKey);
+    if (it.folderKey) {
+      deck.innerHTML =
+        '<div class="rd-body">' +
+          '<h3 class="rd-title">' + esc(it.panelTitle || it.title) + '</h3>' +
+          '<div class="rd-sub">' + esc(it.count) + '</div>' +
+          toolPills(it.tools) +
+        '</div>' +
+        '<div class="rd-grid">' + it.items.map((p, k) =>
+          // a piece with `mkw` opens its Branding & Marketing panel — the
+          // document-level [data-mkw-open] handler picks it up
+          '<button class="rd-thumb" type="button" data-gi="' + k + '"' +
+            (p.mkw ? ' data-mkw-open="' + esc(p.mkw) + '"' : '') +
+            ' aria-label="' + esc(p.title) + '">' +
+            '<img src="' + esc(p.img) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+          '</button>').join('') + '</div>';
+      deck.querySelectorAll('[data-gi]').forEach((b) => {
+        const p = it.items[+b.getAttribute('data-gi')];
+        if (p.mkw) return;                       // handled by the panel opener
+        b.addEventListener('click', () => {
+          if (typeof openRingLightbox === 'function') openRingLightbox(p.img, p.title, p.meta);
+        });
       });
-    });
-    // marketing prints carry [data-mkw-open] (opened by the delegated listener);
-    // we just close the shadowbox so the panel isn't behind it.
-    sbPrints.querySelectorAll('[data-sb-mkw]').forEach((btn) => {
-      btn.addEventListener('click', () => closeShadowbox());
-    });
-    sbLastFocus = document.activeElement;
-    sb.classList.add('open');
-    document.body.classList.add('arch-sb-lock');
-    document.addEventListener('keydown', onSbKey, true);
-    const closeBtn = sb.querySelector('.arch-sb-close');
-    if (closeBtn) closeBtn.focus();
+    } else {
+      deck.innerHTML =
+        '<div class="rd-media">' +
+          // a project with a walkthrough clip plays it here (the shelf card
+          // always stays the still cover); otherwise just the cover image
+          (it.video ? '<video src="' + esc(it.video) + '" poster="' + esc(it.img) + '" autoplay muted loop playsinline preload="metadata"></video>'
+            : it.img ? '<img src="' + esc(it.img) + '" alt="">'
+                     : '<div class="rd-media-soon">launching soon</div>') +
+        '</div>' +
+        '<div class="rd-body">' +
+          '<h3 class="rd-title">' + esc(it.panelTitle || it.title) + '</h3>' +
+          '<p class="rd-desc">' + esc(it.desc || '') + '</p>' +
+          ((it.skills || []).length ? '<div class="rd-tags">' +
+            it.skills.map((s) => '<span class="rd-pill">' + esc(s) + '</span>').join('') + '</div>' : '') +
+          toolPills(it.tools) +
+          (it.href && !it.soon ? '<a class="rd-link" href="' + esc(it.href) + '"' +
+            (it.blank ? ' target="_blank" rel="noopener"' : '') + '>visit project <span aria-hidden="true">↗</span></a>' : '') +
+        '</div>';
+    }
+    deck.hidden = false;
+    requestAnimationFrame(() => { deck.classList.add('open'); brushDeck(); });
+    // the framed media sets .rd-media's height — redraw its ink once it has one
+    const mimg = deck.querySelector('.rd-media img');
+    if (mimg && !mimg.complete) mimg.addEventListener('load', brushDeck, { once: true });
+    const mvid = deck.querySelector('.rd-media video');
+    if (mvid) mvid.addEventListener('loadedmetadata', brushDeck, { once: true });
+    cards.forEach((el, k) => el.classList.toggle('is-open', k === i));
+  }
+  function closeDeck() {
+    if (deckIdx < 0 || !deck) return;
+    deckIdx = -1;
+    deck.classList.remove('open');
+    deck.hidden = true;
+    const v = deck.querySelector('.rd-media video');
+    if (v) v.pause();
+    cards.forEach((el) => el.classList.remove('is-open'));
   }
 
-  function closeShadowbox() {
-    if (!sb) return;
-    sb.classList.remove('open');
-    document.body.classList.remove('arch-sb-lock');
-    document.removeEventListener('keydown', onSbKey, true);
-    if (sbLastFocus && sbLastFocus.focus) sbLastFocus.focus();
-  }
+  /* ── drift pauses while the pointer / focus is on the shelf or the deck
+     is open (rAF keeps running: it still eases lifts + the soft snap) ── */
+  let paused = false;
+  stage.addEventListener('pointerenter', () => { paused = true; });
+  stage.addEventListener('pointerleave', () => { paused = false; });
+  root.addEventListener('focusin', () => { paused = true; });
+  root.addEventListener('focusout', (e) => { if (!root.contains(e.relatedTarget)) paused = false; });
 
-  function onSbKey(e) {
-    if (e.key === 'Escape') { e.preventDefault(); closeShadowbox(); return; }
-    if (e.key !== 'Tab') return;
-    const list = [...sb.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])')]
-      .filter((el) => el.offsetParent !== null);
-    if (!list.length) return;
-    const first = list[0], last = list[list.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  }
+  /* ── navigation: trackpad scroll, click-to-open, keyboard, drag ── */
+  // Horizontal two-finger scroll feeds the eased target 1:1 in pixels, so the
+  // shelf tracks the fingers and glides out on the lerp's own momentum.
+  // Vertical deltas are left alone so the page still scrolls; preventDefault
+  // stops the browser's back/forward swipe while over the stage.
+  stage.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+    e.preventDefault();
+    target += e.deltaX / STEP;
+    lastInput = performance.now();
+  }, { passive: false });
 
-  if (sb) sb.querySelectorAll('[data-sb-close]').forEach((el) => el.addEventListener('click', closeShadowbox));
+  let dragMoved = false;
+  track.addEventListener('click', (e) => {
+    const card = e.target.closest('.reel-card');
+    if (!card || dragMoved) return;
+    openItem(+card.dataset.idx);                    // click any card → open it
+  });
+
+  stage.tabIndex = 0;
+  stage.setAttribute('role', 'group');
+  stage.setAttribute('aria-label', 'more things I’ve made — left / right arrow keys to browse, Enter to open');
+  stage.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); target = Math.round(target) - 1; lastInput = performance.now(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); target = Math.round(target) + 1; lastInput = performance.now(); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openItem(((Math.round(offset) % N) + N) % N); }
+  });
+
+  // drag: the strip follows the finger 1:1; release adds a fling from the
+  // finger's last velocity, and the lerp + soft snap ease it to rest.
+  let dragStartX = 0, startTarget = 0, lastDX = 0, lastMoveT = 0, dragVel = 0;
+  stage.addEventListener('pointerdown', (e) => {
+    if (e.button && e.button !== 0) return;
+    dragging = true; dragMoved = false; dragStartX = e.clientX;
+    startTarget = target; dragVel = 0; lastDX = 0; lastMoveT = performance.now();
+    // NOTE: no pointer capture yet — capturing here would retarget the click
+    // to the stage and card clicks would never land. Capture on first real move.
+  });
+  stage.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - dragStartX;
+    if (!dragMoved && Math.abs(dx) > 6) {
+      dragMoved = true;
+      stage.classList.add('is-drag');
+      try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+    if (!dragMoved) return;
+    const now = performance.now();
+    dragVel = (dx - lastDX) / Math.max(1, now - lastMoveT);   // px per ms
+    lastDX = dx; lastMoveT = now;
+    target = startTarget - dx / STEP;
+    lastInput = now;
+  });
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false; stage.classList.remove('is-drag');
+    if (dragMoved) target -= (dragVel * 160) / STEP;          // fling momentum
+    lastInput = performance.now();
+    setTimeout(() => { dragMoved = false; }, 0);    // clear after the click fires
+  }
+  stage.addEventListener('pointerup', endDrag);
+  stage.addEventListener('pointercancel', endDrag);
+
+  /* ── go ── */
+  render();
+  requestAnimationFrame((t) => { lastT = t; requestAnimationFrame(tick); });
 })();
 
 
