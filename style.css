@@ -2801,6 +2801,33 @@ body.cursor-click .cursor-dot {
   100% { opacity: 0; transform: scale(0.1) translate(var(--tx), var(--ty)) rotate(360deg); }
 }
 
+/* ── Hero Cursor Trail — raw photo trail that follows the pointer inside #home
+   (spawned by the "Hero Cursor Trail" IIFE in script.js). Just the photo: no
+   frame, border, radius or background. Per-spawn size/rotation set inline;
+   --rot carries the random tilt so it holds through the whole lifecycle. ── */
+.hero-cursor-trail {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  user-select: none;
+  display: block;
+  height: auto;                 /* width set inline → raw photo aspect ratio */
+  transform-origin: center;
+  will-change: transform, opacity;
+  animation: hero-trail 1000ms both;
+}
+@keyframes hero-trail {
+  /* pop in (~170ms) with a bouncy overshoot */
+  0%   { opacity: 0; transform: translate(-50%,-50%) translateY(0) rotate(var(--rot,0deg)) scale(0.4);
+         animation-timing-function: cubic-bezier(.34,1.56,.64,1); }
+  17%  { opacity: 1; transform: translate(-50%,-50%) translateY(0) rotate(var(--rot,0deg)) scale(1); }
+  /* brief hold, then ease out */
+  30%  { opacity: 1; transform: translate(-50%,-50%) translateY(0) rotate(var(--rot,0deg)) scale(1);
+         animation-timing-function: ease-out; }
+  /* ~700ms fade: shrink slightly + drift up 14px */
+  100% { opacity: 0; transform: translate(-50%,-50%) translateY(-14px) rotate(var(--rot,0deg)) scale(0.85); }
+}
+
 /* ── Draggable — universal shadow on all desktop items ───── */
 .draggable {
   cursor: grab;
@@ -4370,6 +4397,15 @@ body.cursor-click .cursor-dot {
   overflow: visible;
 }
 
+/* ── Image arc HIDDEN for now (2026-08-12) ─────────────────────────────
+   Hides the orbiting hero photo arc while keeping the center avatar / name /
+   tagline / "open to work". Nothing is deleted — the #ring-stage markup, the
+   "Art Ring" builder in script.js, and the ARC_PHOTOS assets are all intact.
+   To reinstate the arc, delete this block. */
+.ring-stage { display: none !important; }
+.ring-drag-zone { pointer-events: none !important; } /* no arc → no spin surface */
+/* ─────────────────────────────────────────────────────────────────────── */
+
 /* Drag-to-spin hit area — starts below the case-study cards so it never
    blocks their hover/click events, which sit at a lower z-index above this. */
 .ring-drag-zone {
@@ -4869,268 +4905,176 @@ body.cursor-click .cursor-dot {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   ARCHIVE OF WORK — stack browser (#marketing section)
-   Four stacks fan on hover; clicking one opens its item row below.
-   Item cards reuse .pcard / .pcard-img / .pcard-title / .pcard-sub.
-   Built by initStacks() in script.js. Namespaced under .stacks.
+   "more things I've made" — paper archive gallery (#archive section)
+   Replaces the old stack browser. A warm-paper zone at the foot of the
+   desktop homepage: four EQUAL project tiles (2×2) + two MEDIUM tiles
+   (2×1), each a white cover that fills with a muted, looped <video> on
+   hover; below them, three full-width "paper drawer" chips that open a
+   scrapbook shadowbox. Built statically in index.html; thumbnails,
+   hover-video and the shadowbox are wired by initArchive() in script.js
+   from CREATIVE_ASSETS (Graphic Design, Photography) and the #mkw-panels
+   modal (Branding & Marketing). Namespaced .arch-*; titles use --font-sans.
+   Lives in #desktop-canvas (>720px); the phone layout is #mobile-view.
    ══════════════════════════════════════════════════════════════ */
-.stacks {
-  --ease: cubic-bezier(0.16, 1, 0.3, 1);
-
-  /* ── Tunables — size, scatter, and gaps in ONE place ──────────────
-     Retune the whole component from here; nothing below hard-codes these. */
-  --stack-size: 176px;      /* cover card edge — smaller so four fit across   */
-  --sub-gap: 34px;          /* gap from the cover's BOTTOM edge down to its
-                               label. Layers peek UP now, so nothing sits below
-                               the cover — this is pure cover-to-label breathing */
-  --cover-radius: 18px;     /* corner radius on the cover + under-layers      */
-
-  /* Under-layer resting scatter — offset (x, y) + rotation, one per layer.
-     All four peek UPWARD (negative y) with only a slight sideways splay, so the
-     pile reads as a stack that's slightly askew — not a fan opened at rest. The
-     outer pair (3,4) peeks up a touch more than the inner pair (1,2). Horizontal
-     offsets are ~a third of the old wide spread; rotations roughly halved.
-     Transform-only: these never change the container's size. */
-  --l1-x:  -6px; --l1-y: -10px; --l1-rot: -3deg;   /* inner, slight left  */
-  --l2-x:   7px; --l2-y: -13px; --l2-rot:  2.5deg; /* inner, slight right */
-  --l3-x:  -5px; --l3-y: -17px; --l3-rot:  3.5deg; /* outer, slight left  */
-  --l4-x:   6px; --l4-y: -20px; --l4-rot: -2.5deg; /* outer, slight right */
-
-  /* One flat row of four, centered in the shared 900px .section-inner. Each
-     column is an equal fraction and the stack is centered inside it, so the
-     gaps between all four read even with no stretched/dead columns. The drawer
-     is the 5th grid child; it spans the full width (grid-column: 1 / -1) and,
-     because its `order` is higher than every stack, always lands below the row.
-     On the ≤720px 2×2 fallback its order is overridden to slot it row-aware. */
-  /* Layers peek UPWARD now, so the pile's spread reaches above the cover — this
-     reserves room between the "Archive" heading and the top of the piles so a
-     hovered stack's raised layers never touch the heading. */
-  padding-top: 26px;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  justify-items: center;
-  align-items: start;
-  column-gap: 28px;
+#archive {
+  --arch-paper: #f1ece1; --arch-ink: #2f2b24; --arch-frame: #3a352c;
+  --arch-soft: #8a8477;  --arch-green: #3f7d5a; --arch-screen: #f4f1ea;
 }
-
-/* ── A single stack: a bounded container (cover + under-layers) with its
-   label below. Fixed width; the scatter lives inside via transforms only, so a
-   stack can never blow out its grid cell. ── */
-.stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: var(--stack-size);
-  color: #1a1a1a;
-  border: none; background: none;
-  position: relative;   /* stacking context so a hover lift can rise above neighbours */
-  z-index: 1;
-  cursor: pointer;
-}
-.stack:hover, .stack:focus-within { z-index: 10; }
-.stack:focus-visible { outline: none; }
-.stack:focus-visible .stack-cover { border-color: #1A1A1A; box-shadow: 0 0 0 3px rgba(26,26,26,0.18); }
-
-/* Pile: the bounded box — exactly --stack-size square. Cover on top, 4 layers
-   behind scattered around it. overflow stays visible so the scatter shows, but
-   the box itself never grows (layers are position:absolute + transform-only). */
-.stack-pile {
+.arch {
   position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-}
-.stack-layer,
-.stack-cover {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--cover-radius);
-  transition: transform 0.34s var(--ease), opacity 0.34s var(--ease), filter 0.34s var(--ease), border-color 0.2s ease;
-}
-/* Depth from REAL work — each layer carries an item thumbnail from the stack's
-   own contents (built in initStacks), so the spread-on-hover reveals actual
-   pieces. Centre pivot so the layers read as scattered cards set down, not a
-   hinged fan. White card backing shows while the image loads / behind any
-   transparency. */
-.stack-layer {
-  background: #fff;
-  border: 1px solid rgba(0,0,0,0.07);
+  background: #fff;            /* flat white — no paper texture / dot grid */
+  color: var(--arch-ink);
+  border-radius: 22px;
+  padding: 46px 40px 54px;
   overflow: hidden;
-  transform-origin: 50% 50%;
-  opacity: 0;             /* hidden at rest — the pile reads as a single cover; layers appear only on hover */
-  filter: grayscale(1);   /* revealed in B&W first, then resolve to color as they spread (hover, below) */
-  pointer-events: none;   /* decorative only — the cover is the hit target */
 }
-.stack-layer img { width: 100%; height: 100%; object-fit: cover; display: block; }
-/* z-order: outer pair behind inner pair behind cover. */
-.stack-layer-3, .stack-layer-4 { z-index: 1; }
-.stack-layer-1, .stack-layer-2 { z-index: 2; }
-/* Resting scatter — each layer to a different quadrant (constants above). */
-.stack-layer-1 { transform: translate(var(--l1-x), var(--l1-y)) rotate(var(--l1-rot)); }
-.stack-layer-2 { transform: translate(var(--l2-x), var(--l2-y)) rotate(var(--l2-rot)); }
-.stack-layer-3 { transform: translate(var(--l3-x), var(--l3-y)) rotate(var(--l3-rot)); }
-.stack-layer-4 { transform: translate(var(--l4-x), var(--l4-y)) rotate(var(--l4-rot)); }
+.arch > * { position: relative; z-index: 1; }
 
-.stack-cover {
-  z-index: 4;
-  /* The hand-drawn ink (.stack-outline) IS the cover's frame now — this border
-     stays transparent so it never competes with the ink. Kept as a 1px box (not
-     removed) so the focus-visible ring and the is-active selected state can still
-     colour it without shifting the cover by a pixel. */
-  border: 1px solid transparent;
-  overflow: hidden;
-  background: #fff;      /* covers are logos on white — card reads as white */
-}
-.stack-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-/* Hand-drawn outline on the cover — the same shared pen as the case-study cards
-   (built in initStacks). It REPLACES the old grey cover border: the ink is the
-   cover's frame, shown at rest, not a hover-only accent (the cards are transparent
-   text tiles that only become cards on hover; a cover is always a card, so its
-   frame is always drawn). An absolutely-positioned SVG that never affects layout
-   and is free to overshoot past the cover edge, so it lives in .stack-pile (which
-   is overflow:visible) rather than inside .stack-cover (overflow:hidden would clip
-   it). Sits just above the cover; the cover is stationary on hover, so the ink
-   rides with it as the layers spread. */
-.stack-outline {
-  position: absolute;
-  inset: 0;
-  overflow: visible;
-  pointer-events: none;
-  z-index: 5;                 /* above the cover (z-index 4) */
-}
-
-/* Hover — the pile opens UPWARD along each layer's existing lean: the vertical
-   push grows more than the sideways one, so it lifts open rather than fanning
-   wide. Proportional to the restrained rest — noticeably more open, still tight.
-   (x ×1.5, y ×1.8, rot ×1.35.) */
-@media (hover: hover) {
-  /* No border-colour change on hover — the hand-drawn ink is the frame in every
-     state, so a solid border would just double up behind the wobble. */
-  /* Layers resolve to full opacity + full color as they spread — the reveal is
-     opacity + color + movement, landing together on the same curve/duration. */
-  .stack:hover .stack-layer { opacity: 1; filter: grayscale(0); }
-  .stack:hover .stack-layer-1 { transform: translate(calc(var(--l1-x) * 1.5), calc(var(--l1-y) * 1.8)) rotate(calc(var(--l1-rot) * 1.35)); }
-  .stack:hover .stack-layer-2 { transform: translate(calc(var(--l2-x) * 1.5), calc(var(--l2-y) * 1.8)) rotate(calc(var(--l2-rot) * 1.35)); }
-  .stack:hover .stack-layer-3 { transform: translate(calc(var(--l3-x) * 1.5), calc(var(--l3-y) * 1.8)) rotate(calc(var(--l3-rot) * 1.35)); }
-  .stack:hover .stack-layer-4 { transform: translate(calc(var(--l4-x) * 1.5), calc(var(--l4-y) * 1.8)) rotate(calc(var(--l4-rot) * 1.35)); }
-}
-
-/* Active/selected stack — highlighted; layers stay tucked at rest (no fan). */
-.stack.is-active .stack-cover { border-color: #1A1A1A; }
-
-/* ── Stack label — the sole text now (titles removed; the cover carries the
-   name). Sits below the pile with real clearance, centered under the cover,
-   styled as a label rather than faint caption copy. ── */
-.stack-label {
-  margin-top: var(--sub-gap);
-  text-align: center;
+/* matches .section-heading ("Case Studies") — same size/weight, no underline */
+.arch-title {
   font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 1.35;
-  letter-spacing: 0.005em;
-  color: #4a4a46;
-  max-width: 100%;
+  font-size: 28px; font-weight: 600; letter-spacing: -0.02em;
+  margin: 0 0 28px; color: #1a1a1a; text-transform: lowercase;
 }
 
-/* ── Drawer: the clicked stack's items as a wrapping GRID, appearing directly
-   under that stack's ROW. Two drawer slots exist in the DOM (one between the
-   two rows, one after them); only the slot under the active stack's row is
-   populated. No horizontal scroll, no arrows, no peek — all items show at
-   once and the grid grows as tall as it needs. ── */
-.stack-drawer {
-  grid-column: 1 / -1;           /* full container width, below the row */
-  order: 10;                     /* after all four stacks (orders 1–4)  */
-  margin-top: 40px;
-  overflow: hidden;              /* clip the enter/leave y-shift */
+/* ══ moving-slots reel: a diagonal "bookshelf" of square cards ══
+   Every card is the SAME size and faces the SAME way (tilted left), evenly
+   stepped with constant left-over-right stacking. The reel auto-slides;
+   hover lifts a card + shows its pill / splays a folder; click opens it.
+   All cards are built by initArchive(). */
+.reel { --card-w: 216px; --card-h: 216px; position: relative; margin-top: 22px; }
+.reel-stage {
+  position: relative; height: 310px;
+  touch-action: pan-y; cursor: grab; user-select: none;
 }
-.stack-drawer:empty { margin-top: 0; } /* no gap when nothing is open */
+.reel-stage:active,
+.reel-stage.is-drag { cursor: grabbing; }
+.reel-stage:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 4px; border-radius: 14px; }
+/* NOT preserve-3d: each card carries its own perspective() in its transform,
+   so plain z-index (left always over right) decides the stacking. */
+.reel-track { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.reel-card {
+  position: absolute; left: calc(var(--card-w) / -2); top: calc(var(--card-h) / -2);
+  width: var(--card-w); height: var(--card-h); margin: 0; padding: 0;
+  background: #fff; overflow: visible; cursor: pointer; border: none;
+  /* the brushed outline is a .reel-ink SVG (shared handStroke pen), not a border */
+  border-radius: 12px;
+  box-shadow: 0 18px 34px -20px rgba(40,30,12,.6);
+  will-change: transform;
+  /* NO transform transition — the rAF motion engine sets it every frame;
+     a transition here would lag and fight it. */
+}
+.reel-card:not(.reel-folder) > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; }
+.reel-card:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 3px; }
+/* brushed ink ribbon (built by brush() in script.js with the shared pen) —
+   overlays its element edge-to-edge, free to wobble a hair past it */
+.reel-ink {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  overflow: visible; pointer-events: none; z-index: 6;
+}
+/* keeb sim / soundtrails placeholders (no cover art) */
+.reel-card.is-soon { display: flex; align-items: center; justify-content: center; text-align: center; background: linear-gradient(140deg, #3c414a, #23272d); }
+.reel-soon-label { font-family: var(--font-sans); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: rgba(255,255,255,.82); padding: 0 14px; line-height: 1.5; }
 
-/* Wrapping grid — 4 per row at desktop, spanning the full shared container so
-   its left edge lines up with the stacks + heading above it. Photo & Video and
-   Art hold more items, so their grids simply wrap to more rows and run tall —
-   that's expected. */
-.stack-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 32px 24px;
+/* ── category folder cards: white squares (same footprint + brushed outline
+   as the posters) with three thumbs fanned in the upper half and the label
+   below. Hovering (which also lifts the whole card) splays the thumbs. ── */
+.rf-item {
+  position: absolute; width: 78px; height: 62px;
+  border-radius: 7px; background: #ded8c9;   /* brushed outline via .reel-ink */
+  box-shadow: 0 6px 14px -8px rgba(30,22,8,.45);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1);
 }
+.rf-item img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 7px; }
+.rf-i1 { left: 18px; top: 44px; transform: rotate(-9deg); }
+.rf-i2 { left: 66px; top: 34px; transform: rotate(3deg); z-index: 2; }
+.rf-i3 { left: 114px; top: 45px; transform: rotate(10deg); }
+.reel-folder.is-hover .rf-i1 { transform: translate(-9px, -8px) rotate(-15deg); }
+.reel-folder.is-hover .rf-i2 { transform: translateY(-12px) rotate(1deg); }
+.reel-folder.is-hover .rf-i3 { transform: translate(9px, -7px) rotate(16deg); }
+.rf-label { position: absolute; left: 14px; right: 14px; bottom: 54px; text-align: center; font-family: var(--font-sans); color: #2b2b26; pointer-events: none; }
+.rf-label .t { display: block; font-size: 15px; font-weight: 700; letter-spacing: -.01em; text-transform: lowercase; }
+.rf-label .c { display: block; margin-top: 3px; font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; opacity: .55; }
 
-/* Item card — the shared .pcard, filling its grid cell. */
-.stack-item {
-  width: auto;
-  display: block;
-  color: #1a1a1a;
-  position: relative;
-}
-.stack-item .pcard-img { position: relative; }
-
-/* ↗ badge — external-link cards ONLY. Signals a new tab before the click. */
-.stack-item-arrow {
-  position: absolute;
-  top: 10px; right: 10px;
-  width: 26px; height: 26px;
-  display: grid; place-items: center;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.9);
-  border: 1px solid rgba(0,0,0,0.08);
-  color: #1a1a1a;
-  font-size: 13px; line-height: 1;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transition: transform 0.2s var(--ease), background 0.2s ease;
-  z-index: 2;
-}
-.stack-item:hover .stack-item-arrow { transform: translate(1px,-1px); background:#fff; }
-
-/* Neutral placeholder tile (until real item images land). */
-.stack-item-ph {
-  display: grid; place-items: center;
-  background: repeating-linear-gradient(-45deg,#ECEAE6 0 12px,#E7E4DF 12px 24px);
-  color: #b0aca4;
-  font-size: 13px; font-weight: 500; text-align: center; padding: 12px;
-}
-
-/* Enter / leave motion for the drawer contents (AnimatePresence-style).
-   Cards fade + rise with a per-card stagger; the stagger is capped so a long
-   stack (11+ items) still finishes in ~0.5s instead of trickling for a second. */
-.stack-drawer.is-entering .stack-item {
-  animation: stackItemIn 0.32s var(--ease) both;
-  animation-delay: calc(min(var(--i), 6) * 0.08s);   /* cap total stagger ≈ 0.48s */
-}
-@keyframes stackItemIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.stack-drawer.is-leaving .stack-grid {
+/* ── detail deck: fills under the shelf when a card is clicked ──
+   Projects: hand-drawn framed image left, blurb + skill/tool pills right.
+   Folders (.is-folder): title left, square-thumb grid gallery right
+   (each thumb → ring lightbox). Built by openDeck() in script.js. */
+.reel-deck {
+  display: flex; align-items: center; gap: 46px;
+  max-width: 880px; margin: 42px auto 8px; padding: 0 10px;
+  font-family: var(--font-sans); color: var(--arch-ink);
   opacity: 0; transform: translateY(10px);
-  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+  transition: opacity .35s ease, transform .35s ease;
+}
+.reel-deck.open { opacity: 1; transform: none; }
+.reel-deck[hidden] { display: none; }
+.rd-media {
+  position: relative;          /* anchors its brushed .reel-ink frame */
+  flex: 0 0 44%; background: #fff; padding: 10px;
+  border-radius: 16px;         /* brushed frame comes from the ink SVG */
+}
+/* every deck cover is cropped to the past/present/future frame (1024×662) so
+   the panel is the same height whichever card you open */
+.rd-media img,
+.rd-media video {
+  display: block; width: 100%; border-radius: 10px;
+  aspect-ratio: 1024 / 662; object-fit: cover; object-position: center;
+}
+.rd-media-soon {
+  display: flex; align-items: center; justify-content: center; height: 220px;
+  font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--arch-soft);
+}
+.rd-body { flex: 1; min-width: 0; }
+.rd-title { font-size: 27px; font-weight: 800; letter-spacing: -.01em; margin: 0 0 10px; }
+.rd-sub { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--arch-soft); margin-bottom: 14px; }
+.rd-desc { font-size: 15.5px; line-height: 1.65; margin: 0 0 18px; color: #3a352c; }
+.rd-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.rd-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 14px; border-radius: 999px;
+  background: #f1ede3; color: #57503f;
+  font-size: 12.5px; font-weight: 600; white-space: nowrap;
+}
+.rd-tools .rd-pill { background: #fff; border: 1px solid #e4dfd3; }
+.rd-pill img { width: 16px; height: 16px; object-fit: contain; border-radius: 3px; }
+.rd-link { display: inline-block; margin-top: 8px; font-size: 13px; font-weight: 700; color: var(--arch-green); text-decoration: none; }
+.rd-link:hover { text-decoration: underline; }
+/* folder variant: title column + scrollable square grid */
+.reel-deck.is-folder { align-items: flex-start; }
+.reel-deck.is-folder .rd-body { flex: 0 0 30%; }
+.rd-grid {
+  flex: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px;
+  max-height: 400px; overflow-y: auto; padding: 3px 8px 14px 3px;
+}
+.rd-thumb { position: relative; border: none; background: none; padding: 0; cursor: pointer; border-radius: 11px; transition: transform .18s ease; }
+.rd-thumb img {
+  display: block; width: 100%; aspect-ratio: 1; object-fit: cover;
+  border-radius: 11px;         /* brushed outline via .reel-ink */
+  background: #e7e2d6;
+}
+.rd-thumb:hover { transform: translateY(-3px); }
+.rd-thumb:focus-visible { outline: 2px solid var(--arch-green); outline-offset: 3px; }
+
+/* ── responsive: the desktop canvas hides ≤720px, but keep the reel graceful
+   down to tablet by shrinking the cards + stage. ── */
+@media (max-width: 1000px) {
+  .reel { --card-w: 188px; --card-h: 188px; }
+  .reel-stage { height: 276px; }
+}
+@media (max-width: 620px) {
+  .arch { padding: 34px 20px 40px; }
+  .arch-title { font-size: 30px; }
+  .reel { --card-w: 156px; --card-h: 156px; }
+  .reel-stage { height: 240px; }
+  .reel-d-title { font-size: 22px; }
 }
 
-/* ── Narrow (≤720px): four-across won't fit, so degrade to a 2×2. The drawer
-   then slots ROW-AWARE — between the rows for a top stack (indices 0–1), below
-   both rows for a bottom stack (2–3) — driven entirely by [data-active-row]
-   overriding the drawer's grid `order`. (order 2 → after stack #2 / before #3;
-   the base order 10 already sits it below everything for a bottom stack.) ── */
-@media (max-width: 720px) {
-  .stacks { --stack-size: 132px; grid-template-columns: repeat(2, 1fr); column-gap: 20px; row-gap: 40px; }
-  .stacks[data-active-row="top"] .stack-drawer { order: 2; margin-top: 0; }
-  .stacks[data-active-row="top"] .stack-drawer:not(:empty) { margin: 24px 0; }
-  .stack-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
-}
-
-/* ── Reduced motion: keep the resting scatter, no spread, no stagger. ── */
+/* ── reduced motion: JS disables the drift + eases instantly; kill the
+   remaining CSS transitions too. ── */
 @media (prefers-reduced-motion: reduce) {
-  .stack-layer, .stack-cover { transition: none !important; }
-  /* No spread — hover holds each layer at its resting scatter position and its
-     resting opacity (no brighten). */
-  .stack:hover .stack-layer { opacity: 0.4; }
-  .stack:hover .stack-layer-1 { transform: translate(var(--l1-x), var(--l1-y)) rotate(var(--l1-rot)); }
-  .stack:hover .stack-layer-2 { transform: translate(var(--l2-x), var(--l2-y)) rotate(var(--l2-rot)); }
-  .stack:hover .stack-layer-3 { transform: translate(var(--l3-x), var(--l3-y)) rotate(var(--l3-rot)); }
-  .stack:hover .stack-layer-4 { transform: translate(var(--l4-x), var(--l4-y)) rotate(var(--l4-rot)); }
-  .stack-drawer.is-entering .stack-item { animation: none; }
-  .stack-drawer.is-leaving .stack-grid { transition: none; }
+  .rf-item, .reel-deck, .rd-thumb { transition: none; }
 }
 
 /* Base widget — matches the case-study card treatment: flat, transparent,

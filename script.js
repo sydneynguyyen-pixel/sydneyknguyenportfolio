@@ -1457,6 +1457,9 @@ function placeSticker(file, x, y) {
   let ringX = 0, ringY = 0;
 
   document.addEventListener('mousemove', e => {
+    // Inside #home the photo trail takes over (unless reduced-motion disabled
+    // it, in which case __heroTrailActive is unset and the dot/ring stay live).
+    if (window.__heroTrailActive && e.target.closest('#home')) return;
     dot.style.left  = e.clientX + 'px';
     dot.style.top   = e.clientY + 'px';
     // Ring follows with slight lag via requestAnimationFrame
@@ -1507,6 +1510,8 @@ function placeSticker(file, x, y) {
   let lastTime = 0;
 
   document.addEventListener('mousemove', e => {
+    // Suppress sparkles inside #home while the photo trail is active.
+    if (window.__heroTrailActive && e.target.closest('#home')) return;
     const now = Date.now();
     if (now - lastTime < 30) return; // max ~33 sparkles/sec
     lastTime = now;
@@ -1532,6 +1537,71 @@ function placeSticker(file, x, y) {
     `;
     document.body.appendChild(el);
     el.addEventListener('animationend', () => el.remove(), { once: true });
+  });
+})();
+
+
+// ── Hero Cursor Trail ────────────────────────────────────────
+// Inside #home only, moving the mouse leaves a trail of small raw photos.
+// It replaces the dot/ring + sparkle in the hero: when this trail is active
+// (window.__heroTrailActive), those two IIFEs early-return over #home. Under
+// prefers-reduced-motion the trail is disabled and never sets that flag, so
+// the normal dot/ring + sparkle keep working in the hero too.
+(function() {
+  const hero = document.getElementById('home');
+  if (!hero) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Filenames must match assets/cursor-trail/ exactly (GitHub Pages is
+  // case-sensitive). 24 photos; the reference screenshot + clover-spiral are
+  // intentionally not in the pool.
+  const POOL = [
+    'apple-stars.jpg', 'flower-stars.jpg', 'clover.jpg', 'swirl-pastel.jpg',
+    'rain-dots-blue.jpg', 'confetti-street.jpg', 'kiwi-stars.jpg', 'pixel-ghost.jpg',
+    'red-dots.jpg', 'diagonal-landscape.jpg', 'water-beads.jpg', 'star-spiral.jpg',
+    'meadow-bokeh.jpg', 'dot-collage.jpg', 'garden-cutout.jpg', 'gummy-bears.jpg',
+    'sparkle-grass.jpg', 'dance-figures.jpg', 'sheet-music-bokeh.jpg', 'ocean-sparkle.jpg',
+    'soda-bottles.jpg', 'file-icons-sky.jpg', 'moss-pixel.jpg', 'orchid-pastel.jpg',
+  ];
+  const BASE = 'assets/cursor-trail/';
+  const MOVE_THRESHOLD = 42;   // px the pointer must travel before another spawn
+  const MAX_TRAILS = 22;       // hard cap on concurrent trail photos
+  let lastX = null, lastY = null, lastIdx = -1, count = 0;
+
+  // Signal the dot/ring + sparkle IIFEs to stand down over #home.
+  window.__heroTrailActive = true;
+
+  hero.addEventListener('mousemove', (e) => {
+    if (lastX !== null) {
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      if (dx * dx + dy * dy < MOVE_THRESHOLD * MOVE_THRESHOLD) return;
+    }
+    lastX = e.clientX; lastY = e.clientY;
+    if (count >= MAX_TRAILS) return;   // skip (don't queue) past the cap
+
+    // random photo, never the immediately previous one
+    let idx = Math.floor(Math.random() * POOL.length);
+    if (POOL.length > 1 && idx === lastIdx) idx = (idx + 1) % POOL.length;
+    lastIdx = idx;
+
+    const size = Math.random() * 16 + 30;      // 30–46px
+    const rot  = (Math.random() - 0.5) * 24;   // ±12deg
+    const jx   = (Math.random() - 0.5) * 10;   // ±5px position jitter
+    const jy   = (Math.random() - 0.5) * 10;
+
+    const img = document.createElement('img');
+    img.className = 'hero-cursor-trail';
+    img.src = BASE + POOL[idx];
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    img.style.left  = (e.clientX + jx) + 'px';
+    img.style.top   = (e.clientY + jy) + 'px';
+    img.style.width = size + 'px';
+    img.style.setProperty('--rot', rot + 'deg');
+
+    document.body.appendChild(img);
+    count++;
+    img.addEventListener('animationend', () => { img.remove(); count--; }, { once: true });
   });
 })();
 
@@ -1878,8 +1948,8 @@ function applyMusicState(saved) {
   }
 
   // ── Triggers (delegated on the document) ──
-  // Delegated globally so it works for the stack item cards (built by
-  // initStacks) as well as any other [data-mkw-open] trigger on the page.
+  // Delegated globally so it works for the archive Branding & Marketing prints
+  // (built by initArchive) as well as any other [data-mkw-open] trigger.
   document.addEventListener('click', e => {
     const trigger = e.target.closest('.mkw-summary, [data-mkw-open]');
     if (!trigger) return;
@@ -1903,344 +1973,416 @@ function applyMusicState(saved) {
 })();
 
 
-// ── Archive of Work — stack browser (#marketing section) ──────────────────
-// Builds the four stacks and their item drawer. EDIT CONTENT HERE: the STACKS
-// array is the single source of truth for covers, titles, subtitles and items.
-//   • cover  — swappable top-card asset (assets/stacks/<id>-cover.*)
-//   • item.type 'link'  → external new tab, gets the ↗ badge
-//   • item.type 'page'  → internal case-study page, same tab, no badge (item.href)
-//   • item.type 'modal' → opens in place; item.key names an #mkw-panels panel
-//     (panel-<key>). A modal item with key:null is a not-yet-wired placeholder.
-//   • item.img null → neutral placeholder tile until a real image is dropped in.
-// Subtitles marked PLACEHOLDER need final copy.
-(function initStacks() {
-  const stacksEl = document.getElementById('stacks');
-  const drawer   = document.getElementById('stack-drawer');
-  if (!stacksEl || !drawer) return;
+// ── "more things I've made" — moving-slots reel (#archive) ────────────────
+// A diagonal "bookshelf" reel of NINE cards: six projects (soundtrails, moove,
+// soundbite, keeb sim, pantry pop, past/present/future) + three category
+// FOLDERS (branding & marketing, art & graphics, photography) holding the
+// CREATIVE_ASSETS sets.
+// All cards are equal-size squares tilted the same way (facing left), evenly
+// stepped; stacking is constant left-over-right — no card ever jumps the stack.
+//   • CONTINUOUS motion: the shelf position is a float eased toward a target
+//     every animation frame — trackpad scroll, drag flings and the idle drift
+//     all accumulate into one fluid glide (no per-step CSS transitions), with
+//     a soft snap to the nearest slot once input goes quiet
+//   • hover lifts a card slightly (folders also splay their peeking items —
+//     no labels/pills pop over the cards themselves)
+//   • click a project → detail deck under the shelf (framed image — or its
+//     walkthrough video, where there is one — blurb, skill + tool pills,
+//     link); click a folder → deck with its tools + a grid gallery (pieces
+//     open the ring lightbox, marketing clients open their #mkw-panels
+//     modal); arrow keys also navigate
+(function initArchive() {
+  const root = document.getElementById('archive');
+  if (!root) return;
+  const stage = root.querySelector('[data-reel-stage]');
+  const track = root.querySelector('[data-reel-track]');
+  if (!stage || !track) return;
 
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // Under-layers always render at this depth, regardless of how many items a
-  // stack holds — so all four piles read as equally thick.
-  const LAYER_DEPTH = 4;
-  // First two indices are the "top row" of the ≤720px 2×2 fallback (used only
-  // to place the drawer row-aware there; on desktop it's one flat row of four).
-  const PER_ROW = 2;
+  const esc = (s) => String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const prettyName = (src) => src.split('/').pop().replace(/\.[^.]+$/, '')
+    .replace(/^ph-/, '').replace(/[-_]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  const metaOf = (r) => [r.medium, r.year].filter(Boolean).join(' · ');
 
-  const STACKS = [
-    {
-      id: 'design',
-      title: 'Design',
-      subtitle: 'Product design & UX/UI case studies', // PLACEHOLDER copy
-      cover: 'assets/product design stack cover.webp',
-      items: [
-        { title: 'soundbite', sub: 'Physical snack paired with audio', type: 'page',
-          img: 'assets/case studies/soundbite/soundbite-thumb.webp',
-          href: 'soundbite' },
-        { title: 'Pantry Pop!', sub: 'Vibe-coded food blindbox simulator', type: 'link',
-          img: 'assets/pantry pop widget cover.png',
-          href: 'https://pantry-pop.netlify.app/' },
-        { title: 'moove', sub: 'Mobility & flexibility app', type: 'link',
-          img: 'assets/icons/moove-thumb.webp',
-          href: 'https://www.figma.com/deck/3zplTzhPjCf7GXCt6mZaHF/Moove-Slide-Deck?node-id=1-259&t=Rtj5TUFG31wYuwHL-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1' },
-        { title: 'Past / Present / Future', sub: 'Tech across three generations', type: 'link',
-          img: 'assets/icons/ppf-thumb.webp',
-          href: 'https://www.figma.com/proto/MDJjsmm2Hyi5fHFBFJLIBn/m3-past-present-future-site?node-id=1-2&t=km5SQGWGHu2ioRcs-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=1' },
-      ],
-    },
-    {
-      id: 'marketing',
-      title: 'Marketing & Branding',
-      subtitle: 'Campaigns, brand identity & content', // PLACEHOLDER copy
-      cover: 'assets/marketing & brand stack cover.webp',
-      items: [
-        // Item thumbnails ("covers") pulled from each item's OWN modal content —
-        // swappable slots: drop custom cover art in here to override.
-        { title: 'Little Wins Bakehouse', sub: 'Brand identity & packaging', type: 'modal', key: 'lwb', img: 'assets/little wins bakehouse/new flavor announcements/5.webp' },
-        { title: 'Nora AI', sub: 'UX/UI & marketing content', type: 'modal', key: 'nora', img: 'assets/thumbs/nora-yt-thumb.jpg' },
-        { title: 'HALIENE', sub: 'Concert content & merch', type: 'modal', key: 'haliene', img: 'assets/thumbs/haliene jersey.webp' },
-        { title: 'Alpha Phi Omega', sub: 'Rush graphics & event media', type: 'modal', key: 'apo', img: 'assets/stacks/art/gd-fall-rush.webp' },
-        // @visualsbyskn moved to the Photo & Video stack (below) — modal unchanged.
-        { title: 'Designer Drains', sub: 'Storefront UI & email', type: 'modal', key: 'designer-drains', img: 'assets/thumbs/designer drains amazon storefront.webp' },
-      ],
-    },
-    {
-      id: 'photo-video',
-      title: 'Photo & Video',
-      subtitle: 'Photography & videography',
-      cover: 'assets/photos & videos stack cover.webp',
-      // @visualsbyskn (moved from Marketing, modal unchanged) + photos migrated
-      // from the hero arc.
-      items: [
-        // Cover pulled from content — swappable slot. Note: every ph-* photo is
-        // also a Photo item below, so this thumbnail duplicates one; swap in a
-        // unique cover (e.g. the @visualsbyskn avatar) here to avoid that.
-        { title: '@visualsbyskn', sub: 'Graduation & portrait photography', type: 'modal', key: 'photography', img: 'assets/stacks/photo-video/ph-couple.webp' },
-        { title: 'Sunset', sub: 'Nikon Z7, Lightroom · 2022', type: 'modal', key: 'pv-01', img: 'assets/stacks/photo-video/ph-sunset.webp' },
-        { title: 'Confetti', sub: 'iPhone, Lightroom · 2023', type: 'modal', key: 'pv-02', img: 'assets/stacks/photo-video/ph-confetti.webp' },
-        { title: 'Koi', sub: 'Nikon Z7, Lightroom · 2025', type: 'modal', key: 'pv-03', img: 'assets/stacks/photo-video/ph-koi.webp' },
-        { title: 'Bryant', sub: 'iPhone, Lightroom · 2025', type: 'modal', key: 'pv-04', img: 'assets/stacks/photo-video/ph-bryant.webp' },
-        { title: 'Joshua', sub: 'Canon, Lightroom · 2021', type: 'modal', key: 'pv-05', img: 'assets/stacks/photo-video/ph-joshua.webp' },
-        { title: 'Temple', sub: 'Nikon Z7, Lightroom · 2025', type: 'modal', key: 'pv-06', img: 'assets/stacks/photo-video/ph-temple.webp' },
-        { title: 'Space Needle', sub: 'Nikon Z7, Lightroom · 2024', type: 'modal', key: 'pv-07', img: 'assets/stacks/photo-video/ph-space-needle.webp' },
-        { title: 'Vendor', sub: 'Nikon Z7, Lightroom · 2025', type: 'modal', key: 'pv-08', img: 'assets/stacks/photo-video/ph-vendor.webp' },
-        { title: 'Friends', sub: 'Nikon Z7, Lightroom · 2025', type: 'modal', key: 'pv-10', img: 'assets/stacks/photo-video/ph-friends.webp' },
-        { title: 'Glitter', sub: 'Nikon Z7, Lightroom · 2023', type: 'modal', key: 'pv-11', img: 'assets/stacks/photo-video/ph-glitter.webp' },
-        { title: 'Flowers', sub: 'Nikon Z7, Lightroom · 2024', type: 'modal', key: 'pv-12', img: 'assets/stacks/photo-video/ph-flowers.webp' },
-        { title: 'Champagne', sub: 'Nikon Z7, Lightroom · 2022', type: 'modal', key: 'pv-13', img: 'assets/stacks/photo-video/ph-champagne.webp' },
-        { title: 'Celebrate', sub: 'Nikon Z7, Lightroom · 2022', type: 'modal', key: 'pv-14', img: 'assets/stacks/photo-video/ph-grad-conf.webp' },
-        { title: 'Bffs', sub: 'Nikon Z7, Lightroom · 2023', type: 'modal', key: 'pv-15', img: 'assets/stacks/photo-video/ph-bffs.webp' },
-        { title: 'Hugs', sub: 'Nikon Z7, Lightroom · 2021', type: 'modal', key: 'pv-16', img: 'assets/stacks/photo-video/ph-hugs.webp' },
-      ],
-    },
-    {
-      id: 'art',
-      title: 'Art & Graphic Design',
-      subtitle: 'Illustration & graphic design',
-      cover: 'assets/art & graphics stack cover.webp',
-      // Graphic design + artwork migrated from the hero arc.
-      items: [
-        { title: 'UCR Alpha Phi Omega Rush Flyer', sub: 'Canva, Procreate, Photoshop · 2023', type: 'modal', key: 'ag-01', img: 'assets/stacks/art/gd-fall-rush.webp' },
-        { title: 'Designer Drains Product Brochure', sub: 'Canva, Photoshop · 2025', type: 'modal', key: 'ag-02', img: 'assets/stacks/art/gd-brochure.webp' },
-        { title: 'UCR Alpha Phi Omega Rush Flyer', sub: 'Canva, Medibang Paint Pro · 2022', type: 'modal', key: 'ag-03', img: 'assets/stacks/art/gd-spring-rush.webp' },
-        { title: 'UCR ASPB Spring Quarter Campaign', sub: 'Photoshop · 2022', type: 'modal', key: 'ag-04', img: 'assets/stacks/art/gd-aspb.webp' },
-        { title: 'UCR ASPB Mock Concert Flyer', sub: 'Illustrator · 2022', type: 'modal', key: 'ag-05', img: 'assets/stacks/art/gd-concert.webp' },
-        { title: 'Adobe Ambassador Flyer', sub: 'Illustrator, Canva · 2025', type: 'modal', key: 'ag-06', img: 'assets/stacks/art/adobe ambassador flyer.webp' },
-        { title: 'Fruit Plate Illustration', sub: 'Procreate · 2026', type: 'modal', key: 'ag-07', img: 'assets/stacks/art/fruit plate illustration.webp' },
-        { title: 'Music Album Illustration', sub: 'Medibang Paint Pro · 2022', type: 'modal', key: 'ag-08', img: 'assets/stacks/art/art-music-album.webp' },
-        { title: 'Official Jersey for HALIENE Water EP', sub: 'Procreate, Photoshop · 2025', type: 'modal', key: 'ag-09', img: 'assets/stacks/art/art-haliene.webp' },
-        { title: 'Tree Illustration', sub: 'Procreate · 2025', type: 'modal', key: 'ag-10', img: 'assets/stacks/art/art-tree.webp' },
-      ],
-    },
+  /* ── build the card list: 6 projects + 3 category folders ── */
+  // creative sets live INSIDE the folders (folder click → deck grid → each
+  // piece opens the ring lightbox, except the branding & marketing clients
+  // which open their existing #mkw-panels modal via `mkw`).
+  const toPiece = (r) => ({ img: r.img, title: r.title, meta: metaOf(r) });
+  // branding & marketing — the five client/brand engagements; covers pulled
+  // from each one's own panel content.
+  const mk = [
+    { img: 'assets/little wins bakehouse/new flavor announcements/5.webp', title: 'Little Wins Bakehouse', meta: 'Brand identity & packaging', mkw: 'lwb' },
+    { img: 'assets/thumbs/nora-yt-thumb.jpg', title: 'Nora AI', meta: 'UX/UI & marketing content', mkw: 'nora' },
+    { img: 'assets/thumbs/haliene jersey.webp', title: 'HALIENE', meta: 'Concert content & merch', mkw: 'haliene' },
+    { img: 'assets/stacks/art/gd-fall-rush.webp', title: 'Alpha Phi Omega', meta: 'Rush graphics & event media', mkw: 'apo' },
+    { img: 'assets/thumbs/designer drains amazon storefront.webp', title: 'Designer Drains', meta: 'Storefront UI & email', mkw: 'designer-drains' },
   ];
+  // art & graphics — the full graphic-design + artwork sets together
+  const artg = [
+    ...(CREATIVE_ASSETS.graphic.rows || []).flat().filter((r) => r.img),
+    ...(CREATIVE_ASSETS.artwork.rows || []).flat().filter((r) => r.img && !r.empty),
+  ].map(toPiece);
+  const ph = [...(CREATIVE_ASSETS.photo.rows1 || []), ...(CREATIVE_ASSETS.photo.rows2 || [])]
+    .filter((r) => r.src)
+    .map((r) => ({ img: r.src, title: prettyName(r.src), meta: metaOf(r) }));
 
-  let activeId = null;
+  // tool pills shown in the detail deck (icons already in assets/icons/;
+  // entries without an icon render as a text-only pill)
+  const TOOLS = {
+    figma:       { label: 'Figma',       icon: 'assets/icons/icon-figma.webp' },
+    figjam:      { label: 'FigJam',      icon: 'assets/icons/figjam.webp' },
+    miro:        { label: 'Miro',        icon: 'assets/icons/miro.webp' },
+    procreate:   { label: 'Procreate',   icon: 'assets/icons/procreate-logo_480x480.webp' },
+    canva:       { label: 'Canva',       icon: 'assets/icons/canva-3d-icon-free-png.webp' },
+    capcut:      { label: 'CapCut',      icon: 'assets/icons/Capcut-icon.svg.webp' },
+    photoshop:   { label: 'Photoshop',   icon: 'assets/icons/Adobe_Photoshop_CC_icon.svg.webp' },
+    illustrator: { label: 'Illustrator', icon: 'assets/icons/Adobe_Illustrator_CC_icon.svg.webp' },
+    lightroom:   { label: 'Lightroom',   icon: 'assets/icons/lightroom-icon.png' },
+    claude:      { label: 'Claude',      icon: 'assets/icons/claude icon.webp' },
+    medibang:    { label: 'Medibang Paint Pro' },
+    nikon:       { label: 'Nikon Z7' },
+    canon:       { label: 'Canon' },
+    iphone:      { label: 'iPhone' },
+  };
+  const toolPills = (keys) => {
+    const ts = (keys || []).map((k) => TOOLS[k]).filter(Boolean);
+    return ts.length ? '<div class="rd-tags rd-tools">' + ts.map((t) =>
+      '<span class="rd-pill">' + (t.icon ? '<img src="' + esc(t.icon) + '" alt="">' : '') + esc(t.label) + '</span>').join('') + '</div>' : '';
+  };
 
-  // Under-layer markup — pulled from the stack's OWN item thumbnails so the
-  // spread-on-hover reveals real work, not neutral fills. The four DOM slots map
-  // to fixed scatter/z-index classes (see CSS); we always emit LAYER_DEPTH of
-  // them, cycling the available images if a stack has fewer, so every pile reads
-  // at equal depth. The <img> is inside an absolutely-positioned, transform-only
-  // layer → it can never affect the stack's box size. Non-interactive: the whole
-  // stack is one hit target (pointer-events on the layers is off in CSS).
-  const LAYER_CLASS = ['stack-layer-3', 'stack-layer-4', 'stack-layer-1', 'stack-layer-2'];
-  function buildLayers(stack) {
-    const imgs = stack.items.map(it => it.img).filter(Boolean);
-    let html = '';
-    for (let n = 0; n < LAYER_DEPTH; n++) {
-      const src = imgs.length ? imgs[n % imgs.length] : null;
-      html += '<div class="stack-layer ' + LAYER_CLASS[n] + '" aria-hidden="true">' +
-                (src ? '<img src="' + src + '" alt="" loading="lazy" />' : '') +
-              '</div>';
+  const ITEMS = [
+    { img: 'assets/soundtrails/soundtrails-cover.jpg', title: 'soundtrails', tag: 'Data · Web',
+      href: 'https://soundtrails.netlify.app/', blank: true,
+      panelTitle: 'Sound Trails',
+      video: 'assets/soundtrails/soundtrails.mp4',
+      desc: 'A week of my listening history mapped onto the places I was in — every song leaves a colored trail across the city, and zooming all the way in lands you in the floor plan of my room.',
+      skills: ['Data Viz', 'Web', 'Vibe-coded'], tools: ['claude'] },
+    { img: 'assets/icons/moove-thumb.webp', title: 'moove', tag: 'Concept · UX/UI',
+      href: 'https://www.figma.com/deck/3zplTzhPjCf7GXCt6mZaHF/Moove-Slide-Deck?node-id=1-259&t=Rtj5TUFG31wYuwHL-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1', blank: true,
+      panelTitle: 'Moove',
+      desc: 'A mobility and flexibility app concept with adaptive routines that meet you where your body is that day.',
+      skills: ['UX/UI', 'Health & Wellness'], tools: ['figma'] },
+    { img: 'assets/case studies/soundbite/soundbite-thumb.webp', title: 'soundbite', tag: 'Concept',
+      href: 'soundbite',
+      panelTitle: 'Soundbite',
+      desc: 'A sensory-enhanced snack concept pairing mood-based flavors with QR-triggered 3D spatial audio — scan the wrapper, put on headphones, and a soundscape matched to that flavor’s mood plays while you eat.',
+      skills: ['Concept', 'Sensory Design'], tools: ['figma', 'procreate', 'canva', 'capcut'] },
+    { img: 'assets/keeb sim/keeb-cover.jpg', title: 'keeb sim', tag: 'Web · Sim',
+      href: 'https://keebsim.netlify.app/', blank: true,
+      panelTitle: 'Keeb Sim',
+      video: 'assets/keeb sim/keeb-sim.mp4',
+      desc: 'A mechanical keyboard simulator — pick a switch, paint the keycaps, hear every keypress, then type a test on the board you just built.',
+      skills: ['Web', 'Vibe-coded', '3D'], tools: ['claude'] },
+    { img: 'assets/pantry pop widget cover.png', title: 'pantry pop', tag: 'Vibe-coded',
+      href: 'https://pantry-pop.netlify.app/', blank: true,
+      panelTitle: 'Pantry Pop!',
+      desc: 'A vibe-coded food blindbox simulator — pull from the pantry and see what snack you get.',
+      skills: ['Product Design', 'Vibe-coded'], tools: ['canva', 'claude'] },
+    { img: 'assets/icons/ppf-thumb.webp', title: 'past / present / future', tag: 'Web',
+      href: 'https://www.figma.com/proto/MDJjsmm2Hyi5fHFBFJLIBn/m3-past-present-future-site?node-id=1-2&t=km5SQGWGHu2ioRcs-1&scaling=contain&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=1', blank: true,
+      panelTitle: 'Past/Present/Future',
+      desc: 'A speculative design site visualizing technology across three generations — how the everyday tools we live with looked, look, and might look.',
+      skills: ['UX/UI', 'UX Research', 'Wireframing & Prototyping'], tools: ['figma'] },
+    { folderKey: 'marketing', title: 'branding & marketing', panelTitle: 'Branding & Marketing',
+      count: mk.length + ' clients', items: mk,
+      tools: ['canva', 'photoshop', 'illustrator', 'lightroom', 'capcut'] },
+    { folderKey: 'artgraphics', title: 'art & graphics', panelTitle: 'Art & Graphics',
+      count: artg.length + ' pieces', items: artg,
+      tools: ['procreate', 'medibang', 'photoshop', 'illustrator', 'canva'] },
+    { folderKey: 'photo', title: 'photography', panelTitle: 'Photography',
+      count: ph.length + ' photos', items: ph,
+      tools: ['nikon', 'canon', 'iphone', 'lightroom'] },
+  ];
+  const N = ITEMS.length;
+  if (!N) return;
+
+  /* ── build card DOM ── */
+  // posters: just the cover image (no hover label).
+  // folders: white squares (same footprint as posters) with three thumbs
+  //          fanned in the upper half + label below; the thumbs splay a
+  //          little on hover.
+  ITEMS.forEach((it, i) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'reel-card' + (it.soon ? ' is-soon' : '') + (it.folderKey ? ' reel-folder' : '');
+    card.tabIndex = -1;
+    card.setAttribute('aria-label', it.title + (it.soon ? ' — launching soon' : (it.folderKey ? ' — ' + it.count : (it.tag ? ' — ' + it.tag : ''))));
+    card.dataset.idx = i;
+    if (it.folderKey) {
+      // white square card (same footprint as the posters): three thumbs
+      // fanned in the upper half + label below — everything inside the card.
+      // Each thumb is a SPAN wrapping its img so the brushed ink SVG can live
+      // alongside the image.
+      card.innerHTML = it.items.slice(0, 3).map((p, k) =>
+          '<span class="rf-item rf-i' + (k + 1) + '">' +
+            '<img src="' + esc(p.img) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+          '</span>').join('') +
+        '<span class="rf-label"><span class="t">' + esc(it.title) + '</span><span class="c">' + esc(it.count) + '</span></span>';
+    } else if (it.soon) {
+      const lb = document.createElement('span');
+      lb.className = 'reel-soon-label';
+      lb.textContent = it.title + ' · launching soon';
+      card.appendChild(lb);
+    } else {
+      const im = document.createElement('img');
+      im.src = it.img; im.alt = ''; im.loading = 'lazy';
+      im.addEventListener('error', () => { im.style.visibility = 'hidden'; });
+      card.appendChild(im);
     }
-    return html;
-  }
-
-  // ── Build the single row of four stacks ──
-  STACKS.forEach((stack, idx) => {
-    const el = document.createElement('div');
-    el.className = 'stack';
-    el.dataset.stack = stack.id;
-    el.dataset.index = idx;
-    el.style.order = idx + 1;   // keeps the drawer's CSS order slot deterministic
-    el.setAttribute('role', 'button');
-    el.setAttribute('tabindex', '0');
-    el.setAttribute('aria-pressed', 'false');
-    el.setAttribute('aria-label', 'Open ' + stack.title);
-    el.innerHTML =
-      '<div class="stack-pile">' +
-        buildLayers(stack) +
-        '<div class="stack-cover"><img src="' + stack.cover + '" alt="' + stack.title + '" /></div>' +
-      '</div>' +
-      '<div class="stack-label"></div>';
-    // Titles removed — the cover art carries the category name now. The label
-    // (former subtitle) is the only text; the accessible name lives on the
-    // stack's aria-label + the cover img alt, so screen readers still get it.
-    el.querySelector('.stack-label').textContent = stack.subtitle;
-    el.addEventListener('click', () => toggleStack(stack.id));
-    el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleStack(stack.id); }
-    });
-    stacksEl.insertBefore(el, drawer);   // stacks before the drawer → drawer stays last
+    card.addEventListener('pointerenter', () => { hovered = i; card.classList.add('is-hover'); });
+    card.addEventListener('pointerleave', () => { if (hovered === i) hovered = -1; card.classList.remove('is-hover'); });
+    track.appendChild(card);
   });
+  const cards = [...track.children];
 
-  // ── Hand-drawn outline on each stack COVER ──
-  // The SAME shared pen as the case-study cards (window.__handStroke). The covers
-  // are much smaller than the cards (~176px vs ~388px), and the pen's amplitudes
-  // are absolute px, so the raw hand reads ~2× heavier/wobblier here. To keep the
-  // CHARACTER but the cards' restraint, we scale only the size-dependent amplitudes
-  // (wobble, weight, weight-swell, corner + end overshoot) by cover/card size —
-  // i.e. the cover reads like the same hand "photographed smaller." The frequency
-  // and taper ratios are scale-invariant and stay put, so the number of wobbles and
-  // the tapering ends are unchanged. Only the per-stack seed differs so the four
-  // don't look stamped.
-  //
-  // Covers ONLY — the under-layers stay bare (real images at lowered opacity).
-  // The SVG lives in .stack-pile (overflow:visible) rather than inside .stack-cover
-  // (overflow:hidden would clip the overshoot + non-closure), pinned to the cover's
-  // box at inset:0 and sitting just above it. The cover doesn't move on hover — only
-  // the layers spread — so an inset:0 SVG rides with the cover automatically.
-  //
-  // Authored at the cover's OWN live pixel size with a 1:1 viewBox and refit on
-  // load/resize — same approach as buildCardOutline; the scale tracks --stack-size
-  // (176px desktop / 132px on the ≤720px 2×2) so the restraint holds at any size.
+  /* ── brushed ink outlines ──
+     The site's shared hand-drawn pen (window.__handStroke — the same filled
+     variable-width ribbon that outlines the case-study cards) drawn as an
+     absolutely-positioned SVG on each element, NEVER a flat CSS border.
+     Small elements get proportionally restrained pen overrides, like the
+     old stack covers did. Rebuilt on resize (sizes change via media queries)
+     and whenever the deck re-renders. */
   const SVGNS = 'http://www.w3.org/2000/svg';
-  const CARD_REF = 388;   // representative case-study card size the pen was tuned at
-  function buildStackOutline(stackEl) {
-    const pen = window.__handStroke;
-    const pile = stackEl && stackEl.querySelector('.stack-pile');
-    if (!pen || !pile) return;
-    const w = Math.round(pile.offsetWidth), h = Math.round(pile.offsetHeight);
-    if (!w || !h) return;                          // hidden (e.g. mobile canvas) — skip
-    let svg = pile.querySelector('.stack-outline');
-    if (svg && +svg.dataset.w === w && +svg.dataset.h === h) return; // box unchanged
-    // Scale the absolute-px amplitudes down to the cover's proportion of a card.
-    const B = pen.PEN, s = w / CARD_REF;
-    const over = {
-      AMPLITUDE:        B.AMPLITUDE * s,
-      WEIGHT:           B.WEIGHT * s,
-      WEIGHT_VARIATION: B.WEIGHT_VARIATION * s,
-      CORNER_OVERSHOOT: B.CORNER_OVERSHOOT * s,
-      END_OVERSHOOT:    B.END_OVERSHOOT * s,
-    };
-    // r 18 ≈ the cover's own --cover-radius; ins -1 traces just outside the edge.
-    const d = pen((+stackEl.dataset.index || 0) * 13 + 7, w, h, 18, -1, over);
+  const THUMB_PEN = { AMPLITUDE: 1.3, CORNER_OVERSHOOT: 2.5, END_OVERSHOOT: 7,  WEIGHT: 1.5, WEIGHT_VARIATION: 0.7, SAMPLES: 100 };
+  const FRAME_PEN = { AMPLITUDE: 2.6, CORNER_OVERSHOOT: 5,   END_OVERSHOOT: 18, WEIGHT: 2.8, WEIGHT_VARIATION: 1.3 };
+  let inkSeed = 11;
+  function brush(el, r, over) {
+    const hs = window.__handStroke;
+    if (!hs || !el) return;
+    const w = Math.round(el.offsetWidth), h = Math.round(el.offsetHeight);
+    if (!w || !h) return;
+    let svg = el.querySelector(':scope > .reel-ink');
+    if (svg && +svg.dataset.w === w && +svg.dataset.h === h) return;  // box unchanged
     if (!svg) {
       svg = document.createElementNS(SVGNS, 'svg');
-      svg.setAttribute('class', 'stack-outline');
+      svg.setAttribute('class', 'reel-ink');
       svg.setAttribute('aria-hidden', 'true');
-      pile.appendChild(svg);                       // last child → above the cover
+      el.appendChild(svg);
+      svg.dataset.seed = String(inkSeed = (inkSeed * 13 + 7) % 997);  // one hand, not stamped
     }
-    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-    svg.style.width = w + 'px';
-    svg.style.height = h + 'px';
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
     svg.dataset.w = w; svg.dataset.h = h;
-    svg.innerHTML = `<path d="${d}" fill="#1a1a1a"/>`;
+    svg.innerHTML = '<path d="' + hs(+svg.dataset.seed, w, h, r, -1, over) + '" fill="#1a1a1a"/>';
   }
-  const stackEls = stacksEl.querySelectorAll('.stack');
-  const buildAllOutlines = () => stackEls.forEach(buildStackOutline);
-  buildAllOutlines();                              // reading offsetWidth forces layout
-  window.addEventListener('load', buildAllOutlines);
-  if ('ResizeObserver' in window) {
-    const ro = new ResizeObserver(entries => entries.forEach(e => {
-      const st = e.target.closest('.stack'); if (st) buildStackOutline(st);
-    }));
-    stackEls.forEach(st => { const p = st.querySelector('.stack-pile'); if (p) ro.observe(p); });
-  }
-  window.addEventListener('resize', buildAllOutlines);
-
-  // ── Item card ──
-  function itemCard(item, i) {
-    const isAnchor = item.type === 'link' || item.type === 'page';
-    const el = isAnchor ? document.createElement('a') : document.createElement('div');
-    el.className = 'stack-item pcard';
-    el.style.setProperty('--i', i);
-
-    const imgWrap = document.createElement('div');
-    imgWrap.className = 'pcard-img';
-    if (item.img) {
-      const img = document.createElement('img');
-      img.src = item.img; img.alt = item.title; img.loading = 'lazy';
-      imgWrap.appendChild(img);
-    } else {
-      const ph = document.createElement('div');
-      ph.className = 'stack-item-ph';
-      ph.style.width = '100%'; ph.style.height = '100%';
-      ph.textContent = item.title;
-      imgWrap.appendChild(ph);
-    }
-
-    const titleEl = document.createElement('div');
-    titleEl.className = 'pcard-title'; titleEl.textContent = item.title;
-    const subEl = document.createElement('div');
-    subEl.className = 'pcard-sub'; subEl.textContent = item.sub;
-
-    if (item.type === 'link') {
-      // ↗ badge — external links only. New-tab intent shown before the click.
-      const arrow = document.createElement('span');
-      arrow.className = 'stack-item-arrow'; arrow.setAttribute('aria-hidden', 'true');
-      arrow.textContent = '↗';
-      imgWrap.appendChild(arrow);
-      el.setAttribute('href', item.href);
-      el.setAttribute('target', '_blank');
-      el.setAttribute('rel', 'noopener noreferrer');
-    } else if (item.type === 'page') {
-      // Internal case-study page — same-tab navigation, no ↗ badge.
-      el.setAttribute('href', item.href);
-    } else if (item.key) {
-      // Modal — reuses the #mkw-panels system via document-delegated handler.
-      el.setAttribute('role', 'button');
-      el.setAttribute('tabindex', '0');
-      el.setAttribute('data-mkw-open', item.key);
-      el.setAttribute('aria-haspopup', 'dialog');
-      el.setAttribute('aria-controls', 'panel-' + item.key);
-      el.setAttribute('aria-label', 'Open ' + item.title);
-    }
-    // (modal item with key:null → inert placeholder, no handler)
-
-    el.appendChild(imgWrap);
-    el.appendChild(titleEl);
-    el.appendChild(subEl);
-    return el;
-  }
-
-  // ── Drawer render — spill the stack's items as a wrapping grid ──
-  // One drawer, always directly below the single row. On the ≤720px 2×2 the
-  // drawer is slotted row-aware in CSS via [data-active-row]; the JS just says
-  // which row the active stack sits in.
-  function renderDrawer(stack, index) {
-    drawer.innerHTML = '';
-    const grid = document.createElement('div');
-    grid.className = 'stack-grid';
-    stack.items.forEach((it, i) => grid.appendChild(itemCard(it, i)));
-    drawer.appendChild(grid);
-    stacksEl.dataset.activeRow = index < PER_ROW ? 'top' : 'bottom';
-
-    // enter animation (capped stagger, handled in CSS)
-    drawer.classList.remove('is-leaving');
-    if (!reduceMotion) {
-      drawer.classList.add('is-entering');
-      // Longest card: delay(≈0.48s) + duration(0.32s); clear the flag after.
-      setTimeout(() => drawer.classList.remove('is-entering'), 1000);
-    }
-  }
-
-  // ── Open / close / switch (AnimatePresence-style) ──
-  function toggleStack(id) {
-    if (activeId === id) { closeStack(); return; }
-    const prevActive = activeId;
-    activeId = id;
-    const index = STACKS.findIndex(s => s.id === id);
-    STACKS.forEach(s => {
-      const el = stacksEl.querySelector('[data-stack="' + s.id + '"]');
-      const on = s.id === id;
-      el.classList.toggle('is-active', on);
-      el.setAttribute('aria-pressed', on ? 'true' : 'false');
+  function brushShelf() {
+    cards.forEach((card) => {
+      brush(card, 12);
+      card.querySelectorAll('.rf-item').forEach((s) => brush(s, 7, THUMB_PEN));
     });
-    const stack = STACKS[index];
-    if (prevActive && !reduceMotion) {
-      if (drawer.children.length) drawer.classList.add('is-leaving');  // animate outgoing grid out
-      setTimeout(() => renderDrawer(stack, index), 200);               // then swap in the new one
-    } else {
-      renderDrawer(stack, index);
-    }
+  }
+  function brushDeck() {
+    if (!deck || deck.hidden) return;
+    const media = deck.querySelector('.rd-media');
+    if (media) brush(media, 16, FRAME_PEN);
+    deck.querySelectorAll('.rd-thumb').forEach((b) => brush(b, 11, THUMB_PEN));
+  }
+  brushShelf();
+  let inkResizeT = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(inkResizeT);
+    inkResizeT = setTimeout(() => { brushShelf(); brushDeck(); }, 150);
+  });
+
+  /* ── continuous "bookshelf" motion engine ──
+     The shelf position (`offset`) is a FLOAT in card units, eased toward
+     `target` every animation frame with a frame-rate-independent lerp — so
+     wheel deltas, drag flings and the idle drift all pour into one fluid
+     glide instead of restarting a per-step CSS transition. The shelf is
+     FINITE: the target clamps to the first/last card, so scrolling stops at
+     either end (the idle drift parks there too). EVERY card faces the same
+     way (THETA); stacking is CONSTANT left-over-right (z falls with screen
+     x, never changed by hover); hovering only lifts a card vertically. */
+  const THETA = -34;        // uniform tilt — negative = every card faces LEFT (like the ref)
+  const STEP = 150;         // px between successive cards (slight overlap)
+  const DRIFT = 0.16;       // idle auto-drift, cards per second
+  const EASE = 9;           // offset→target lerp rate (higher = snappier)
+  let offset = 0, target = 0;
+  let hovered = -1, deckIdx = -1;
+  let dragging = false, lastInput = 0;
+  const lifts = new Array(N).fill(0);   // per-card eased hover lift
+
+  function render() {
+    cards.forEach((el, i) => {
+      const o = i - offset;
+      // constant left-over-right: z falls as screen-x grows (hover never changes it)
+      el.style.zIndex = String(100 - Math.round(o) * 2);
+      lifts[i] += (((i === hovered) ? -16 : 0) - lifts[i]) * 0.18;
+      // each card carries its OWN perspective() so z-index (not 3D depth)
+      // decides stacking — the track is deliberately NOT preserve-3d.
+      // (.arch clips overflow, so off-stage cards just slide out of the panel)
+      el.style.transform = 'translateX(' + (o * STEP).toFixed(2) + 'px) translateY(' + lifts[i].toFixed(2) + 'px) perspective(1000px) rotateY(' + THETA + 'deg)';
+    });
   }
 
-  function closeStack() {
-    activeId = null;
-    STACKS.forEach(s => {
-      const el = stacksEl.querySelector('[data-stack="' + s.id + '"]');
-      el.classList.remove('is-active');
-      el.setAttribute('aria-pressed', 'false');
-    });
-    if (!drawer.children.length) return;
-    if (!reduceMotion) {
-      drawer.classList.add('is-leaving');
-      setTimeout(() => { drawer.innerHTML = ''; drawer.classList.remove('is-leaving'); }, 200);
-    } else {
-      drawer.innerHTML = '';
+  let lastT = 0;
+  function tick(t) {
+    const dt = Math.min(0.05, Math.max(0.001, (t - lastT) / 1000)); lastT = t;
+    if (!reduceMotion && !paused && !dragging && deckIdx < 0) {
+      target += DRIFT * dt;                    // idle drift — the "autoplay"
+    } else if (!dragging && t - lastInput > 250) {
+      // soft snap: once input goes quiet, gently magnet to the nearest slot
+      target += (Math.round(target) - target) * Math.min(1, dt * 5);
     }
-    delete stacksEl.dataset.activeRow;
+    target = Math.min(N - 1, Math.max(0, target));   // finite shelf: hard stop at the ends
+    const k = reduceMotion ? 1 : 1 - Math.exp(-dt * EASE);
+    offset += (target - offset) * k;
+    if (Math.abs(target - offset) < 0.0005) offset = target;
+    render();
+    requestAnimationFrame(tick);
   }
+
+  /* ── open a card (click / Enter): everything opens the detail deck under
+     the shelf — projects show framed image + blurb + skill/tool pills + link;
+     folders show their title + a square-thumb grid gallery (each thumb →
+     ring lightbox). Clicking the same card again folds the deck away. ── */
+  const deck = root.querySelector('[data-reel-deck]');
+  function openItem(i) {
+    if (deckIdx === i) { closeDeck(); return; }
+    openDeck(i);
+  }
+  function openDeck(i) {
+    if (!deck) return;
+    const it = ITEMS[i];
+    deckIdx = i;
+    target = i;                                      // glide the clicked card to centre
+    lastInput = performance.now();
+    deck.classList.toggle('is-folder', !!it.folderKey);
+    if (it.folderKey) {
+      deck.innerHTML =
+        '<div class="rd-body">' +
+          '<h3 class="rd-title">' + esc(it.panelTitle || it.title) + '</h3>' +
+          '<div class="rd-sub">' + esc(it.count) + '</div>' +
+          toolPills(it.tools) +
+        '</div>' +
+        '<div class="rd-grid">' + it.items.map((p, k) =>
+          // a piece with `mkw` opens its Branding & Marketing panel — the
+          // document-level [data-mkw-open] handler picks it up
+          '<button class="rd-thumb" type="button" data-gi="' + k + '"' +
+            (p.mkw ? ' data-mkw-open="' + esc(p.mkw) + '"' : '') +
+            ' aria-label="' + esc(p.title) + '">' +
+            '<img src="' + esc(p.img) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+          '</button>').join('') + '</div>';
+      deck.querySelectorAll('[data-gi]').forEach((b) => {
+        const p = it.items[+b.getAttribute('data-gi')];
+        if (p.mkw) return;                       // handled by the panel opener
+        b.addEventListener('click', () => {
+          if (typeof openRingLightbox === 'function') openRingLightbox(p.img, p.title, p.meta);
+        });
+      });
+    } else {
+      deck.innerHTML =
+        '<div class="rd-media">' +
+          // a project with a walkthrough clip plays it here (the shelf card
+          // always stays the still cover); otherwise just the cover image
+          (it.video ? '<video src="' + esc(it.video) + '" poster="' + esc(it.img) + '" autoplay muted loop playsinline preload="metadata"></video>'
+            : it.img ? '<img src="' + esc(it.img) + '" alt="">'
+                     : '<div class="rd-media-soon">launching soon</div>') +
+        '</div>' +
+        '<div class="rd-body">' +
+          '<h3 class="rd-title">' + esc(it.panelTitle || it.title) + '</h3>' +
+          '<p class="rd-desc">' + esc(it.desc || '') + '</p>' +
+          ((it.skills || []).length ? '<div class="rd-tags">' +
+            it.skills.map((s) => '<span class="rd-pill">' + esc(s) + '</span>').join('') + '</div>' : '') +
+          toolPills(it.tools) +
+          (it.href && !it.soon ? '<a class="rd-link" href="' + esc(it.href) + '"' +
+            (it.blank ? ' target="_blank" rel="noopener"' : '') + '>visit project <span aria-hidden="true">↗</span></a>' : '') +
+        '</div>';
+    }
+    deck.hidden = false;
+    requestAnimationFrame(() => { deck.classList.add('open'); brushDeck(); });
+    // the framed media sets .rd-media's height — redraw its ink once it has one
+    const mimg = deck.querySelector('.rd-media img');
+    if (mimg && !mimg.complete) mimg.addEventListener('load', brushDeck, { once: true });
+    const mvid = deck.querySelector('.rd-media video');
+    if (mvid) mvid.addEventListener('loadedmetadata', brushDeck, { once: true });
+    cards.forEach((el, k) => el.classList.toggle('is-open', k === i));
+  }
+  function closeDeck() {
+    if (deckIdx < 0 || !deck) return;
+    deckIdx = -1;
+    deck.classList.remove('open');
+    deck.hidden = true;
+    const v = deck.querySelector('.rd-media video');
+    if (v) v.pause();
+    cards.forEach((el) => el.classList.remove('is-open'));
+  }
+
+  /* ── drift pauses while the pointer / focus is on the shelf or the deck
+     is open (rAF keeps running: it still eases lifts + the soft snap) ── */
+  let paused = false;
+  stage.addEventListener('pointerenter', () => { paused = true; });
+  stage.addEventListener('pointerleave', () => { paused = false; });
+  root.addEventListener('focusin', () => { paused = true; });
+  root.addEventListener('focusout', (e) => { if (!root.contains(e.relatedTarget)) paused = false; });
+
+  /* ── navigation: trackpad scroll, click-to-open, keyboard, drag ── */
+  // Horizontal two-finger scroll feeds the eased target 1:1 in pixels, so the
+  // shelf tracks the fingers and glides out on the lerp's own momentum.
+  // Vertical deltas are left alone so the page still scrolls; preventDefault
+  // stops the browser's back/forward swipe while over the stage.
+  stage.addEventListener('wheel', (e) => {
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+    e.preventDefault();
+    target += e.deltaX / STEP;
+    lastInput = performance.now();
+  }, { passive: false });
+
+  let dragMoved = false;
+  track.addEventListener('click', (e) => {
+    const card = e.target.closest('.reel-card');
+    if (!card || dragMoved) return;
+    openItem(+card.dataset.idx);                    // click any card → open it
+  });
+
+  stage.tabIndex = 0;
+  stage.setAttribute('role', 'group');
+  stage.setAttribute('aria-label', 'more things I’ve made — left / right arrow keys to browse, Enter to open');
+  stage.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') { e.preventDefault(); target = Math.round(target) - 1; lastInput = performance.now(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); target = Math.round(target) + 1; lastInput = performance.now(); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openItem(((Math.round(offset) % N) + N) % N); }
+  });
+
+  // drag: the strip follows the finger 1:1; release adds a fling from the
+  // finger's last velocity, and the lerp + soft snap ease it to rest.
+  let dragStartX = 0, startTarget = 0, lastDX = 0, lastMoveT = 0, dragVel = 0;
+  stage.addEventListener('pointerdown', (e) => {
+    if (e.button && e.button !== 0) return;
+    dragging = true; dragMoved = false; dragStartX = e.clientX;
+    startTarget = target; dragVel = 0; lastDX = 0; lastMoveT = performance.now();
+    // NOTE: no pointer capture yet — capturing here would retarget the click
+    // to the stage and card clicks would never land. Capture on first real move.
+  });
+  stage.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - dragStartX;
+    if (!dragMoved && Math.abs(dx) > 6) {
+      dragMoved = true;
+      stage.classList.add('is-drag');
+      try { stage.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+    if (!dragMoved) return;
+    const now = performance.now();
+    dragVel = (dx - lastDX) / Math.max(1, now - lastMoveT);   // px per ms
+    lastDX = dx; lastMoveT = now;
+    target = startTarget - dx / STEP;
+    lastInput = now;
+  });
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false; stage.classList.remove('is-drag');
+    if (dragMoved) target -= (dragVel * 160) / STEP;          // fling momentum
+    lastInput = performance.now();
+    setTimeout(() => { dragMoved = false; }, 0);    // clear after the click fires
+  }
+  stage.addEventListener('pointerup', endDrag);
+  stage.addEventListener('pointercancel', endDrag);
+
+  /* ── go ── */
+  render();
+  requestAnimationFrame((t) => { lastT = t; requestAnimationFrame(tick); });
 })();
 
 
