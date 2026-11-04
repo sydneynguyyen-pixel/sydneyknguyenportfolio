@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype stills</title>
+<link rel="stylesheet" href="stage.css">
+</head>
+<body>
+<!-- Sets up still frames of the real prototype for the case study's images.
+     Open still.html?still&shot=room (or glow, trusted, code, volunteer, pebble) and screenshot it at the stage size. -->
+<div id="fit"><div id="stage"></div></div>
+<script src="stage.js"></script>
+<script>
+var SHOTS = {
+  // What the glow means, cropped: only the top of the phone shows
+  glow: { phones: 1, crop: 624, wide: [1038, 680], tall: [547, 680],
+    setup: function(m){ m.p[0].win.ACTIONS.go({ to: 'glow' }); } },
+  // Home: everyone's jar, and the week view with Wednesday open
+  room: { phones: 2, wide: [1038, 1012], tall: [515, 1880],
+    setup: function(m){
+      m.p[1].win.ACTIONS.homeDay({ id: '2026-10-21' });
+      // Room to scroll the week card up under the status bar, which has no background, so the page fades out there
+      m.css(1, '.content::after { content: ""; display: block; height: 240px; }' +
+        '.content { -webkit-mask-image: linear-gradient(to bottom, transparent 44px, #000 60px); mask-image: linear-gradient(to bottom, transparent 44px, #000 60px); }');
+      return m.scrollTo(1, m.el(1, '.load-chart').closest('.h-w'), 64);
+    } },
+  // The two tiers of outside help, one phone each: Nora's text-link view (trusted circle), and the family's volunteer code
+  trusted: { phones: 1, wide: [547, 1012], tall: [547, 1012],
+    setup: function(m){
+      m.p[0].win.ACTIONS.roleGo({ to: 'asTrusted' });
+      m.css(0, '.rolebar { display: none !important; }');
+    } },
+  code: { phones: 1, wide: [547, 1012], tall: [547, 1012],
+    setup: function(m){
+      var w = m.p[0].win;
+      w.ACTIONS.tab({ to: 'peopleTab' });
+      w.ACTIONS.go({ to: 'volunteerCode' });
+      w.S.app.prefs.publicCode = true;
+      w.render();
+      return m.scrollTo(0, '.vc-code ~ .section-h ~ .section-h', 90);
+    } },
+  // A volunteer helps: Ruth orders the socks and the family gets a notification, the family makes Ruth a card,
+  // and the card goes up on the thanks wall that volunteers see
+  volunteer: { phones: 3, wide: [1545, 1012], tall: [515, 2820],
+    setup: function(m){
+      var NOTE = 'The socks came on Thursday and he hasn\'t taken them off. Thank you for thinking of his cold feet.';
+      [m.p[0].win, m.p[1].win, m.p[2].win].forEach(function(w, i){
+        var R = w.S.app.roles, x = R.open.find(function(o){ return o.id === 'p2'; });
+        w.S.app.prefs.publicCode = true;
+        Object.assign(R, { joined: true, code: '4821', volunteer: 'Ruth', thankTask: 'p2', wall: true });
+        x.taken = true; x.done = true;
+        w.S.app.thankTheme = 'sunrise';
+        w.S.app.thanksNote = i === 1 ? NOTE : '';
+        if (i === 2) { x.thanked = true; R.thanks = { to: 'Ruth', theme: 'sunrise', note: NOTE, for: x.short, when: 'Today', wall: true }; }
+      });
+      m.p[0].win.ACTIONS.osJump({ to: 'vcNotif' });
+      var w1 = m.p[1].win; w1.ACTIONS.tab({ to: 'peopleTab' }); w1.ACTIONS.go({ to: 'volunteerCode' }); w1.ACTIONS.go({ to: 'vcThanks' });
+      var w2 = m.p[2].win; w2.ACTIONS.roleGo({ to: 'asPublic' }); w2.ACTIONS.go({ to: 'vcWall' });
+    } },
+  // Pebble: what you said, and the tasks it suggests, waiting for your yes
+  pebble: { phones: 2, wide: [1038, 1012], tall: [515, 1880],
+    setup: function(m){
+      [0, 1].forEach(function(i){
+        var A = m.p[i].win.ACTIONS;
+        A.tab({ to: 'pebble' }); A.pebbleAsk(); A.pebbleSample({ id: '0' });
+      });
+      m.p[1].win.ACTIONS.pebbleHearIt();
+    } }
+};
+var shot = SHOTS[(location.search.match(/shot=(\w+)/) || [])[1] || 'room'];
+var stage = document.getElementById('stage');
+for (var i = 0; i < shot.phones; i++) {
+  stage.insertAdjacentHTML('beforeend', '<div class="ph"' + (shot.crop ? ' style="height:' + shot.crop + 'px"' : '') +
+    '><iframe data-src="proto/phone.html" tabindex="-1"></iframe></div>');
+}
+Motion({ wide: shot.wide, tall: shot.tall, loop: false, setup: shot.setup, play: function(){}, still: function(){} });
+</script>
+</body>
+</html>

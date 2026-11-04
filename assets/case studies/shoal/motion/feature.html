@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shoal prototype feature</title>
+<link rel="stylesheet" href="stage.css">
+</head>
+<body>
+<!-- One short tap-through of the real prototype for each card under "Other features".
+     Open feature.html?f=onboarding (or kit, care, trusted, kids, outside, help, done, night). Add &still&peek for its peek image. -->
+<div id="fit"><div id="stage">
+  <div class="ph"><iframe data-src="proto/phone.html" tabindex="-1"></iframe></div>
+</div></div>
+<script src="stage.js"></script>
+<script>
+var A = function(m){ return m.p[0].win.ACTIONS; };
+var btn = '.footer .btn-primary';
+var FEATURES = {
+  // Sign in with a phone number and the texted code, then say who you're caring for
+  onboarding: {
+    setup: function(m){
+      var w = m.p[0].win;
+      A(m).restart();
+      w.S.screen = 'signin';
+      w.render();
+    },
+    play: function(m){
+      return m.wait(700)
+        .then(function(){ return m.tap(0, '[data-input="phone"]'); })
+        .then(function(){ return m.type(0, '[data-input="phone"]', '4085550123', 60); })
+        .then(function(){ return m.wait(400); })
+        .then(function(){ return m.tap(0, '[data-act="sendCode"]'); })
+        .then(function(){ return m.wait(2000); })
+        .then(function(){ return m.tap(0, '.sms-banner'); })
+        .then(function(){ return m.wait(1600); })
+        .then(function(){ return m.tap(0, '[data-act="introNext"]'); })
+        .then(function(){ return m.wait(1400); })
+        .then(function(){ return m.tap(0, '[data-act="introDone"]'); })
+        .then(function(){ return m.wait(1600); })
+        .then(function(){ return m.tap(0, '[data-act="begin"]'); })
+        .then(function(){ return m.wait(1000); })
+        .then(function(){ return m.tap(0, '[data-input="lovedOne"]'); })
+        .then(function(){ return m.type(0, '[data-input="lovedOne"]', 'Dad', 110); })
+        .then(function(){ return m.wait(400); })
+        .then(function(){ return m.tap(0, '[data-act="stage"]'); })
+        .then(function(){ return m.wait(900); })
+        .then(function(){ return m.tap(0, btn); })
+        .then(function(){ return m.wait(1200); });
+    } },
+  // Set up the jars, pair the first stone, then find it in the jar
+  kit: {
+    setup: function(m){ A(m).go({ to: 'jars' }); },
+    play: function(m){
+      return m.wait(1200)
+        .then(function(){ return m.tap(0, btn); })
+        .then(function(){ return m.wait(1800); })
+        .then(function(){ return m.tap(0, btn); })
+        .then(function(){ return m.wait(2600); })
+        .then(function(){ return m.tap(0, btn); })
+        .then(function(){ return m.wait(2200); })
+        .then(function(){ return m.tap(0, btn); })
+        .then(function(){ return m.wait(1200); })
+        .then(function(){ return m.tap(0, '.pair-to [data-act="findStone"]'); })
+        .then(function(){ return m.wait(1500); });
+    } },
+  // The locked care card on Home, the PIN, then the care page
+  care: {
+    setup: function(m){ m.p[0].win.S.app.careAt = 0; m.p[0].win.render(); },
+    play: function(m){
+      return m.wait(600)
+        .then(function(){ return m.scrollTo(0, '.h-care', 240); })
+        .then(function(){ return m.tap(0, '.h-care'); })
+        .then(function(){ return m.wait(1100); })
+        .then(function(){ return '1234'.split('').reduce(function(p, k){
+          return p.then(function(){ return m.tap(0, '[data-act="pinKey"][data-id="' + k + '"]'); }).then(function(){ return m.wait(250); });
+        }, Promise.resolve()); })
+        .then(function(){ return m.wait(1600); })
+        .then(function(){ return m.scrollTo(0, '.cw-grid', 200); })
+        .then(function(){ return m.wait(800); });
+    } },
+  // Nora's view from a texted link: she takes a light task
+  trusted: {
+    setup: function(m){
+      A(m).roleGo({ to: 'asTrusted' });
+      m.css(0, '.rolebar { display: none !important; }');
+    },
+    play: function(m){
+      return m.wait(1400)
+        .then(function(){ return m.scrollTo(0, '[data-act="roleClaim"]', 320); })
+        .then(function(){ return m.tap(0, '[data-act="roleClaim"]'); })
+        .then(function(){ return m.wait(1400); })
+        .then(function(){ return m.scrollTo(0, '.sees', 420); })
+        .then(function(){ return m.wait(800); });
+    } },
+  // Leo's view: he marks a job done, then picks up one more
+  kids: {
+    setup: function(m){
+      A(m).roleGo({ to: 'asKid' });
+      m.css(0, '.rolebar { display: none !important; }');
+    },
+    play: function(m){
+      return m.wait(1400)
+        .then(function(){ return m.tap(0, '#screen [data-act="kidDone"]'); })
+        .then(function(){ return m.wait(2200); })
+        .then(function(){ return m.tap(0, '#sheet [data-act="closeSheet"]'); })
+        .then(function(){ return m.wait(900); })
+        .then(function(){ var b = m.el(0, '#screen [data-act="roleClaim"][data-who="leo"]'); return b ? m.scrollTo(0, b, 320).then(function(){ return m.tap(0, b); }) : m.wait(0); })
+        .then(function(){ return m.wait(1600); });
+    } },
+  // Outside the app: a notification on the lock screen, answered with a long press, then the home screen widgets
+  outside: {
+    setup: function(m){ A(m).osOpen(); },
+    play: function(m){
+      return m.wait(1600)
+        .then(function(){ return m.tap(0, '#screen .os-note[data-to="osNotif"]'); })
+        .then(function(){ return m.wait(1800); })
+        .then(function(){ return m.tap(0, '[data-act="osTake"]'); })
+        .then(function(){ return m.wait(1800); })
+        .then(function(){ return m.tap(0, '[data-act="osJump"][data-to="osHome"]'); })
+        .then(function(){ return m.wait(2200); });
+    } },
+  // Help and resources, then grief support
+  help: {
+    setup: function(m){ A(m).go({ to: 'resources' }); },
+    play: function(m){
+      return m.wait(1800)
+        .then(function(){ return m.tap(0, '[data-act="resSheet"][data-id="grief"]'); })
+        .then(function(){ return m.wait(1600); });
+    } },
+  // Mark a task done, then thank Bill for his step on it
+  done: {
+    setup: function(m){ A(m).tab({ to: 'myjar' }); },
+    play: function(m){
+      return m.wait(1200)
+        .then(function(){ return m.tap(0, '.tick'); })
+        .then(function(){ return m.wait(2600); })
+        .then(function(){ return m.tap(0, '[data-act="sayThanksStep"]'); })
+        .then(function(){ return m.wait(1600); });
+    } },
+  // Home kit: dim the glow and set the night hours
+  night: {
+    setup: function(m){ A(m).go({ to: 'kit' }); },
+    play: function(m){
+      return m.wait(900)
+        .then(function(){ return m.scrollTo(0, '.k-seg', 150); })
+        .then(function(){ return m.tap(0, '.k-seg [data-id="dim"]'); })
+        .then(function(){ return m.wait(1400); })
+        .then(function(){ return m.tap(0, '.content [data-act="nightSheet"]'); })
+        .then(function(){ return m.wait(1600); });
+    } }
+};
+// ?still&peek shows one screen from each, for the small peek on the list (captured to stills/peek-*.jpg)
+FEATURES.home = { setup: function(){}, play: function(m){ return m.wait(0); } };
+var PEEKS = {
+  home: function(){},
+  onboarding: function(){},
+  kit: function(m){ A(m).go({ to: 'paired' }); },
+  care: function(m){ m.p[0].win.S.app.careAt = Date.now(); A(m).go({ to: 'care' }); },
+  trusted: function(){},
+  kids: function(){},
+  outside: function(){},
+  help: function(m){ A(m).go({ to: 'resources' }); },
+  done: function(m){ m.el(0, '.tick').click(); },
+  night: function(){}
+};
+var key = (location.search.match(/f=(\w+)/) || [])[1] || 'onboarding', f = FEATURES[key], peek = /peek/.test(location.search);
+// Peeks are captured with no background, so only the phone shows on the tiles
+if (peek) document.documentElement.style.background = document.body.style.background = 'transparent';
+Motion({ wide: [547, 1012], tall: [547, 1012], setup: f.setup, play: f.play,
+  still: peek ? function(m){ m.css(0, 'html, body { background: transparent !important; }'); return PEEKS[key](m); } : null });
+</script>
+</body>
+</html>

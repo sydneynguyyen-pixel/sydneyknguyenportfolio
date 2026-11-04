@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Shoal kit, set up</title>
+<script type="importmap">{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
+<style>
+  /* The kit out of its box and set up on the counter, for stills (?still) and the case study banner. */
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #c9bfb1; }
+  #kit { position: fixed; inset: 0; }
+  #kit canvas { display: block; width: 100% !important; height: 100% !important; }
+</style>
+</head>
+<body>
+<div id="kit" aria-hidden="true"></div>
+<script type="module">
+import { createKit } from './kit-model.js';
+const q = new URLSearchParams(location.search);   // ?margin= zooms out, ?shift= moves the kit left
+// The family from the prototype, each with a jar on the bases, and the stones they have now.
+const kit = createKit(document.getElementById('kit'), { jars: [
+  { id: 'you', name: 'You' }, { id: 'mom', name: 'Mom' }, { id: 'bill', name: 'Bill' }, { id: 'sam', name: 'Sam' }],
+  margin: +(q.get('margin') || 1.25), shift: +(q.get('shift') || 0) });
+const STONES = {
+  you:  [[2, 'urgent'], [3, 'progress'], [1, 'progress'], [2, 'done']],
+  mom:  [[3, 'progress'], [2, 'progress'], [2, 'urgent'], [1, 'progress'], [3, 'done'], [2, 'done']],
+  bill: [[2, 'progress'], [3, 'progress'], [1, 'done']],
+  sam:  [[2, 'progress']],
+};
+Object.entries(STONES).forEach(([jar, list]) => list.forEach(([size, state], i) => kit.add(jar + i, { jar, size, state })));
+kit.add('spare', { puck: true, size: 2, state: 'open' });   // a stone no one has yet, waiting on the puck
+kit.add('spare2', { puck: true, size: 1, state: 'done' });
+kit.add('spare3', { puck: true, size: 3, state: 'done' });
+kit.light('spare');
+kit.focus(q.get('focus') || 'all', true);   // ?focus=you (or another jar, or puck) for a close shot
+</script>
+</body>
+</html>

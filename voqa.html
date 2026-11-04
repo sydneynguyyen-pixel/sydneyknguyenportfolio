@@ -677,6 +677,16 @@
   /* doodles: keep them in the gutters, never over the reading column */
   @media (max-width:1180px){ .doodle{ display:none !important; } }
 </style>
+<style id="wide-col">
+  /* wider reading column: clears the fixed contents rail on the left, then uses the rest of the window */
+  :root{ --max:960px; }
+  @media (min-width:1180px){
+    .wrap{ width:auto; max-width:none; margin-left:max(232px, calc((100vw - 1040px)/2)); margin-right:max(56px, calc((100vw - 1040px)/2)); }
+    .wide{ --wide-w:100%; }
+    .wide-phones{ --wide-w:min(100%, 820px); }
+  }
+  .wrap p, .wrap li{ max-width:680px; }
+</style>
 </head>
 <body>
 
@@ -1116,11 +1126,11 @@
     <div class="more-cs">
       <div class="more-cs-label">More Case Studies</div>
       <div class="more-cs-row">
-        <a class="more-cs-card" href="bedside-wip">
-          <div class="more-cs-thumb"><img src="assets/case studies/bedside/cover.png" alt="Bedside" loading="lazy" /></div>
+        <a class="more-cs-card" href="shoal">
+          <div class="more-cs-thumb"><img src="assets/case studies/shoal/shoal-thumb.jpg" alt="Shoal" loading="lazy" /></div>
           <div class="more-cs-body">
-            <div class="more-cs-title">Bedside</div>
-            <div class="more-cs-desc">A voice-first, privacy-first handoff tool for the hospice bedside.</div>
+            <div class="more-cs-title">Shoal</div>
+            <div class="more-cs-desc">A kit and app that helps a family share the work of end-of-life care.</div>
           </div>
         </a>
         <a class="more-cs-card" href="room2talk">
