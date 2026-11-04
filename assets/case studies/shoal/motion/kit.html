@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pairing a stone</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap">
+<link rel="stylesheet" href="stage.css">
+<script type="importmap">{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
+<style>
+  /* The prototype on the left, the kit on the right. What happens in the app happens to the kit. */
+  #stage { align-items: center; gap: 56px; padding: 56px; }
+  .kitcol { flex: none; width: 640px; display: flex; flex-direction: column; gap: 20px; }
+  .kit3d { position: relative; width: 640px; height: 400px; }
+  .kit3d canvas { display: block; width: 100% !important; height: 100% !important; }
+  .steps { list-style: none; margin: 0; padding: 0 0 0 24px; display: grid; gap: 16px; font-family: Manrope, system-ui, sans-serif; }
+  .steps li { display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: start; color: #9a9a9a; transition: color .35s; }
+  .steps b { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 2px solid #d6d6d6; font-size: 15px; font-weight: 600; box-sizing: border-box; transition: border-color .35s, background .35s, color .35s; }
+  .steps strong { display: block; font-size: 21px; font-weight: 600; line-height: 1.25; }
+  .steps span { display: block; margin-top: 3px; font-size: 16px; line-height: 1.4; }
+  .steps li.on { color: #1a1a1a; }
+  .steps li.on b { border-color: #2c5fb4; background: #2c5fb4; color: #fff; }
+  .steps li.past b { border-color: #2c5fb4; color: #2c5fb4; }
+  .tall #stage { gap: 24px; }
+  .tall .kitcol { width: 467px; }
+  .tall .kit3d { width: 467px; height: 380px; }
+  .tall .steps { display: none; }
+</style>
+</head>
+<body>
+<div id="fit"><div id="stage">
+  <div class="ph"><iframe data-src="proto/phone.html" title="Shoal prototype: pairing a stone" tabindex="-1"></iframe></div>
+  <div class="kitcol">
+    <div class="kit3d" id="kit" aria-hidden="true"></div>
+    <ol class="steps" aria-hidden="true">
+      <li><b>1</b><div><strong>Pick up a stone</strong><span>Spare stones sit on the charging puck. One glows white, ready to pair.</span></div></li>
+      <li><b>2</b><div><strong>Hold it to your phone</strong><span>It takes on its task's color. This task is due soon, so it turns yellow.</span></div></li>
+      <li><b>3</b><div><strong>Drop it in your jar</strong><span>Each person has a jar. Blue stones are tasks someone is doing.</span></div></li>
+      <li><b>4</b><div><strong>Find it later</strong><span>Tap Find stone and it blinks in the jar.</span></div></li>
+      <li><b>5</b><div><strong>Mark it done</strong><span>Its light goes off.</span></div></li>
+    </ol>
+  </div>
+</div></div>
+<p class="sr-only">The Shoal prototype beside a 3D model of the kit: four clear jars labelled You, Mom, Bill and Sam, and a round charging puck. A spare stone on the puck glows white. In the app you pair it to a task, and the stone turns yellow because the task is due soon. It goes into your jar. Tapping Find stone makes it blink, and marking the task done turns its light off. The other jars hold the family's stones, glowing blue for tasks someone is doing and yellow for tasks due soon.</p>
+<script src="stage.js"></script>
+<script type="module">
+import { createKit } from './kit-model.js';
+
+var steps = [].slice.call(document.querySelectorAll('.steps li'));
+function step(n){ steps.forEach(function(li, i){ li.className = i === n ? 'on' : i < n ? 'past' : ''; }); }
+
+// What the prototype knows about each paired stone: whose jar it's in, its size and its glow.
+function read(w){
+  return w.eval('(function(){ var b = S.app.blink; return S.stones.filter(function(s){ return s.task; }).map(function(s){ var t = S.tasks.find(function(x){ return x.id === s.task; }); return { id: "s" + s.id, who: t.who, size: s.size, state: stateOf(t), blink: b === t.id }; }); })()');
+}
+var kit = null, w = null, paired = null, timer = null;
+// Keeps the kit matching the app: a stone the app pairs to you becomes the one in your hand.
+function sync(){
+  if (!kit || !w || !w.S || !w.S.app) return;   // the phone is between loads, or its old copy was swapped out
+  var list; try { list = read(w); } catch (e) { return; }
+  list.forEach(function(s){
+    if (!kit.has(s.id) && s.who === 'you' && kit.has('new')) { kit.alias('new', s.id); paired = s.id; }
+    if (kit.has(s.id)) { kit.state(s.id, s.state); kit.blink(s.id, s.blink); }
+    else kit.add(s.id, { jar: s.who, size: s.size, state: s.state });
+  });
+}
+function first(){ return w.eval('firstTask()'); }
+function until(test, ms){ return new Promise(function(ok){ var t0 = Date.now(); (function poll(){ if (test() || Date.now() - t0 > ms) ok(); else setTimeout(poll, 80); })(); }); }
+
+function setup(m){
+  w = m.p[0].win; paired = null; step(0);
+  // The rest of the family has already paired their own stones. Finished tasks keep their stone, with the light off.
+  w.eval('S.tasks.filter(function(t){ return t.who && t.who !== "you" && !stoneOf(t); }).forEach(function(t){ pairStone(t.id); })');
+  w.ACTIONS.go({ to: 'pick' });
+  if (!kit) kit = createKit(document.getElementById('kit'), { jars: w.eval('S.people.filter(function(p){ return p.tier === "main"; }).map(function(p){ return { id: p.id, name: p.name }; })') });
+  kit.clear();
+  kit.add('new', { puck: true, size: first().w || 2, state: 'open' });   // front of the puck, where you can see it glow
+  kit.add('n1', { puck: true, size: 1, state: 'done' });
+  kit.add('n2', { puck: true, size: 3, state: 'done' });
+  kit.breathe('new', true);
+  kit.light('new');
+  kit.focus('puck', !kit.started); kit.started = true;   // the camera starts close on the puck
+  sync();
+  clearInterval(timer); timer = setInterval(sync, 120);
+}
+
+Motion({
+  wide: [1244, 1012],
+  tall: [547, 1400],
+  setup: setup,
+  play: function(m){
+    var t = first(), btn = '#screen .footer .btn-primary';
+    return m.wait(1500)
+      .then(function(){ kit.breathe('new', false); return m.tap(0, btn); })   // "I've got one"
+      .then(function(){ step(1); return until(function(){ return w.S.app.heard; }, 4000); })
+      .then(function(){ kit.state('new', w.eval('stateOf(firstTask())')); return m.wait(1600); })
+      .then(function(){ return m.tap(0, btn); })                        // "It's paired"
+      .then(function(){ return until(function(){ return paired; }, 2000); })
+      .then(function(){ step(2); kit.focus('you'); return kit.drop(paired || 'new', 'you', 1800); })
+      .then(function(){ return m.wait(900); })
+      .then(function(){ return m.tap(0, btn); })                        // "It's in my jar"
+      .then(function(){ step(3); return m.wait(900); })
+      .then(function(){ return m.tap(0, '#screen .pair-to [data-act="findStone"]'); })
+      .then(function(){ return m.wait(3200); })
+      .then(function(){ w.S.app.blink = null; w.ACTIONS.tab({ to: 'myjar' }); step(4); return m.wait(1300); })
+      .then(function(){ var b = m.el(0, '#screen .tick[data-id="' + t.id + '"]'); return b ? m.tap(0, b) : w.ACTIONS.markDone({ id: t.id }); })
+      .then(function(){ return m.wait(1400); })
+      .then(function(){ kit.focus('all'); return m.wait(600); });   // pull back to the whole family's kit
+  },
+  // Reduced motion and the still image: the stone paired, glowing yellow in your jar.
+  still: function(m){
+    w.S.app.heard = true;
+    w.ACTIONS.go({ to: 'paired' });
+    sync();
+    kit.breathe(paired || 'new', false);
+    kit.drop(paired || 'new', 'you', 0);
+    kit.focus('you', true);
+    step(2);
+  }
+});
+</script>
+</body>
+</html>

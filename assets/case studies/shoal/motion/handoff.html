@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hand it off</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap">
+<link rel="stylesheet" href="stage.css">
+<style>
+  /* One phone, with the steps beside it. The step that's playing turns blue. */
+  #stage { align-items: center; padding: 56px; }
+  .steps { list-style: none; margin: 0; padding: 0; width: 420px; display: grid; gap: 30px; font-family: Manrope, system-ui, sans-serif; }
+  .steps li { display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start; color: #9a9a9a; transition: color .35s; }
+  .steps b { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid #d6d6d6; font-size: 18px; font-weight: 600; transition: border-color .35s, background .35s, color .35s; }
+  .steps strong { display: block; font-size: 25px; font-weight: 600; line-height: 1.25; }
+  .steps span { display: block; margin-top: 6px; font-size: 19px; line-height: 1.45; }
+  .steps li.on { color: #1a1a1a; }
+  .steps li.on b { border-color: #2c5fb4; background: #2c5fb4; color: #fff; }
+  .steps li.past b { border-color: #2c5fb4; color: #2c5fb4; }
+  .tall .steps { display: none; }
+</style>
+</head>
+<body>
+<div id="fit"><div id="stage">
+  <div class="ph"><iframe data-src="proto/phone.html" title="Shoal prototype: My jar, then Home" tabindex="-1"></iframe></div>
+  <ol class="steps" aria-hidden="true">
+    <li><b>1</b><div><strong>Say how your week feels</strong><span>My jar asks once a week. You tap “Stretched thin.”</span></div></li>
+    <li><b>2</b><div><strong>Pebble finds someone with room</strong><span>Pebble checks who has free time this week and suggests asking Mom.</span></div></li>
+    <li><b>3</b><div><strong>Send the request</strong><span>Pebble writes a short note. You send it to Mom.</span></div></li>
+    <li><b>4</b><div><strong>Mom says yes</strong><span>On Home, the stone leaves your jar and lands in Mom's.</span></div></li>
+  </ol>
+</div></div>
+<p class="sr-only">In the Shoal prototype, you answer the weekly check-in on My jar with "Stretched thin". Pebble says Mom has room for "Ask hospice about a bed". You tap Ask Mom, let Pebble write the note, and send the request. When Mom says yes, you go to Home: the task has left your jar and Mom's jar has one more stone, circled.</p>
+<script src="stage.js"></script>
+<script>
+var pick = { id: 'd1', who: 'mom' }; // Pebble's pick in a fresh prototype: Mom, for "Ask hospice about a bed"
+var steps = [].slice.call(document.querySelectorAll('.steps li'));
+function step(n){ steps.forEach(function(li, i){ li.className = i === n ? 'on' : i < n ? 'past' : ''; }); }
+// Circles the picked person's jar on Home, so the change is easy to spot.
+function circle(m){
+  var j = '.h-jars .rjar[data-id="' + pick.who + '"]';
+  m.css(0, j + ' .glassbox { border-radius: 18px; box-shadow: 0 0 0 3px #2c5fb4, 0 0 0 9px rgba(44,95,180,.18); }' +
+    j + ' .who { color: #2c5fb4; }');
+}
+Motion({
+  wide: [1038, 1012],
+  tall: [547, 1012],
+  setup: function(m){
+    step(0);
+    m.p[0].win.ACTIONS.tab({ to: 'myjar' });
+  },
+  play: function(m){
+    var w = m.p[0].win;
+    // Waits for the prototype to answer for Mom.
+    function untilYes(){
+      var t = w.S.tasks.find(function(x){ return x.id === pick.id; });
+      return t.who === pick.who ? Promise.resolve() : m.wait(120).then(untilYes);
+    }
+    return m.tap(0, '[data-act="checkin"][data-id="stretched"]')
+      .then(function(){ step(1); return m.wait(1600); })
+      .then(function(){
+        var b = m.el(0, '[data-act="pebbleAskPerson"]');
+        pick = { id: b.dataset.id, who: b.dataset.who };
+        return m.tap(0, b);
+      })
+      .then(function(){ step(2); return m.wait(1500); })
+      .then(function(){ return m.tap(0, '[data-act="pebbleNote"]'); })
+      .then(function(){ return m.wait(2400); })
+      .then(function(){ return m.tap(0, '[data-act="sendHandoff"]'); })
+      .then(untilYes)
+      .then(function(){ step(3); return m.wait(900); })
+      .then(function(){ return m.tap(0, '.tabbar [data-to="home"]'); })
+      .then(function(){ return m.wait(700); })
+      .then(function(){ w.S.app.blink = pick.id; w.render(); circle(m); return m.wait(2400); });
+  },
+  still: function(m){
+    var w = m.p[0].win, t = w.S.tasks.find(function(x){ return x.id === pick.id; });
+    t.who = pick.who;
+    t.handoff = { to: [pick.who], from: 'you', status: 'accepted', all: false, note: '', when: 'Just now', taker: pick.who };
+    w.S.app.checkin = 'stretched';
+    w.ACTIONS.tab({ to: 'home' });
+    w.S.app.blink = pick.id;
+    w.render();
+    circle(m);
+    step(3);
+  }
+});
+</script>
+</body>
+</html>

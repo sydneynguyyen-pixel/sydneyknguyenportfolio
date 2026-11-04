@@ -1,0 +1,13 @@
+/* The gray canvas the phones sit on, scaled to fit the frame. Each phone is the prototype in its
+   iPhone frame (435 × 900). A phone with .crop shows only its top part and runs off the canvas edge. */
+html, body { margin: 0; height: 100%; overflow: hidden; background: #f4f4f4; }
+#fit { position: fixed; inset: 0; overflow: hidden; }
+#stage { position: absolute; left: 50%; top: 50%; display: flex; justify-content: center; align-items: flex-start; gap: 64px;
+  padding: 56px 56px 0; box-sizing: border-box; overflow: hidden; transform-origin: 50% 50%; transition: opacity 0.45s; }
+.tall #stage { flex-direction: column; align-items: center; gap: 40px; padding: 40px 40px 0; }
+#stage.out { opacity: 0; }
+.ph { position: relative; flex: none; width: 435px; height: 900px; overflow: hidden; }
+.tall .ph.aside { display: none; }
+/* The phones only play; they never take the reader's scroll or clicks. */
+.ph iframe { display: block; width: 435px; height: 900px; border: 0; background: transparent; pointer-events: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

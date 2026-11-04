@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Talk it through with Pebble</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600&display=swap">
+<link rel="stylesheet" href="stage.css">
+<style>
+  /* One phone, with the steps beside it. The step that's playing turns blue. Same layout as handoff.html. */
+  #stage { align-items: center; padding: 56px; }
+  .steps { list-style: none; margin: 0; padding: 0; width: 420px; display: grid; gap: 30px; font-family: Manrope, system-ui, sans-serif; }
+  .steps li { display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: start; color: #9a9a9a; transition: color .35s; }
+  .steps b { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 2px solid #d6d6d6; font-size: 18px; font-weight: 600; transition: border-color .35s, background .35s, color .35s; }
+  .steps strong { display: block; font-size: 25px; font-weight: 600; line-height: 1.25; }
+  .steps span { display: block; margin-top: 6px; font-size: 19px; line-height: 1.45; }
+  .steps li.on { color: #1a1a1a; }
+  .steps li.on b { border-color: #2c5fb4; background: #2c5fb4; color: #fff; }
+  .steps li.past b { border-color: #2c5fb4; color: #2c5fb4; }
+  .tall .steps { display: none; }
+</style>
+</head>
+<body>
+<div id="fit"><div id="stage">
+  <div class="ph"><iframe data-src="proto/phone.html" title="Shoal prototype: talking it through with Pebble" tabindex="-1"></iframe></div>
+  <ol class="steps" aria-hidden="true">
+    <li><b>1</b><div><strong>Say what's going on</strong><span>Type it or say it, in your own words.</span></div></li>
+    <li><b>2</b><div><strong>Check what Pebble suggests</strong><span>Pebble turns it into new tasks and steps. Tap one to leave it out.</span></div></li>
+    <li><b>3</b><div><strong>Say yes</strong><span>Nothing is added until you do. Pebble shows where each one went.</span></div></li>
+  </ol>
+</div></div>
+<p class="sr-only">In the Shoal prototype, you type into Pebble what's going on: the hospice nurse said Dad might need a hospital bed, his refill runs out Friday, and you can't do Thursday's visit. Pebble suggests tasks and steps from it, waiting for your yes. You say yes, and Pebble shows where each one went.</p>
+<script src="stage.js"></script>
+<script>
+var steps = [].slice.call(document.querySelectorAll('.steps li'));
+function step(n){ steps.forEach(function(li, i){ li.className = i === n ? 'on' : i < n ? 'past' : ''; }); }
+// What you type: the prototype's first sample, "A busy week"
+function said(w){ return w.eval('PEB_SAMPLES[0][1]'); }
+function lastProp(m){ var p = m.p[0].doc.querySelectorAll('#screen .peb-prop:not([disabled])'); return p[p.length - 1]; }
+Motion({
+  wide: [1038, 1012],
+  tall: [547, 1012],
+  setup: function(m){
+    step(0);
+    m.p[0].win.ACTIONS.tab({ to: 'pebble' });
+    m.p[0].win.ACTIONS.pebbleAsk();
+  },
+  play: function(m){
+    var w = m.p[0].win;
+    return m.wait(500)
+      .then(function(){ return m.tap(0, '#screen .peb-say'); })
+      .then(function(){ return m.type(0, '#screen .peb-say', said(w), 28); })
+      .then(function(){ return m.wait(700); })
+      .then(function(){ return m.tap(0, '#screen [data-act="pebbleHearIt"]'); })
+      .then(function(){ step(1); return m.wait(1800); })
+      // Leave the last suggestion out, then put it back, to show each one can be changed
+      .then(function(){ return m.tap(0, lastProp(m)); })
+      .then(function(){ return m.wait(1000); })
+      .then(function(){ return m.tap(0, lastProp(m)); })
+      .then(function(){ return m.wait(1400); })
+      .then(function(){ return m.tap(0, '#screen [data-act="pebbleYes"]'); })
+      .then(function(){ step(2); return m.wait(2800); });
+  },
+  still: function(m){
+    var w = m.p[0].win;
+    w.ACTIONS.tab({ to: 'pebble' });
+    w.ACTIONS.pebbleAsk();
+    w.PB().talk.text = said(w);
+    w.ACTIONS.pebbleHearIt();
+    w.ACTIONS.pebbleYes();
+    step(2);
+  }
+});
+</script>
+</body>
+</html>

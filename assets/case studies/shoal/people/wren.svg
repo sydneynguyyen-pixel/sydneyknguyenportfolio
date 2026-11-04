@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+<defs>
+<radialGradient id="bg" cx="30%" cy="25%" r="95%"><stop offset="0" stop-color="#1d4577"/><stop offset="1" stop-color="#13315d"/></radialGradient>
+<filter id="b8" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+<filter id="b3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+<linearGradient id="st" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfd9e6"/></linearGradient>
+<linearGradient id="stw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf6e0"/><stop offset="1" stop-color="#d9d0ac"/></linearGradient>
+<linearGradient id="std" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8aa0c0"/><stop offset="1" stop-color="#3e5a86"/></linearGradient>
+<clipPath id="c"><circle cx="80" cy="80" r="80"/></clipPath>
+</defs>
+<g clip-path="url(#c)">
+<rect width="160" height="160" fill="url(#bg)"/>
+<g filter="url(#b3)" fill="none" stroke="#418ef3" stroke-width="7" opacity=".55"><circle cx="38" cy="44" r="34"/><circle cx="122" cy="52" r="26" opacity=".7"/><circle cx="104" cy="128" r="38" opacity=".5"/></g>
+<ellipse cx="80" cy="124" rx="40" ry="7" fill="#000" opacity=".18" filter="url(#b3)"/>
+<circle cx="80" cy="80" r="46" fill="#82daff" opacity=".35" filter="url(#b8)"/>
+<ellipse cx="80.0" cy="26.0" rx="7" ry="5" fill="#82daff" transform="rotate(0 80.0 26.0)" opacity="1"/><ellipse cx="131.4" cy="63.3" rx="7" ry="5" fill="#418ef3" transform="rotate(72 131.4 63.3)" opacity="0.8"/><ellipse cx="111.7" cy="123.7" rx="7" ry="5" fill="#418ef3" transform="rotate(144 111.7 123.7)" opacity="0.8"/><ellipse cx="48.3" cy="123.7" rx="7" ry="5" fill="#418ef3" transform="rotate(216 48.3 123.7)" opacity="0.8"/><ellipse cx="28.6" cy="63.3" rx="7" ry="5" fill="#418ef3" transform="rotate(288 28.6 63.3)" opacity="0.8"/>
+<circle cx="80" cy="82" r="27" fill="url(#st)"/>
+<ellipse cx="71" cy="72" rx="9" ry="5" fill="#fff" opacity=".8" transform="rotate(-24 71 72)"/>
+</g></svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160">
+<defs>
+<radialGradient id="bg" cx="30%" cy="25%" r="95%"><stop offset="0" stop-color="#c1dfff"/><stop offset="1" stop-color="#f1ebcf"/></radialGradient>
+<filter id="b8" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+<filter id="b3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+<linearGradient id="st" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#cfd9e6"/></linearGradient>
+<linearGradient id="stw" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf6e0"/><stop offset="1" stop-color="#d9d0ac"/></linearGradient>
+<linearGradient id="std" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8aa0c0"/><stop offset="1" stop-color="#3e5a86"/></linearGradient>
+<clipPath id="c"><circle cx="80" cy="80" r="80"/></clipPath>
+</defs>
+<g clip-path="url(#c)">
+<rect width="160" height="160" fill="url(#bg)"/>
+<g filter="url(#b3)" fill="none" stroke="#418ef3" stroke-width="7" opacity=".55"><circle cx="38" cy="44" r="34"/><circle cx="122" cy="52" r="26" opacity=".7"/><circle cx="104" cy="128" r="38" opacity=".5"/></g>
+<ellipse cx="80" cy="124" rx="40" ry="7" fill="#13315d" opacity=".18" filter="url(#b3)"/>
+<circle cx="80" cy="92" r="36" fill="#ffd014" opacity=".55" filter="url(#b8)"/>
+<ellipse cx="80" cy="106" rx="40" ry="17" fill="url(#st)"/>
+<ellipse cx="68" cy="100" rx="13" ry="4" fill="#fff" opacity=".7"/>
+<ellipse cx="80" cy="80" rx="27" ry="14" fill="url(#stw)"/>
+<ellipse cx="72" cy="76" rx="9" ry="3.5" fill="#fff" opacity=".7"/>
+<ellipse cx="80" cy="62" rx="15" ry="10" fill="url(#st)"/>
+<ellipse cx="75" cy="58" rx="5" ry="2.6" fill="#fff" opacity=".8"/>
+</g></svg>

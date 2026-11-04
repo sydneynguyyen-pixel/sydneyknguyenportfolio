@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Shoal box</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Figtree:wght@400;500;600&display=swap">
+<script type="importmap">{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }</script>
+<style>
+  /* The box fills the frame. Dragging turns it; vertical swipes still scroll the page on a phone. */
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #c9bfb1; }
+  #box { position: fixed; inset: 0; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  #box.drag { cursor: grabbing; }
+  #box canvas { display: block; width: 100% !important; height: 100% !important; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div id="box" aria-hidden="true"></div>
+<p class="sr-only">A 3D model of the Shoal box on a kitchen counter. The white lid is printed with the Shoal mark, the wordmark, two soft blue rings and the line Care, carried together. With the lid off, five glass jars stand in a row at the back. In front of them a card insert holds a stack of five ceramic bases, the round charging puck with one stone glowing on it, and a pulp tray of fifteen stones. An open setup guide lies on the counter in front of the box.</p>
+<script type="module">
+import { createPack } from './pack-model.js';
+window.shoalBox = createPack(document.getElementById('box'), { open: /open/.test(location.search) });
+window.dispatchEvent(new Event('shoalbox'));
+</script>
+</body>
+</html>
