@@ -30,7 +30,14 @@
   border-bottom-color: rgba(0,0,0,0.06);\
 }\
 .site-nav .nav-brand { display: flex; align-items: center; gap: 11px; flex-shrink: 0; text-decoration: none; }\
-.site-nav .nav-logo { width: 30px; height: auto; display: block; overflow: visible; }\
+.site-nav .nav-brand { gap: 5px; }\
+.site-nav .nav-logo { width: 25px; height: auto; display: block; overflow: visible; color: #1a1a1a; transform-origin: 55% 100%; margin-top: -6px; }\
+/* The flower grows up from its stem the first time the site opens, and sways once on hover. */\
+@keyframes nav-flower-grow { from { clip-path: inset(100% -20% 0 -20%); } to { clip-path: inset(-10% -20% 0 -20%); } }\
+@keyframes nav-flower-sway { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-7deg); } 65% { transform: rotate(4deg); } }\
+.site-nav .nav-logo.is-growing { animation: nav-flower-grow .9s cubic-bezier(.2,.7,.2,1) .15s both, nav-flower-sway .9s ease-in-out .95s; }\
+.site-nav .nav-brand:hover .nav-logo { animation: nav-flower-sway .9s ease-in-out; }\
+@media (prefers-reduced-motion: reduce) { .site-nav .nav-logo, .site-nav .nav-brand:hover .nav-logo { animation: none !important; } }\
 .site-nav .nav-brand-name { font-size: 18px; font-weight: 700; color: #1a1a1a; letter-spacing: -0.01em; white-space: nowrap; }\
 .site-nav .nav-contact { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }\
 .site-nav .nav-icon-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; color: #555; background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.09); transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1), background 0.15s, color 0.15s; }\
@@ -105,10 +112,102 @@ body.has-site-footer { min-height: 100vh; display: flex; flex-direction: column;
 .site-footer .footer-link:hover { color: #1a1a1a; }\
 .site-footer .footer-copyright { font-family: \'Manrope\', system-ui, sans-serif; font-weight: 300; font-size: 11px; color: #888; margin: 0; }\
 ';
+  // ── The side menu ── on wide screens the bar becomes a quiet list down the left side, like Rithvika's and
+  // Cherry Hu's sites. Under "Work" it holds whatever list the page docks there: the case studies on the home
+  // page, a case study's own contents on its page. Below 1180px it's the top bar as before.
+  css += [
+    '.site-nav .nav-sub { display: none; }',
+    '@media (min-width: 1180px) {',
+    '  :root { --nav-h: 0px; --rail-x: clamp(24px, 4vw, 72px); --rail-in: 250px; --rail-w: calc(var(--rail-x) + var(--rail-in)); }',
+    '  html.rail-narrow { --rail-x: 40px; --rail-in: 190px; }',
+    '  html.rail-narrow .site-nav { padding-right: 6px; }',
+    '  .site-nav, .site-nav.is-solid { position: fixed; top: 0; left: 0; bottom: 0; width: var(--rail-w); height: auto; flex-direction: column; align-items: stretch; gap: 0;',
+    '    padding: 26px 14px 26px var(--rail-x); background: transparent; border: 0; -webkit-backdrop-filter: none; backdrop-filter: none; overflow-y: auto; scrollbar-width: none; }',
+    '  .site-nav::-webkit-scrollbar { display: none; }',
+    '  .site-nav .nav-brand { order: 0; padding-left: 10px; }',
+    '  .site-nav .nav-links { order: 1; flex-direction: column; align-items: stretch; gap: 2px; margin: 18vh 0 0; }',
+    '  .site-nav .nav-link { padding: 7px 10px; border-radius: 10px; font-size: 15px; font-weight: 500; color: #9a9a9a; }',
+    '  .site-nav .nav-link:hover { color: #1a1a1a; background: transparent; }',
+    '  .site-nav .nav-link.is-active { color: #1a1a1a; background: transparent; }',
+    '  .site-nav .nav-contact { order: 2; margin-top: auto; padding: 24px 0 0 10px; }',
+    '  .site-nav .hand-bubble--nav { display: none; }',
+    '  .site-nav .nav-sub { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.7,.2,1); }',
+    '  .site-nav .nav-sub.is-open { grid-template-rows: 1fr; }',
+    '  .site-nav .nav-sub-in { overflow: hidden; min-height: 0; padding: 0 0 0 6px; }',
+    '  .site-nav .nav-sub-in > * { margin-bottom: 8px !important; }',
+    '  body.rail-pad { padding-left: var(--rail-w); }',
+    '  .site-nav .toc { position: static; display: block; width: auto; top: auto; left: auto; margin: 2px 0 0; }',
+    '  .site-nav .toc-label { display: none; }',
+    '  .site-nav { transition: opacity .4s ease; }',
+    '  .site-nav.rail-away { opacity: 0; pointer-events: none; }',
+    '}'
+  ].join('\n');
+
+  // ── Moving between pages ── pages crossfade instead of flashing white. Opening a case study from the home
+  // page grows its cover into that case study's top image (the element marked data-cs-cover). The cover's
+  // snapshot fades out early, so what you see growing is the new page's own sharp image, not a stretched copy.
+  css += [
+    '@view-transition { navigation: auto; }',
+    '::view-transition-old(root), ::view-transition-new(root) { animation-duration: .3s; }',
+    '::view-transition-group(cs-cover) { animation-duration: .6s; animation-timing-function: cubic-bezier(.22,1,.36,1); }',
+    '::view-transition-image-pair(cs-cover) { border-radius: 8px; overflow: hidden; }',
+    '::view-transition-old(cs-cover), ::view-transition-new(cs-cover) { height: 100%; object-fit: cover; object-position: top; }',
+    '::view-transition-old(cs-cover) { animation: cs-cover-out .14s ease-out both; }',
+    '::view-transition-new(cs-cover) { animation: cs-cover-in .18s ease-out both; }',
+    '@keyframes cs-cover-out { to { opacity: 0; } }',
+    '@keyframes cs-cover-in { from { opacity: 0; } }',
+    // When a cover grows, the home page leaves first and the case study arrives once the cover is nearly in place, so
+    // the two pages never sit on top of each other.
+    'html:active-view-transition-type(cs-open)::view-transition-old(root) { animation: cs-cover-out .16s ease-out both; }',
+    'html:active-view-transition-type(cs-open)::view-transition-new(root) { animation: cs-cover-in .35s ease-out .18s both; }',
+    '@media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }'
+  ].join('\n');
+  window.addEventListener('pagereveal', function (e) {
+    if (!e.viewTransition) return;
+    var from = window.navigation && navigation.activation && navigation.activation.from;
+    var fromHome = from && /^\/?(index(\.html)?)?$/.test(new URL(from.url).pathname.replace(/^\//, ''));
+    if (!fromHome) return;
+    // Pages without a marked top image just crossfade.
+    var target = document.querySelector('[data-cs-cover]');
+    if (!target) return;
+    target.style.viewTransitionName = 'cs-cover';
+    if (e.viewTransition.types) e.viewTransition.types.add('cs-open');
+    e.viewTransition.finished.finally(function () { target.style.viewTransitionName = ''; });
+  });
+  // Coming back to the home page: the cover that was handed off goes back to normal.
+  window.addEventListener('pageshow', function () {
+    [].forEach.call(document.querySelectorAll('.csc-img-panel'), function (p) { p.style.viewTransitionName = ''; });
+  });
+
   var style = document.createElement('style');
   style.id = 'site-nav-styles';
   style.textContent = css;
   document.head.appendChild(style);
+
+  // ── Docking a list under "Work" ──
+  // A page hands over an element; on wide screens it moves into the side menu under Work, and below 1180px it
+  // goes back where it came from. Pages can call this before the nav has mounted.
+  var railMQ = window.matchMedia('(min-width: 1180px)');
+  var docked = [], workSub = null;
+  function placeDocked() {
+    docked.forEach(function (d) {
+      if (railMQ.matches && workSub) { if (d.el.parentNode !== workSub) workSub.appendChild(d.el); }
+      else if (d.ph.parentNode && d.el.previousSibling !== d.ph) d.ph.parentNode.insertBefore(d.el, d.ph.nextSibling);
+    });
+    document.documentElement.classList.toggle('has-rail', railMQ.matches);
+  }
+  window.siteRail = {
+    dock: function (el) {
+      if (!el || !el.parentNode) return;
+      var ph = document.createComment('docked in the side menu on wide screens');
+      el.parentNode.insertBefore(ph, el);
+      docked.push({ el: el, ph: ph });
+      placeDocked();
+    },
+    isOn: function () { return railMQ.matches; },
+    onChange: function (fn) { railMQ.addEventListener('change', function () { fn(railMQ.matches); }); }
+  };
+  railMQ.addEventListener('change', placeDocked);
 
   // ── Mynerve (handwriting) travels with the footer ──
   // The footer's closing line is set in Mynerve, but only index.html requests
@@ -126,17 +225,7 @@ body.has-site-footer { min-height: 100vh; display: flex; flex-direction: column;
   // ── Markup ── links are page-absolute so they work from any route.
   var html = '\
 <a class="nav-brand" href="/#home" aria-label="Home — Sydney Nguyen">\
-  <svg class="nav-logo" viewBox="0 0 46 48" fill="none" aria-hidden="true">\
-    <path d="M7 22 Q8 21 23 5 Q24 5 39 22" stroke="#1a1a1a" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" fill="none"/>\
-    <path d="M9 22.5 L37 22.5" stroke="#1a1a1a" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" fill="none"/>\
-    <path d="M10.5 23 Q10 33 11 43.5" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" fill="none"/>\
-    <path d="M36.5 23 Q37.4 33.5 37 44" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" fill="none"/>\
-    <path d="M11 43.5 Q23 44.8 37 44" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" fill="none"/>\
-    <path d="M18.5 44 L18.7 31.5 Q18.7 29 22.3 29 Q26 29 26 31.5 L26.3 44" stroke="#1a1a1a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" fill="none"/>\
-    <circle cx="24" cy="38" r="0.95" fill="#1a1a1a"/>\
-    <path d="M29 27.5 Q35.4 27.2 35.6 27.7 Q35.9 34 35.5 34.2 Q29.2 34.4 29 33.9 Q28.7 27.9 29 27.5 Z" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" fill="none"/>\
-    <path d="M32.3 27.8 L32.2 33.9 M29.2 30.8 L35.4 30.6" stroke="#1a1a1a" stroke-width="1.9" stroke-linecap="round" fill="none"/>\
-  </svg>\
+  <svg class="nav-logo" viewBox="0 0 290.000000 400.000000" aria-hidden="true"><g transform="translate(0.000000,400.000000) scale(0.100000,-0.100000)" fill="currentColor"><path d="M1259 3763 c-102 -52 -205 -235 -315 -561 -68 -202 -68 -202 -99 -173 -49 47 -66 51 -198 51 -141 0 -187 -16 -299 -104 -134 -106 -163 -325 -78 -590 38 -117 206 -380 324 -504 113 -119 401 -285 617 -356 l117 -38 4 -132 c3 -72 4 -132 3 -133 -1 -2 -55 24 -121 57 -168 85 -209 94 -444 94 -218 1 -247 -5 -280 -59 -47 -76 -22 -142 74 -197 63 -36 109 -69 312 -220 159 -119 308 -176 482 -186 123 -8 121 -5 222 -277 86 -230 89 -235 160 -256 142 -43 239 121 106 176 -29 13 -38 29 -109 207 -43 106 -77 200 -77 209 0 22 79 55 163 69 258 41 552 176 618 283 25 41 27 202 4 247 -60 116 -343 106 -613 -22 -78 -37 -183 -114 -238 -175 -41 -46 -41 -46 -53 18 -7 35 -13 114 -14 174 l-2 110 110 6 c117 6 159 20 363 123 39 20 92 40 119 46 26 6 59 19 73 29 14 10 44 28 66 39 54 27 124 87 147 124 10 17 52 65 94 107 91 91 171 210 206 306 14 39 46 123 71 188 61 159 66 195 66 456 0 493 -85 779 -243 822 -193 52 -395 -82 -666 -444 -57 -76 -105 -137 -107 -135 -2 2 -26 73 -53 159 -52 159 -126 323 -179 395 -69 94 -220 124 -333 67z m169 -179 c78 -54 262 -603 262 -779 0 -48 44 -95 90 -95 55 0 76 24 120 138 50 129 57 141 186 313 187 249 308 360 406 374 60 9 75 -12 112 -161 38 -150 48 -275 44 -521 -4 -218 -4 -218 -45 -323 -23 -58 -55 -140 -71 -182 -42 -110 -74 -160 -161 -252 -42 -45 -96 -104 -119 -132 -27 -34 -61 -60 -96 -77 -30 -14 -57 -30 -60 -36 -4 -5 -21 -13 -39 -16 -17 -4 -104 -41 -192 -83 -160 -76 -160 -76 -257 -80 -87 -3 -100 -2 -124 17 -32 25 -71 27 -101 6 -32 -22 -176 28 -368 128 -189 98 -268 162 -362 293 -203 285 -222 329 -230 516 -7 147 0 165 80 218 59 40 62 41 136 38 76 -3 76 -3 111 -68 91 -171 125 -210 183 -210 61 0 87 45 97 169 14 182 207 701 296 796 27 29 69 33 102 9z m842 -2348 c0 -59 -298 -184 -500 -211 -55 -7 -55 -7 -25 25 99 108 325 207 473 209 48 1 52 -1 52 -23z m-1265 -72 c28 -7 95 -39 150 -69 55 -31 133 -72 173 -91 39 -19 72 -40 72 -47 0 -7 3 -22 6 -34 6 -21 3 -23 -34 -23 -109 0 -255 59 -383 154 -41 30 -93 69 -116 87 -24 17 -43 35 -43 39 0 11 116 1 175 -16z M1159 2651 c-41 -41 -40 -90 2 -125 76 -65 180 15 135 103 -31 59 -90 68 -137 22z M1623 2628 c-54 -14 -79 -84 -47 -133 34 -52 121 -49 149 5 39 76 -20 150 -102 128z M1807 2310 c-15 -12 -29 -36 -33 -56 -12 -67 -43 -76 -229 -71 -190 6 -318 29 -355 63 -96 89 -215 1 -155 -115 47 -92 246 -141 571 -141 137 0 142 1 202 31 108 54 163 137 149 226 -13 76 -91 109 -150 63z"/></g></svg>\
   <span class="nav-brand-name">sydney nguyen</span>\
 </a>\
 <div class="nav-contact">\
@@ -148,8 +237,11 @@ body.has-site-footer { min-height: 100vh; display: flex; flex-direction: column;
   </a>\
 </div>\
 <div class="nav-links">\
+  <a href="/#work" class="nav-link" data-route="work">Work</a>\
+  <div class="nav-sub" id="nav-sub-work"><div class="nav-sub-in"></div></div>\
+  <a href="resume" class="nav-link" data-route="resume">Experience</a>\
   <a href="about" class="nav-link" data-route="about">About</a>\
-  <a href="resume" class="nav-link" data-route="resume">Resume</a>\
+  <a href="/#playground" class="nav-link" data-route="more">Playground</a>\
 </div>';
 
   // ── Footer markup ── the closing beat of every scrolling page.
@@ -240,7 +332,8 @@ body.has-site-footer { min-height: 100vh; display: flex; flex-direction: column;
     if (page === '' || page === 'index') return 'home';
     if (page === 'about') return 'about';
     if (page === 'resume') return 'resume';
-    // Case studies + marketing are all "Work".
+    if (page === 'marketing') return 'more';
+    // Case studies are "Work".
     return 'work';
   }
 
@@ -251,14 +344,61 @@ body.has-site-footer { min-height: 100vh; display: flex; flex-direction: column;
     nav.id = 'site-nav';
     nav.setAttribute('aria-label', 'Primary');
     nav.innerHTML = html;
+    // the flower grows in once per visit, not on every page change
+    try { if (!sessionStorage.getItem('flowerGrown')) { nav.querySelector('.nav-logo').classList.add('is-growing'); sessionStorage.setItem('flowerGrown', '1'); } } catch (e) {}
     document.body.insertBefore(nav, document.body.firstChild);
 
     // Active state.
     var route = currentRoute();
-    var active = nav.querySelector('.nav-link[data-route="' + route + '"]');
-    if (active) {
-      active.classList.add('is-active');
-      active.setAttribute('aria-current', 'page');
+    workSub = nav.querySelector('#nav-sub-work .nav-sub-in');
+    var sub = nav.querySelector('#nav-sub-work');
+    function setActive(r) {
+      nav.querySelectorAll('.nav-link').forEach(function (a) {
+        var on = a.dataset.route === r;
+        a.classList.toggle('is-active', on);
+        if (on) a.setAttribute('aria-current', route === 'home' ? 'true' : 'page'); else a.removeAttribute('aria-current');
+      });
+      sub.classList.toggle('is-open', r === 'work');
+    }
+    setActive(route);
+
+    // On wider screens About and Resume are sections at the end of the home page, so the links go there.
+    // Phones keep the standalone pages (the home page's phone layout doesn't have those sections).
+    var wideMQ = window.matchMedia('(min-width: 769px)');
+    function pointLinks() {
+      [['about', 'about', 'about'], ['resume', 'experience', 'resume']].forEach(function (p) {
+        var a = nav.querySelector('.nav-link[data-route="' + p[0] + '"]');
+        if (a) a.setAttribute('href', wideMQ.matches ? '/#' + p[1] : p[2]);
+      });
+    }
+    pointLinks();
+    wideMQ.addEventListener('change', pointLinks);
+
+    // A case study's contents list sits under Work. Pages without one get room on the left for the menu.
+    var toc = document.querySelector('nav.toc');
+    if (toc) { document.documentElement.classList.add('rail-narrow'); window.siteRail.dock(toc); }
+    else document.body.classList.add('rail-pad');
+    placeDocked();
+
+    // Case studies that open on a full-screen title board: the menu waits until you've scrolled past it.
+    var pin = document.getElementById('heroPin');
+    if (pin) {
+      var away = function () { nav.classList.toggle('rail-away', railMQ.matches && pin.getBoundingClientRect().bottom > innerHeight * 1.15); };
+      window.addEventListener('scroll', away, { passive: true });
+      railMQ.addEventListener('change', away);
+      away();
+    }
+
+    // Home page: the menu follows the section you're in.
+    if (route === 'home') {
+      var spots = [['work', document.getElementById('work')], ['more', document.getElementById('playground')], ['about', document.getElementById('about')], ['resume', document.getElementById('experience')]];
+      var spy = function () {
+        var mid = innerHeight * 0.5, r = 'home';
+        spots.forEach(function (sp) { if (sp[1]) { var b = sp[1].getBoundingClientRect(); if (b.top <= mid && b.bottom > mid) r = sp[0]; } });
+        setActive(r);
+      };
+      window.addEventListener('scroll', spy, { passive: true });
+      spy();
     }
 
     // Hover bubbles — each hangs off its OWN nav item and points back at it.
