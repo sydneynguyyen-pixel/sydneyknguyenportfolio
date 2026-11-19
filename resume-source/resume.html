@@ -20,9 +20,10 @@
 *{ box-sizing:border-box; }
 body{ background:var(--desk); color:var(--ink); font-family:var(--font); margin:0;
   padding-block:32px; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); }
-.sheet{ background:var(--paper); width:8.5in; max-width:100%; min-height:11in; margin:0 auto; padding:0.45in 0.6in 0.35in;
+.sheet{ background:var(--paper); width:8.5in; max-width:none; min-height:11in; margin:0 auto; padding:0.45in 0.6in 0.35in;
   box-shadow:0 1px 3px rgba(0,0,0,.08), 0 12px 32px -12px rgba(0,0,0,.18); font-size:9.5pt; line-height:1.28; }
 a{ color:inherit; text-decoration:none; }
+p, li{ text-wrap:pretty; }
 
 h1{ font-size:28pt; font-weight:500; letter-spacing:-0.01em; line-height:1; margin:0 0 7pt; }
 .contact{ font-weight:700; font-size:10.5pt; margin:0 0 5pt; display:flex; flex-wrap:wrap; gap:0 9pt; }
@@ -59,11 +60,11 @@ section + section{ margin-top:7pt; }
 @media print{
   @page{ size:Letter; margin:0; }
   body{ background:var(--paper); padding:0; }
-  .sheet{ box-shadow:none; margin:0; width:8.5in; min-height:0; }
+  .sheet{ box-shadow:none; margin:0; width:8.5in; min-height:0; zoom:1 !important; }
 }
 @media (max-width:640px){
   body{ padding-block:16px; }
-  .sheet{ padding:24px 18px; min-height:0; font-size:13px; }
+  .sheet{ width:auto; max-width:100%; padding:24px 18px; min-height:0; font-size:13px; }
   h1{ font-size:34px; }
   .top{ grid-template-columns:1fr; }
   .cols{ grid-template-columns:1fr; }
@@ -73,7 +74,7 @@ section + section{ margin-top:7pt; }
 <main class="sheet">
   <h1>Sydney Nguyen</h1>
   <p class="contact"><span>(408) 223-1120</span><span>sydneynguyyen@gmail.com</span><span><a href="https://sydneyknguyen.com">sydneyknguyen.com</a></span></p>
-  <p class="summary">Product designer and Master of Design candidate at SJSU, graduating June 2027. I design and build working prototypes with Claude Code, from user research to deployed apps. Founding design intern at szn, a pre-launch AI assistant.</p>
+  <p class="summary">Product designer finishing a Master of Design at SJSU (June 2027). I run user research and testing, design within systems, and build working prototypes in code. Founding design intern at szn.</p>
 
   <div class="top">
     <div>
@@ -125,7 +126,7 @@ section + section{ margin-top:7pt; }
         <div class="row"><span class="role">Founding Design Intern @ szn</span><span class="when">Aug 2026 – Present</span></div>
         <div class="org">Nomadic Futures</div>
         <ul class="b">
-          <li>Designed the first feature-discovery and upsell flows for a pre-launch AI assistant that works through iMessage</li>
+          <li>Designed the first feature-discovery and upsell flows for a pre-launch AI assistant that lives in iMessage</li>
           <li>Lead pre-launch brand and growth design: Meta ads, social carousels, lifecycle emails, and motion graphics</li>
           <li>Grew X from about 100 to 885 followers, in part by briefing a large creator whose post introduced szn</li>
           <li>Run the UGC creator program, from outreach to editing and posting creator content</li>
@@ -164,20 +165,33 @@ section + section{ margin-top:7pt; }
     <div class="tl proj">
       <div class="item">
         <div class="row"><span class="role">Bedside · 2nd Place Overall, AI for Social Good, Hack with MLH &amp; DigitalOcean</span><span class="when">Jul 2026</span></div>
-        <p>Design lead on a voice-first handoff tool for hospice volunteers. Designed it and built the front end in 24 hours.</p>
+        <p>Design lead. Designed and built the front end of a voice-first handoff tool for hospice volunteers in 24 hours.</p>
       </div>
       <div class="item">
         <div class="row"><span class="role">Trellis · Top 5 Finalist, Fig AI Design Makeathon</span><span class="when">Nov 2026</span></div>
-        <p>Designed and built with Claude Code a live student planning app where an AI agent hands work to four helpers.</p>
+        <p>Design lead. Designed and built a live student planning app where an AI agent coordinates four helpers.</p>
       </div>
       <div class="item">
         <div class="row"><span class="role">Shoal · MDes project</span><span class="when">Sep – Nov 2026</span></div>
-        <p>App and light-up kit for family caregiving. Interviewed five people twice, then built an iOS app with Claude Code.</p>
+        <p>Care-sharing app and light-up kit for families. Ran two rounds of interviews and built an iOS prototype.</p>
       </div>
       <div class="item">
         <div class="row"><span class="role">iterait · Top 3 Finalist, SJHacks</span><span class="when">Apr 2026</span></div>
-        <p>Designed a visual workflow system for AI-assisted design with a team of four in 24 hours.</p>
+        <p>A visual workflow system for AI-assisted design, built with a team of four in 24 hours.</p>
       </div>
     </div>
   </section>
 </main>
+<script>
+/* On screens wider than a phone, keep the sheet's exact print layout and scale it to fit,
+   so lines wrap the same way they do in the PDF. Phones get the reflowed layout. */
+(function(){
+  var s = document.querySelector('.sheet');
+  function fit(){
+    if (window.innerWidth <= 640) { s.style.zoom = ''; return; }
+    var avail = document.body.clientWidth - 32;
+    s.style.zoom = Math.min(1, avail / 816);
+  }
+  window.addEventListener('resize', fit); fit();
+})();
+</script>
