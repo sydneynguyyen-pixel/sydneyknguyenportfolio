@@ -2446,10 +2446,7 @@ function applyMusicState(saved) {
     { band: 'wide', row: 'aug', video: 'assets/playground/soundtrails.mp4', img: 'assets/playground/soundtrails.jpg', ar: 810 / 1440,
       title: 'soundtrails', medium: 'Data visualization · Web', href: 'https://soundtrails.netlify.app/',
       desc: 'A week of my listening history mapped onto the places I was in. Every song leaves a colored trail across the city, and zooming all the way in lands you in the floor plan of my room.' },
-    { band: 'wide', row: 'sep', video: 'assets/playground/same-me-different-place.mp4', img: 'assets/playground/same-me-different-place.jpg', ar: 1080 / 1920,
-      title: 'Same Me, Different Place', medium: 'Data visualization · Animation',
-      desc: 'A data visualization project I made for a class.' },
-    { band: 'wide', row: 'sep', video: 'assets/playground/szn-group-chat.mp4?v=2', img: 'assets/playground/szn-group-chat.jpg?v=2', ar: 1080 / 840,
+    { band: 'wide', row: 'aug', video: 'assets/playground/szn-group-chat.mp4?v=2', img: 'assets/playground/szn-group-chat.jpg?v=2', ar: 1080 / 840,
       title: 'szn in the Group Chat', medium: 'Product video · szn',
       desc: 'A product video for szn, the AI personal assistant that works through iMessage, showing it in a group chat. I lead brand and growth design at szn.' },
     { band: 'wide', row: 'new', video: 'assets/playground/szn-lanyard.mp4', img: 'assets/playground/szn-lanyard.jpg', ar: 1440 / 1080,
@@ -2458,6 +2455,16 @@ function applyMusicState(saved) {
     { band: 'wide', row: 'new', video: 'assets/playground/mismatcha.mp4', img: 'assets/playground/mismatcha.jpg', ar: 810 / 1440,
       title: 'mismatcha', medium: 'Data visualization · Web', href: 'https://mismatcha.netlify.app/',
       desc: 'Japan\'s green tea exports from 2016 to 2025, stacked as piles of boxes on a world map. Why the field can\'t keep up with your latte.' },
+    { band: 'wide', row: 'new', video: 'assets/playground/oldest-congress.mp4', img: 'assets/playground/oldest-congress.jpg', ar: 834 / 1280,
+      title: 'The Oldest Congress', medium: 'Data Visualization · Education',
+      desc: 'A scrolling story about the age of Congress. Every member is one character in the chamber, colored by generation. It walks through how the median age has climbed, then ends in a small game where you try to win a seat.' },
+    { band: 'wide', row: 'nov', video: 'assets/playground/trellis.mp4', img: 'assets/playground/trellis.jpg', ar: 720 / 1280,
+      title: 'Trellis', medium: 'Agentic Workflow · Education', href: 'https://trellisapp.vercel.app/welcome', go: 'Try Trellis',
+      award: { place: '5th', label: '5th place final winner', event: 'Fig AI Design Makeathon 2026' },
+      desc: 'A student planning app with Sprout, an agent that hands work to four helpers (reader, planner, backup finder, drafter) to map out terms, find ways to build skills, and get through registration and applications. Sprout prepares; the student decides.' },
+    { band: 'wide', row: 'nov', video: 'assets/playground/cat-photobooth.mp4?v=2', img: 'assets/playground/cat-photobooth.jpg?v=2', ar: 802 / 1280,
+      title: 'Cat Photobooth', medium: 'Vibecoding · Fun', href: 'https://sunasojubooth.vercel.app/', go: 'Try the photobooth',
+      desc: 'A vibe-coded photo booth. Pick a strip and a frame, strike a pose on the countdown, cover it in stickers, then scan the QR code to take it home.' },
   ];
   // every photo in the stack shares one line
   ITEMS.forEach((it) => { if (it.stack) it.stack.forEach((ph) => { ph.desc = ph.desc || 'From my photography. I also do photoshoots as @visualsbyskn.'; }); });
@@ -2481,17 +2488,29 @@ function applyMusicState(saved) {
     const ar = Math.min(it.ar, it.video ? 9 : MAX_AR);
     el.style.aspectRatio = '1 / ' + ar.toFixed(4);
     el.dataset.title = it.title; el.dataset.medium = it.medium;
-    el.setAttribute('aria-label', it.title + ', ' + it.medium + (it.href ? ' (opens details and a link)' : it.youtube ? ' (plays the video)' : ' (opens larger)'));
+    el.setAttribute('aria-label', it.title + ', ' + it.medium + (it.award ? ', ' + it.award.label + ', ' + it.award.event : '') + (it.href ? ' (opens details and a link)' : it.youtube ? ' (plays the video)' : ' (opens larger)'));
     if (it.stack) return stackTile(el, it, ar);
     el.innerHTML =
       (it.video
         ? '<video src="' + esc(it.video) + '" poster="' + esc(it.img) + '" muted loop playsinline preload="none"></video>'
         : '<img src="' + esc(it.img) + '" alt="" loading="lazy" decoding="async">') +
+      (it.award ? ribbonHtml(it.award) : '') +
       (it.youtube ? '<span class="pg-play" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14"><path d="M4 2.5v9l7.5-4.5z" fill="currentColor"/></svg></span>' : '') +
       '<span class="pg-cap"><b>' + esc(it.title) + (it.href ? ' <i aria-hidden="true">↗</i>' : '') + '</b><small>' + esc(it.medium) + '</small></span>';
     el.addEventListener('click', () => openPop(it, el));
     return { el, ar, band: it.band || 'design', row: it.row || null, tone: TONE[it.title] };
   });
+
+  // An award badge: an outlined crown in a rounded square, pinned to a tile's corner (and repeated in the pop-up caption).
+  function crown() {
+    return '<span class="pg-crown" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">' +
+      '<path d="M4.5 16.5 3.6 8.2l4.6 3.6L12 6l3.8 5.8 4.6-3.6-.9 8.3z"/><path d="M5 19h14"/>' +
+      '<circle cx="12" cy="13.6" r=".9" fill="currentColor" stroke="none"/></svg></span>';
+  }
+  function ribbonHtml(a) {
+    return '<span class="pg-award" title="' + esc(a.label + ', ' + a.event) + '">' + crown() +
+      '<span class="pg-award-txt"><b>' + esc(a.label) + '</b><small>' + esc(a.event) + '</small></span></span>';
+  }
 
   // The photography stack: prints at their own shapes, slightly turned. Every few seconds the top print
   // slides off and goes to the back. Hover pauses it; the caption and the lightbox follow the top print.
@@ -2573,6 +2592,9 @@ function applyMusicState(saved) {
       : '<img src="' + esc(it.img) + '" alt="' + esc(it.title) + '">';
     pop.querySelector('.pg-pop-cap b').textContent = it.title;
     pop.querySelector('.pg-pop-cap small').textContent = it.medium;
+    const capEl = pop.querySelector('.pg-pop-cap'), oldAward = capEl.querySelector('.pg-award');
+    if (oldAward) oldAward.remove();
+    if (it.award) capEl.querySelector('small').insertAdjacentHTML('afterend', ribbonHtml(it.award).replace('pg-award"', 'pg-award is-inline"'));
     pop.querySelector('.pg-pop-cap p').textContent = it.desc || '';
     go.hidden = !linked;
     if (linked) {

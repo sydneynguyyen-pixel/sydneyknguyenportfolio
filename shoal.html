@@ -19,7 +19,6 @@
 <script src="music-player.js"></script>
 <script src="hand-frame.js"></script>
 <script src="doodles.js"></script>
-<script defer src="phone3d.js"></script>
 <link rel="stylesheet" href="case-study.css?v=1" />
 
 <!-- ══════════════════════════════════════════════════════════
@@ -146,7 +145,7 @@
     <figure class="hero-kit" data-cs-cover>
       <img class="hk-bg" src="assets/case studies/shoal/stills/kit-hero.jpg" width="2800" height="1280" alt="The Shoal kit set up on a kitchen counter: four glass jars labelled You, Mom, Bill and Sam on ceramic bases, with stones glowing blue and yellow inside, and the charging puck in front holding a spare stone.">
       <div class="hk-phone">
-        <div class="hk-scr"><video id="hkVid" src="assets/case studies/shoal/app-home.mp4" poster="assets/case studies/shoal/app-home.jpg" muted loop playsinline preload="metadata" aria-label="A screen recording of the Shoal app, starting on the home screen."></video></div>
+        <div class="hk-scr"><video id="hkVid" src="assets/case studies/shoal/v2/phone-home.mp4" poster="assets/case studies/shoal/v2/phone-home.jpg" muted loop playsinline preload="metadata" aria-label="A screen recording of the Shoal app, starting on the home screen."></video></div>
         <img class="hk-frame" src="assets/case studies/shoal/motion/proto/assets/phone-frame.png" alt="">
       </div>
     </figure>
@@ -236,7 +235,7 @@
         <p class="d">Shoal is an app for sharing care tasks, with an optional set of jars and light-up stones for the kitchen counter. Each stone is a task and each jar is a person. The kit needs the app to work, but the app works without the kit. We added the kit so a family can see who has what at a glance, without opening a phone or reading through a long list of tasks. To take on a task, you put its stone in your jar. To pass a task on, you ask someone, and it only moves if they say yes. Shoal helps a family organize care. It does not give medical advice.</p>
       </div>
       <figure class="demo-phone canvas">
-        <div class="phone3d" data-video="assets/case studies/shoal/clip-handoff.mp4" data-label="Interactive 3D phone showing the Shoal home screen, then asking Bill to take a task"><img class="p3-poster" src="assets/case studies/shoal/clip-handoff-poster.jpg" alt="" /></div>
+        <div class="dp-phone"><div class="hk-scr"><video src="assets/case studies/shoal/v2/phone-handoff.mp4" poster="assets/case studies/shoal/v2/phone-handoff.jpg" muted loop playsinline preload="metadata" data-lazyplay aria-label="The Shoal app: Home, then asking someone to take a task"></video></div><img class="hk-frame" src="assets/case studies/shoal/motion/proto/assets/phone-frame.png" alt=""></div>
         <svg class="demo-doodle" viewBox="0 0 150 90" aria-hidden="true"><path d="M8 78 C 30 70, 34 40, 60 34 C 82 29, 96 44, 118 30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M106 22 L120 30 L110 42" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="demo-tag">ask someone to take a task</span>
       </figure>
@@ -866,14 +865,6 @@
 
       <div class="bb-block">
         <p class="bb-eyebrow">Packaging</p>
-
-        <div class="box-stage" id="boxStage">
-          <iframe src="assets/case%20studies/shoal/motion/pack.html" title="A 3D model of the Shoal box on a kitchen counter. Lift the lid to see five glass jars lying at the back, and in front of them the five ceramic bases, the charging puck with a glowing stone, a tray of stones, and the setup guide on the counter. Drag to turn it." loading="lazy"></iframe>
-        </div>
-        <div class="box-ctrl">
-          <button type="button" class="box-btn" id="boxOpen" aria-pressed="false">Lift the lid</button>
-          <span class="box-hint">Drag to turn the box</span>
-        </div>
 
         <div class="bb-two" data-reveal>
           <figure><img src="assets/case studies/shoal/pack-photo.jpg" alt="Hands holding the closed Shoal box, printed with the logo and the line Care, carried together" loading="lazy" /></figure>

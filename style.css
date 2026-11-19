@@ -7080,7 +7080,7 @@ html.past-hero #sticker-peeker { opacity: 0; visibility: hidden; pointer-events:
 .pg-pop-cap { display: flex; flex-direction: column; gap: 3px; padding: 0 4px; max-width: 100%; }
 .pg-pop-cap b { font-size: 16px; font-weight: 600; color: #1a1a1a; line-height: 1.3; }
 .pg-pop-cap small { font-size: 13px; color: #7a7a7a; line-height: 1.35; }
-.pg-pop-cap p { margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: #444; max-width: 56ch; }
+.pg-pop-cap p { margin: 8px 0 0; font-size: 14px; line-height: 1.55; color: #444; }
 .pg-pop-cap p:empty { display: none; }
 .pg-pop-go { align-self: flex-start; margin-top: 14px; display: inline-flex; align-items: center; gap: 7px;
   padding: 10px 16px; border-radius: 99px; background: #1a1a1a; color: #fff; font-size: 13.5px; font-weight: 500;
@@ -7101,3 +7101,22 @@ html.past-hero #sticker-peeker { opacity: 0; visibility: hidden; pointer-events:
 .pg-play { position: absolute; left: 12px; bottom: 12px; z-index: 1; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; padding-left: 2px; color: #fff; background: rgba(20,20,22,.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: transform .3s cubic-bezier(.3,1.35,.5,1); }
 .pg-tile:hover .pg-play { transform: scale(1.12); }
 
+
+/* Award badge on a playground tile (e.g. Trellis): outlined crown in a rounded square; the title and
+   event slide out beside it on hover. The pop-up repeats it inline under the medium. */
+.pg-award { position: absolute; top: 12px; left: 12px; z-index: 2; display: flex; align-items: center; gap: 10px; pointer-events: none; }
+.pg-crown { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: #fff; color: #1a1a1a; border: 1.6px solid #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,.12); transition: transform .4s cubic-bezier(.3,1.35,.5,1); }
+.pg-crown svg { width: 20px; height: 20px; display: block; }
+.pg-tile:hover .pg-crown { transform: rotate(-6deg) scale(1.06); }
+.pg-award-txt { display: flex; flex-direction: column; gap: 1px; padding: 6px 10px; border-radius: 9px; background: rgba(255,255,255,.95); box-shadow: 0 4px 14px rgba(0,0,0,.1); opacity: 0; transform: translateX(-6px); transition: opacity .25s ease, transform .3s ease; white-space: nowrap; }
+.pg-award-txt b { font-size: 12.5px; font-weight: 600; color: #1a1a1a; line-height: 1.25; }
+.pg-award-txt small { font-size: 11.5px; color: #8a8a8a; line-height: 1.25; }
+.pg-tile:hover .pg-award-txt, .pg-tile:focus-visible .pg-award-txt { opacity: 1; transform: none; }
+@media (hover: none) { .pg-award-txt { opacity: 1; transform: none; } }
+.pg-award.is-inline { position: static; margin-top: 10px; gap: 12px; }
+.pg-award.is-inline .pg-crown { width: 40px; height: 40px; border-radius: 12px; box-shadow: none; }
+.pg-award.is-inline .pg-crown svg { width: 23px; height: 23px; }
+.pg-award.is-inline .pg-award-txt { opacity: 1; transform: none; box-shadow: none; padding: 0; background: none; white-space: normal; }
+.pg-award.is-inline .pg-award-txt b { font-size: 14px; }
+.pg-award.is-inline .pg-award-txt small { font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { .pg-crown, .pg-award-txt { transition: none; } }

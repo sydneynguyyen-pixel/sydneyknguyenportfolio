@@ -2618,3 +2618,8 @@
   .mk-under{ bottom:-.2em; height:.22em; stroke:#82daff; stroke-width:2; }
   .mk-ul > .mk-svg{ bottom:-.3em; height:.32em; stroke:var(--acc,#2c5fb4); stroke-width:1.2; }
   @media (prefers-reduced-motion:reduce){ .mk-svg path{ stroke-dashoffset:0; } }
+
+/* Shoal: the demo recording sits in the same phone frame as the hero */
+.demo-phone .dp-phone{ position:relative; height:100%; max-height:620px; aspect-ratio:435/899.5; }
+.demo-phone .dp-phone .hk-scr{ background:#fff; }
+.demo-phone .dp-phone video{ border:0; border-radius:0; box-shadow:none; aspect-ratio:auto; height:100%; }
