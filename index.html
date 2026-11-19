@@ -4,6 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sydney Nguyen — UX/UI Designer</title>
+  <meta name="description" content="UX/UI designer and Master of Design candidate at SJSU, working across product, brand and growth design." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://sydneyknguyen.com/" />
+  <meta property="og:title" content="Sydney Nguyen — UX/UI Designer" />
+  <meta property="og:description" content="UX/UI designer and Master of Design candidate at SJSU, working across product, brand and growth design." />
+  <meta property="og:image" content="https://sydneyknguyen.com/assets/og-home.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" type="image/svg+xml" href="assets/logo/sn.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="assets/logo/sn-32.png" />
   <link rel="apple-touch-icon" href="assets/logo/sn-180.png" />
@@ -361,142 +370,6 @@
 <!-- ══════════════════════════════════════════════════════ -->
 
 <div class="overlay-backdrop" id="backdrop" onclick="closeAllOverlays()"></div>
-
-<!-- ── MINECRAFT SCREENSHOTS OVERLAY ──────────────────── -->
-<div class="overlay-window" id="overlay-minecraft">
-  <div class="window-chrome">
-    <div class="traffic-lights-wrap" onclick="closeOverlay('minecraft')">
-      <span class="tl-dot tl-red"></span>
-      <span class="tl-dot tl-yellow"></span>
-      <span class="tl-dot tl-green"></span>
-    </div>
-    <div class="chrome-title">minecraft screenshots</div>
-  </div>
-  <div class="mc-body">
-    <div class="mc-header">
-      <img src="assets/icons/minecraft icon.webp" alt="" />
-      <span class="mc-header-title">my screenshots</span>
-      <span class="mc-header-sub">3 images</span>
-    </div>
-    <div class="mc-grid">
-      <div class="mc-shot" onclick="openMcLightbox('assets/minecraft-screenshot-1.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/minecraft-screenshot-1.jpg" alt="Screenshot 1" />
-        <div class="mc-shot-label">screenshot 1</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/minecraft-screenshot-2.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/minecraft-screenshot-2.jpg" alt="Screenshot 2" />
-        <div class="mc-shot-label">screenshot 2</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/minecraft-screenshot-3.PNG')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/minecraft-screenshot-3.PNG" alt="Screenshot 3" />
-        <div class="mc-shot-label">screenshot 3</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Minecraft lightbox -->
-<div class="mc-lightbox" id="mc-lightbox" onclick="closeMcLightbox()">
-  <img id="mc-lightbox-img" src="" alt="" />
-</div>
-
-<!-- ── SCHOOL FOLDER OVERLAY ───────────────────────────── -->
-<div class="overlay-window" id="overlay-school">
-  <div class="window-chrome">
-    <div class="traffic-lights-wrap" onclick="closeOverlay('school')">
-      <span class="tl-dot tl-red"></span>
-      <span class="tl-dot tl-yellow"></span>
-      <span class="tl-dot tl-green"></span>
-    </div>
-    <div class="chrome-title">school 🎓</div>
-  </div>
-  <div class="mc-body">
-    <div class="mc-header">
-      <img src="assets/folder-school.svg" alt="" />
-      <span class="mc-header-title">masters program memories</span>
-      <span class="mc-header-sub">9 photos</span>
-    </div>
-    <div class="mc-grid mc-grid-school">
-      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-1.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/other pictures/school-screenshot-1.jpg" alt="" />
-        <div class="mc-shot-label">school memory 1</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-2.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/other pictures/school-screenshot-2.jpg" alt="" />
-        <div class="mc-shot-label">school memory 2</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-3.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/other pictures/school-screenshot-3.jpg" alt="" />
-        <div class="mc-shot-label">school memory 3</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-4.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/other pictures/school-screenshot-4.jpg" alt="" />
-        <div class="mc-shot-label">school memory 4</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-5.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/other pictures/school-screenshot-5.jpg" alt="" />
-        <div class="mc-shot-label">school memory 5</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-6.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/other pictures/school-screenshot-6.jpg" alt="" />
-        <div class="mc-shot-label">school memory 6</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-7.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/other pictures/school-screenshot-7.jpg" alt="" />
-        <div class="mc-shot-label">school memory 7</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-8.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/other pictures/school-screenshot-8.jpg" alt="" />
-        <div class="mc-shot-label">school memory 8</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/other pictures/school-screenshot-9.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/other pictures/school-screenshot-9.jpg" alt="" />
-        <div class="mc-shot-label">school memory 9</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ── CAT FOLDER OVERLAY ──────────────────────────────── -->
-<div class="overlay-window" id="overlay-cat">
-  <div class="window-chrome">
-    <div class="traffic-lights-wrap" onclick="closeOverlay('cat')">
-      <span class="tl-dot tl-red"></span>
-      <span class="tl-dot tl-yellow"></span>
-      <span class="tl-dot tl-green"></span>
-    </div>
-    <div class="chrome-title">cat :3</div>
-  </div>
-  <div class="mc-body" style="background:#fff8f9;">
-    <div class="mc-header">
-      <img src="assets/folder-cat.svg" alt="" />
-      <span class="mc-header-title">asuna 🤍</span>
-      <span class="mc-header-sub">5 photos</span>
-    </div>
-    <div class="mc-grid mc-grid-cat">
-      <div class="mc-shot" onclick="openMcLightbox('assets/photography/photo-cat.webp')">
-        <img src="assets/photography/photo-cat.webp" alt="Asuna" />
-        <div class="mc-shot-label">my beautiful baby asuna :3</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/cat-screenshot-1.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/cat-screenshot-1.jpg" alt="Asuna" />
-        <div class="mc-shot-label">asuna 🐱</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/cat-screenshot-2.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/cat-screenshot-2.jpg" alt="Asuna" />
-        <div class="mc-shot-label">asuna 🐱</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/cat-screenshot-3.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/cat-screenshot-3.jpg" alt="Asuna" />
-        <div class="mc-shot-label">asuna 🐱</div>
-      </div>
-      <div class="mc-shot" onclick="openMcLightbox('assets/cat-screenshot-4.jpg')">
-        <img onerror="this.closest('.mc-shot').style.display='none'" src="assets/cat-screenshot-4.jpg" alt="Asuna" />
-        <div class="mc-shot-label">asuna 🐱</div>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 <!-- ── CREATIVE OVERLAY ───────────────────────────────── -->
@@ -1356,6 +1229,6 @@
   </div>
 </div>
 
-<script src="script.js?v=73"></script>
+<script src="script.js?v=74"></script>
 </body>
 </html>

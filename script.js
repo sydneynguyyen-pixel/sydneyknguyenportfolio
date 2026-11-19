@@ -2460,7 +2460,7 @@ function applyMusicState(saved) {
       desc: 'A scrolling story about the age of Congress. Every member is one character in the chamber, colored by generation. It walks through how the median age has climbed, then ends in a small game where you try to win a seat.' },
     { band: 'wide', row: 'nov', video: 'assets/playground/trellis.mp4', img: 'assets/playground/trellis.jpg', ar: 720 / 1280,
       title: 'Trellis', medium: 'Agentic Workflow · Education', href: 'https://trellisapp.vercel.app/welcome', go: 'Try Trellis',
-      award: { place: '5th', label: '5th place final winner', event: 'Fig AI Design Makeathon 2026' },
+      award: { place: 'Top 5', label: 'Top 5 Finalist', event: 'Fig AI Design Makeathon 2026' },
       desc: 'A student planning app with Sprout, an agent that hands work to four helpers (reader, planner, backup finder, drafter) to map out terms, find ways to build skills, and get through registration and applications. Sprout prepares; the student decides.' },
     { band: 'wide', row: 'nov', video: 'assets/playground/cat-photobooth.mp4?v=2', img: 'assets/playground/cat-photobooth.jpg?v=2', ar: 802 / 1280,
       title: 'Cat Photobooth', medium: 'Vibecoding · Fun', href: 'https://sunasojubooth.vercel.app/', go: 'Try the photobooth',
