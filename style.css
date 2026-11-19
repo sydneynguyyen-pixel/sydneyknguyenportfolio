@@ -5317,7 +5317,7 @@ html.mkw-modal-lock { overflow: hidden; padding-right: var(--mkw-sbw, 0px); }
 }
 
 @media (max-width: 768px) {
-  #desktop-canvas { display: none !important; }
+  /* Phones get the same page as desktop; #mobile-view is only the top bar and menu. */
   #cdplayer { display: none !important; }
   .corner-controls { display: none !important; }
   .overlay-window, .overlay-backdrop { display: none !important; }
@@ -5327,9 +5327,8 @@ html.mkw-modal-lock { overflow: hidden; padding-right: var(--mkw-sbw, 0px); }
 
   #mobile-view {
     display: block;
+    position: sticky; top: 0; z-index: 3000;
     font-family: var(--font-sans);
-    background: #f5f4f1;
-    min-height: 100vh;
     color: #1a1a1a;
     -webkit-font-smoothing: antialiased;
   }
@@ -7120,3 +7119,60 @@ html.past-hero #sticker-peeker { opacity: 0; visibility: hidden; pointer-events:
 .pg-award.is-inline .pg-award-txt b { font-size: 14px; }
 .pg-award.is-inline .pg-award-txt small { font-size: 13px; }
 @media (prefers-reduced-motion: reduce) { .pg-crown, .pg-award-txt { transition: none; } }
+
+/* A case study's hackathon award as a line of text; only phones show it (desktop has the crown and its hover bubble). */
+.csc-award-line { display: none; margin-top: 10px; padding: 4px 10px; border-radius: 999px; border: 1.4px solid #1a1a1a;
+  font-size: 12px; font-weight: 600; color: #1a1a1a; background: #fff; text-transform: capitalize; }
+
+/* ══════════════════════════════════════════════════════════
+   PHONES (768px and below) — the same page as desktop, made narrow.
+   The top bar and menu come from #mobile-view; everything else is #desktop-canvas.
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* hero: mascot, one-line wordmark, tagline, pill, then the scroll cue below them */
+  .ring-center { width: min(330px, calc(100vw - 40px)); }
+  .ring-photo { width: 150px; height: 150px; margin: 0 auto; }
+  .ring-name { font-size: 40px; }
+  .ring-tagline { font-size: 15px; max-width: 290px; margin-inline: auto; }
+  .scroll-indicator { white-space: nowrap; bottom: 18px; }
+
+  /* case studies: one card per row */
+  .cs-zone .cs-inline-grid { grid-template-columns: 1fr; gap: 18px; }
+  /* one column already, so the last card stacks like the rest instead of running its image beside the text */
+  .cs-zone.is-list .cs-card:last-child:nth-child(odd) { display: block; }
+  .cs-zone.is-list .cs-card:last-child:nth-child(odd) .csc-img-panel { margin-top: revert-layer; }
+  .page-section { padding-top: 48px; padding-bottom: 48px; }
+  #work, #playground { min-height: 0; }
+
+  /* about: photo above its copy, as on the standalone About page at this width */
+  .hp-about .about-row { flex-direction: column; align-items: flex-start; gap: 18px; margin-bottom: 52px; }
+  .hp-about .about-row:last-of-type { margin-bottom: 40px; }
+  .hp-about .about-media--single .hand-frame { --w: 170px; }
+  .hp-about .about-media--stack { width: 100%; height: auto; padding-bottom: 20px; }
+  .hp-about .about-media--stack .hand-frame { position: relative; --w: 62%; }
+  .hp-about .about-media--stack .hand-frame:nth-child(1) { margin-left: auto; margin-bottom: -28px; }
+  .hp-about .about-media--fan { --fan-w: 168px; margin-left: 14px; }
+  /* the ink line between photos and the fan-out peek are drawn for the wide layout */
+  .hp-about .about-path { display: none; }
+  .hp-about .fan-left.is-peek .fan-1, .hp-about .fan-right.is-peek .fan-1,
+  .hp-about .fan-left.is-peek .fan-2, .hp-about .fan-right.is-peek .fan-2 { transform: none; }
+  .hp-about .about-flowers { display: none; }
+
+  /* playground: a looser frame so the gallery gets the width; captions are always on for touch, so keep them small */
+  .arch { padding: 34px 16px 30px; }
+  .pg-feed, .pg-cols, .pg-col, .pg-row { gap: 8px; }
+  .pg-cap { left: 6px; bottom: 6px; max-width: calc(100% - 12px); padding: 5px 8px 6px; border-radius: 6px; }
+  .pg-cap b { font-size: 12px; }
+  .pg-cap small { display: none; }   /* tapping a piece opens its name, medium and story */
+  .pg-award { top: 8px; left: 8px; gap: 6px; }
+  .pg-crown { width: 28px; height: 28px; border-radius: 8px; }
+  .pg-crown svg { width: 16px; height: 16px; }
+  .pg-award-txt { padding: 4px 8px; }
+  .pg-award-txt b { font-size: 11px; }
+  .pg-award-txt small { font-size: 10px; }
+  .section-inner { padding-left: 20px; padding-right: 20px; }
+
+  /* no hover on phones: anything a hover reveals on desktop is either shown outright or left out */
+  .cs-zone .csc-crown { display: none; }          /* its award moves into the card's text (.csc-award-line) */
+  .csc-award-line { display: inline-flex; }
+}

@@ -768,7 +768,8 @@ function initCreativeOverlay() {
 
     // The deck: on desktop, with motion allowed, the cards stack and are dealt in as you scroll (see the end of this block).
     const csZone = csGrid.closest('.cs-zone');
-    const stackMode = !!csZone && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // phones get the plain list: the pinned deck needs the width for the list beside the pile
+    const stackMode = !!csZone && !window.matchMedia('(prefers-reduced-motion: reduce), (max-width: 768px)').matches;
     if (csZone) csZone.classList.add(stackMode ? 'is-stack' : 'is-list');
 
     csGrid.innerHTML = cards.map((c, i) => {
@@ -788,6 +789,7 @@ function initCreativeOverlay() {
           </div>
           <div class="csc-title">${c.title}</div>
           <div class="csc-desc">${c.desc}</div>
+          ${c.hackathon ? `<div class="csc-award-line">${esc(c.hackathon.place)} · ${esc(c.hackathon.name)}</div>` : ''}
         </div>
         <div class="csc-media${c.pop ? ' has-pop' : ''}">
         <div class="csc-img-panel" style="background:${c.panelBg || `rgba(${r},${g},${b},0.18)`}" ${hoverMediaAttr}>
@@ -2679,7 +2681,8 @@ function applyMusicState(saved) {
   // A justified row: every tile gets the same height, so widths follow each piece's own shape.
   function row(list) {
     const r = div('pg-row');
-    list.forEach((t) => { t.el.style.flex = (1 / t.ar).toFixed(4) + ' 1 0'; r.appendChild(t.el); });
+    // a lone piece fills the row (a flex-grow under 1 would leave part of the row empty)
+    list.forEach((t) => { t.el.style.flex = list.length === 1 ? '1 1 0' : (1 / t.ar).toFixed(4) + ' 1 0'; r.appendChild(t.el); });
     return r;
   }
   // Masonry: the biggest pieces are placed first, each in the shortest column, then pieces are moved or swapped between
@@ -3156,12 +3159,6 @@ function homeMotion() {
   const secs = [...document.querySelectorAll('[data-page-src]')];
   const canvas = document.getElementById('desktop-canvas');
   if (!secs.length || !canvas) return;
-  // phones don't show these sections (they use the standalone pages), so read the pages only once the canvas shows
-  if (getComputedStyle(canvas).display === 'none') {
-    const later = () => { if (getComputedStyle(canvas).display !== 'none') { removeEventListener('resize', later); homePages(); } };
-    addEventListener('resize', later);
-    return;
-  }
   window.toggleExp = window.toggleExp || (el => el.classList.toggle('exp-open'));
   const fill = sec => fetch(sec.dataset.pageSrc)
     .then(r => r.ok ? r.text() : Promise.reject(r.status))
