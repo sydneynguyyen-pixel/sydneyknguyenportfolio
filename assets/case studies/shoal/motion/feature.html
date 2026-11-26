@@ -64,13 +64,14 @@ var FEATURES = {
         .then(function(){ return m.tap(0, '.pair-to [data-act="findStone"]'); })
         .then(function(){ return m.wait(1500); });
     } },
-  // The locked care card on Home, the PIN, then the care page
+  // Dad's card at the top of People, his care page, the PIN, then the care page
   care: {
-    setup: function(m){ m.p[0].win.S.app.careAt = 0; m.p[0].win.render(); },
+    setup: function(m){ var w = m.p[0].win; w.S.app.careAt = 0; w.ACTIONS.tab({ to: 'peopleTab' }); },
     play: function(m){
-      return m.wait(600)
-        .then(function(){ return m.scrollTo(0, '.h-care', 240); })
-        .then(function(){ return m.tap(0, '.h-care'); })
+      return m.wait(800)
+        .then(function(){ return m.tap(0, '#screen .lv-card'); })
+        .then(function(){ return m.wait(1300); })
+        .then(function(){ return m.tap(0, '#screen [data-act="go"][data-to="care"]'); })
         .then(function(){ return m.wait(1100); })
         .then(function(){ return '1234'.split('').reduce(function(p, k){
           return p.then(function(){ return m.tap(0, '[data-act="pinKey"][data-id="' + k + '"]'); }).then(function(){ return m.wait(250); });

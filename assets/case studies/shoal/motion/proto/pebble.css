@@ -122,3 +122,76 @@
 .hand-note { display: flex; align-items: center; gap: 8px; }
 .hand-note .peb-chip { margin-left: auto; }
 .peb-chip.sm { height: 30px; padding: 0 12px; font-size: 13px; }
+
+/* Pebble tab: a chat, as in the Swift app */
+.peb-chat { position: relative; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.peb-chat.empty::before { content: ""; position: absolute; left: -20%; right: -20%; bottom: 0; height: 460px; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 100%, rgba(217, 200, 243, 0.75), rgba(246, 220, 203, 0.55) 35%, rgba(207, 230, 240, 0.35) 60%, transparent 75%); }
+.pc-head { position: relative; flex: none; display: flex; align-items: center; gap: 10px; padding: 60px 20px 4px; }
+.pc-head img { width: 32px; height: 32px; object-fit: contain; }
+.pc-head h1 { flex: 1; margin: 0; font-family: "Fraunces", serif; font-weight: 400; font-size: 24px; color: var(--navy); }
+.pc-more { width: 44px; height: 44px; border-radius: 22px; background: rgba(255, 255, 255, 0.8); border: 1px solid #fff; box-shadow: var(--chip-shadow); font-size: 12px; letter-spacing: 1px; color: var(--ink); }
+.pc-body { position: relative; display: flex; flex-direction: column; gap: 14px; padding: 12px 20px; }
+.peb-chat.empty .pc-body { justify-content: center; }
+.pc-welcome { text-align: center; padding: 0 4px; }
+.pc-welcome .peb-fig.xl { width: 120px !important; }
+.pc-welcome h2 { margin: 12px 0 6px; font-family: "Fraunces", serif; font-weight: 400; font-size: 30px; color: var(--navy); }
+.pc-welcome .sub { margin: 0; }
+.pc-said { align-self: flex-end; max-width: 300px; padding: 10px 14px; border-radius: 20px; background: rgba(235, 232, 227, 0.9); font-size: 15px; line-height: 21px; color: var(--ink); }
+.pc-peb { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+.pc-peb .pc-fig { width: 34px !important; }
+.pc-reply { margin: 0; font-size: 16px; line-height: 22px; color: var(--ink); }
+.pc-prop { margin-bottom: 0; }
+.pc-prop:disabled:not(.off) { opacity: 1; }
+.pc-skip { margin: 0; color: var(--ink); }
+.pc-lock { display: flex; align-items: center; gap: 6px; margin: 0; }
+.pc-lock img { width: 14px; height: 14px; }
+.pc-call { width: 180px; }
+.pc-yes { align-self: stretch; }
+.pc-peb .peb-done { margin: 0; }
+.pc-links { display: flex; gap: 16px; }
+.pc-links .linkish.muted { color: var(--muted); }
+.pc-compose { position: relative; flex: none; padding: 8px 16px 108px; }
+.pc-samples { margin-bottom: 12px; }
+.peb-chat:not(.blank) .pc-samples, .peb-chat.live .pc-samples { display: none; }
+.pc-field { display: flex; align-items: flex-end; gap: 8px; padding: 0 7px 0 18px; border-radius: 26px; background: #fff; border: 1px solid #e6e3de; box-shadow: 0 6px 14px rgba(33, 38, 46, 0.08); }
+.pc-field .peb-say { flex: 1; min-height: 0; height: 48px; max-height: 140px; margin: 0; padding: 13px 0; font-family: inherit; font-variation-settings: normal; font-size: 16px; line-height: 22px; color: var(--ink); }
+.pc-mic, .pc-send { flex: none; width: 34px; height: 34px; margin-bottom: 7px; border-radius: 17px; display: grid; place-items: center; color: #fff; }
+.pc-mic { background: var(--blue); }
+.peb-chat.live .pc-mic { background: #d9534f; animation: peb-breathe 1.6s ease-in-out infinite; }
+.pc-mic .sq { width: 11px; height: 11px; border-radius: 2px; background: #fff; }
+.pc-send { background: var(--navy); }
+.peb-chat:not(.blank):not(.live) .pc-mic, .peb-chat.blank .pc-send { display: none; }
+.pc-menu { margin: 0; }
+/* Pebble's drafts look like the tasks they'll become. */
+.pc-props { padding-top: 2px; padding-bottom: 2px; }
+.pc-row { width: 100%; text-align: left; gap: 12px; padding: 10px 0; }
+.pc-row.off .tl-txt, .pc-row.off .gem { opacity: 0.45; }
+.pc-row:disabled { cursor: default; }
+
+/* Chat: your message slides in, Pebble thinks in a bubble, types its answer, then the rest fades in. */
+.pc-said { animation: pcSlide 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.pc-bubrow { display: flex; align-items: flex-end; gap: 8px; padding-right: 24px; transform-origin: bottom left; animation: pcPop 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.pc-bubrow .pc-fig { flex: none; width: 32px !important; }
+.pc-bubble { min-width: 0; padding: 10px 14px; border-radius: 20px; background: rgba(255, 255, 255, 0.92); border: 1px solid #fff; box-shadow: 0 4px 8px rgba(33, 38, 46, 0.05); }
+.pc-bubble .pc-reply { min-height: 22px; }
+.pc-dots { display: flex; gap: 5px; height: 20px; align-items: center; }
+.pc-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: pcDot 1s ease-in-out infinite; }
+.pc-dots i:nth-child(2) { animation-delay: 0.13s; }
+.pc-dots i:nth-child(3) { animation-delay: 0.26s; }
+.pc-peb { animation: pcSlide 0.35s ease-out both; }
+.pc-acts { display: flex; gap: 10px; padding-top: 2px; }
+.pc-pill { height: 40px; padding: 0 18px; border-radius: 20px; background: var(--blue); color: #fff; font-size: 15px; font-weight: 600; border: 1px solid transparent; transition: transform 0.15s; }
+.pc-pill:active { transform: scale(0.97); }
+.pc-pill.ghost { background: rgba(255, 255, 255, 0.85); color: var(--ink); border-color: #e3e1dc; }
+.pc-change { margin: 0; }
+.pc-next { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px 12px; padding: 0 16px; animation: fadeIn 0.3s both; }
+.pc-next::-webkit-scrollbar { display: none; }
+.pc-next .chip { flex: none; white-space: nowrap; height: 36px; }
+.peb-chat:not(.blank) .pc-next, .peb-chat.live .pc-next { display: none; }
+/* A soft fade behind the chips and text box so the chat doesn't show through. */
+.peb-chat:not(.empty) .pc-compose { margin-top: -28px; padding-top: 28px; background: linear-gradient(rgba(245, 247, 251, 0), rgba(245, 247, 251, 0.96) 30%); }
+.peb-chat:not(.empty) .pc-body { padding-bottom: 32px; }
+@keyframes pcSlide { from { opacity: 0; transform: translateY(14px); } }
+@keyframes pcPop { from { opacity: 0; transform: scale(0.9); } }
+@keyframes pcDot { 0%, 100% { opacity: 0.35; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }

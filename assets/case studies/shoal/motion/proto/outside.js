@@ -5,8 +5,6 @@
 const OS_STEPS = [["osLock", "Lock screen"], ["osNotif", "Answer a notification"], ["osHome", "Home screen"]];
 OS_STEPS.forEach(([s]) => APP_SCREENS.add(s));
 const isOs = (s) => OS_STEPS.some(([k]) => k === s);
-// Holding a notification opens it on the same lock screen: nothing else redraws.
-SAME_PLACE.osLock = SAME_PLACE.osNotif = "lock";
 
 // The family's real state: the next as-needed dose, an open task someone could take, your tasks.
 function osData() {

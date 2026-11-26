@@ -24,13 +24,13 @@
 <div id="fit"><div id="stage">
   <div class="ph"><iframe data-src="proto/phone.html" title="Shoal prototype: My jar, then Home" tabindex="-1"></iframe></div>
   <ol class="steps" aria-hidden="true">
-    <li><b>1</b><div><strong>Say how your week feels</strong><span>My jar asks once a week. You tap “Stretched thin.”</span></div></li>
+    <li><b>1</b><div><strong>Open a task you can't get to</strong><span>In My jar, open it and tap Hand off.</span></div></li>
     <li><b>2</b><div><strong>Pebble finds someone with room</strong><span>Pebble checks who has free time this week and suggests asking Mom.</span></div></li>
     <li><b>3</b><div><strong>Send the request</strong><span>Pebble writes a short note. You send it to Mom.</span></div></li>
     <li><b>4</b><div><strong>Mom says yes</strong><span>On Home, the stone leaves your jar and lands in Mom's.</span></div></li>
   </ol>
 </div></div>
-<p class="sr-only">In the Shoal prototype, you answer the weekly check-in on My jar with "Stretched thin". Pebble says Mom has room for "Ask hospice about a bed". You tap Ask Mom, let Pebble write the note, and send the request. When Mom says yes, you go to Home: the task has left your jar and Mom's jar has one more stone, circled.</p>
+<p class="sr-only">In the Shoal prototype, you open "Ask hospice about a bed" from My jar and tap Hand off. Pebble says Mom has room this week. You tap Ask Mom, let Pebble write the note, and send the request. When Mom says yes, you go to Home: the task has left your jar and Mom's jar has one more stone, circled.</p>
 <script src="stage.js"></script>
 <script>
 var pick = { id: 'd1', who: 'mom' }; // Pebble's pick in a fresh prototype: Mom, for "Ask hospice about a bed"
@@ -56,11 +56,14 @@ Motion({
       var t = w.S.tasks.find(function(x){ return x.id === pick.id; });
       return t.who === pick.who ? Promise.resolve() : m.wait(120).then(untilYes);
     }
-    return m.tap(0, '[data-act="checkin"][data-id="stretched"]')
-      .then(function(){ step(1); return m.wait(1600); })
+    return m.wait(600)
+      .then(function(){ return m.tap(0, '.jar-list [data-act="openTask"][data-id="' + pick.id + '"]'); })
+      .then(function(){ return m.wait(1300); })
+      .then(function(){ return m.tap(0, '.footer [data-act="handoff"]'); })
+      .then(function(){ step(1); return m.wait(1700); })
       .then(function(){
-        var b = m.el(0, '[data-act="pebbleAskPerson"]');
-        pick = { id: b.dataset.id, who: b.dataset.who };
+        var b = m.el(0, '.peb-pick [data-act="handTo"]');
+        pick.who = b.dataset.id;
         return m.tap(0, b);
       })
       .then(function(){ step(2); return m.wait(1500); })
@@ -68,7 +71,9 @@ Motion({
       .then(function(){ return m.wait(2400); })
       .then(function(){ return m.tap(0, '[data-act="sendHandoff"]'); })
       .then(untilYes)
-      .then(function(){ step(3); return m.wait(900); })
+      .then(function(){ step(3); return m.wait(1400); })
+      .then(function(){ return m.tap(0, '.navtop [data-act="back"]'); })
+      .then(function(){ return m.wait(600); })
       .then(function(){ return m.tap(0, '.tabbar [data-to="home"]'); })
       .then(function(){ return m.wait(700); })
       .then(function(){ w.S.app.blink = pick.id; w.render(); circle(m); return m.wait(2400); });
@@ -77,7 +82,6 @@ Motion({
     var w = m.p[0].win, t = w.S.tasks.find(function(x){ return x.id === pick.id; });
     t.who = pick.who;
     t.handoff = { to: [pick.who], from: 'you', status: 'accepted', all: false, note: '', when: 'Just now', taker: pick.who };
-    w.S.app.checkin = 'stretched';
     w.ACTIONS.tab({ to: 'home' });
     w.S.app.blink = pick.id;
     w.render();
