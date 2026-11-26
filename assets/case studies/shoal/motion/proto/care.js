@@ -18,7 +18,8 @@ function ago(ms) {
 // Today at a clock time, or yesterday if that hasn't happened yet.
 const todayAt = (h, m) => { const d = new Date(); d.setHours(h, m, 0, 0); return d > Date.now() ? +d - 864e5 : +d; };
 
-const CARE_SECTIONS = [["key", "Most important"], ["needs", "Needs"], ["prefs", "Preferences"]];
+// What he likes lives on his profile page now (loved.js).
+const CARE_SECTIONS = [["key", "Most important"], ["needs", "Needs"]];
 
 function makeCare() {
   if (!S.app.demo) return { meds: [], doses: [], key: [], needs: [], prefs: [] };
@@ -118,7 +119,7 @@ function medCard(t) {
   return `<div class="card med-card">
     <div class="meter-top"><b>Doses</b><button class="linkish" data-act="doseLog">Full log</button></div>
     ${meds.map(medRow).join("")}
-    <button class="srow care-link" data-act="go" data-to="care"><span class="tl-txt"><span class="n">All of the patient&#39;s care</span><span class="m">Every med, allergies, needs and preferences</span></span>${chev}</button>
+    <button class="srow care-link" data-act="go" data-to="care"><span class="tl-txt"><span class="n">All of ${esc(possessive({ name: L() }))} care</span><span class="m">Every med, allergies and needs</span></span>${chev}</button>
   </div>`;
 }
 
@@ -181,7 +182,7 @@ SCREENS.care = () => {
   if (!nurseView() && (!careUnlocked() || S.app.pinMode === "set")) return `${navtop("Back")}
   <div class="content care-lock">
     <span class="lock-big" aria-hidden="true">${LOCK_SVG}</span>
-    <h1 class="title">${S.app.pinMode === "set" ? "New PIN" : "Patient&#39;s care"}</h1>
+    <h1 class="title">${S.app.pinMode === "set" ? "New PIN" : `${esc(possessive({ name: L() }))} care`}</h1>
     <p class="sub">Primary caregivers only</p>
     ${pinPad()}
   </div>`;
@@ -190,7 +191,7 @@ SCREENS.care = () => {
   const alerts = c.key.map((x, i) => [x, i]).filter(([x]) => x.alert), keys = c.key.map((x, i) => [x, i]).filter(([x]) => !x.alert);
   return `${navtop("Back", ro ? `<span class="ro-pill">View only</span>` : `<button class="pill-btn lock-btn" data-act="lockCare">${LOCK_SVG}Lock</button>`)}
   <div class="content care2">
-    <h1 class="title">Patient&#39;s care</h1>
+    <h1 class="title">${esc(possessive({ name: L() }))} care</h1>
     ${alerts.map(([x, i]) => `<${ro ? "div" : "button"} class="cw-alert" ${ro ? "" : `data-act="careEdit" data-id="key:${i}"`}><i class="care-flag" aria-hidden="true">!</i><span><b>${esc(x.k)}</b>${esc(ro ? x.v : short(x))}</span>${ro ? "" : chev}</${ro ? "div" : "button"}>`).join("")}
     <p class="section-h">Medications<span class="cw-acts">${c.doses.length ? `<button class="linkish" data-act="doseLog">Log</button>` : ""}${plusBtn("meds", "Add a medication")}</span></p>
     ${prn.length ? `<div class="k-grid">${prn.map(prnTile).join("")}</div>` : ""}
@@ -210,24 +211,20 @@ function careGlance() {
     ${allergy ? `<p class="hc-alert"><i class="care-flag" aria-hidden="true">!</i>Allergic: ${esc(short(allergy))}</p>` : ""}`;
 }
 function careWidget() {
-  const top = `<div class="k-tile-top"><span class="k-lab">Patient&#39;s care</span><span class="k-go" aria-hidden="true">${chev}</span></div>`;
+  const top = `<div class="k-tile-top"><span class="k-lab">${esc(possessive({ name: L() }))} care</span><span class="k-go" aria-hidden="true">${chev}</span></div>`;
   if (!S.app.demo && !care().meds.length && !care().key.length) return `<button class="h-w wide h-care" data-act="go" data-to="care">${top}
-    <p class="k-note">Add meds, allergies, needs and what ${esc(L())} likes, so everyone has them.</p></button>`;
+    <p class="k-note">Add meds, allergies and needs, so everyone has them.</p></button>`;
   if (!careUnlocked()) return `<button class="h-w wide h-care" data-act="go" data-to="care">${top}
     <p class="hc-locked"><span class="lock-ico" aria-hidden="true">${LOCK_SVG}</span>Locked</p></button>`;
   return `<button class="h-w wide h-care" data-act="go" data-to="care">${top}${careGlance()}</button>`;
 }
-const homeCare = SCREENS.home;
-SCREENS.home = () => {
-  const h = homeCare();
-  return S.app.homeLook === "old" ? h : h.replace(`<section class="h-w wide" aria-label="This week">`, `${careWidget()}<section class="h-w wide" aria-label="This week">`);
-};
+// Dad's care lives at the top of People now, not on Home.
 
 // Ana's view gets the same glance, view only.
 const nurseHome = SCREENS.asNurse;
 SCREENS.asNurse = () => {
   S.app.careAs = null;
-  return nurseHome().replace(`<p class="section-h">Notes from the family</p>`, `<p class="section-h">Patient&#39;s care</p>
+  return nurseHome().replace(`<p class="section-h">Notes from the family</p>`, `<p class="section-h">${esc(possessive({ name: L() }))} care</p>
     <button class="h-w wide h-care nurse-care" data-act="nurseCare"><div class="k-tile-top"><span class="ro-pill">View only</span><span class="k-go" aria-hidden="true">${chev}</span></div>${careGlance()}</button>
     <p class="section-h">Notes from the family</p>`);
 };
@@ -345,9 +342,9 @@ Object.assign(ACTIONS, {
   },
 });
 
-NOTES.care = ["Patient's care", [
+NOTES.care = [`${"Dad"}'s care`, [
   "Widgets, like Home and the kit. Allergies sit on top as a red strip. As-needed meds are big tiles: the ring fills until the next dose is okay. Daily meds are one card with a check when given.",
-  "Needs and preferences are small tiles with a short summary. Tap one for the full note, who changed it last, and to edit it.",
+  "Needs are small tiles with a short summary. Tap one for the full note, who changed it last, and to edit it.",
   "Tap a med to log a dose. Logging too soon asks you to check with hospice first, so no one doubles up.",
   "Private: primary caregivers open it with a PIN or Face ID; it locks after 5 minutes. Demo PIN: 1234. Ana, the hospice nurse, sees meds, allergies and wishes, view only.",
   "Pebble never reads this page.",

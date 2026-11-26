@@ -36,38 +36,49 @@ var steps = [].slice.call(document.querySelectorAll('.steps li'));
 function step(n){ steps.forEach(function(li, i){ li.className = i === n ? 'on' : i < n ? 'past' : ''; }); }
 // What you type: the prototype's first sample, "A busy week"
 function said(w){ return w.eval('PEB_SAMPLES[0][1]'); }
-function lastProp(m){ var p = m.p[0].doc.querySelectorAll('#screen .peb-prop:not([disabled])'); return p[p.length - 1]; }
+function lastProp(m){ var p = m.p[0].doc.querySelectorAll('#screen .pc-row:not([disabled])'); return p[p.length - 1]; }
+// Wait until Pebble has finished typing and its cards are in (the prototype sets shown = 3).
+function answered(m){
+  return new Promise(function(done){
+    (function look(){
+      var c = m.p[0].win.eval('PB().chat || []'), e = c[c.length - 1];
+      if (e && e.shown >= 3) setTimeout(done, 500); else setTimeout(look, 100);
+    })();
+  });
+}
 Motion({
   wide: [1038, 1012],
   tall: [547, 1012],
   setup: function(m){
     step(0);
+    m.p[0].win.eval('PB().chat = []; PB().talk.text = ""');
     m.p[0].win.ACTIONS.tab({ to: 'pebble' });
-    m.p[0].win.ACTIONS.pebbleAsk();
   },
   play: function(m){
     var w = m.p[0].win;
     return m.wait(500)
       .then(function(){ return m.tap(0, '#screen .peb-say'); })
       .then(function(){ return m.type(0, '#screen .peb-say', said(w), 28); })
-      .then(function(){ return m.wait(700); })
-      .then(function(){ return m.tap(0, '#screen [data-act="pebbleHearIt"]'); })
-      .then(function(){ step(1); return m.wait(1800); })
+      .then(function(){ return m.wait(600); })
+      .then(function(){ return m.tap(0, '#screen [data-act="pebChatSend"]'); })
+      .then(function(){ step(1); return answered(m); })
+      .then(function(){ return m.wait(900); })
       // Leave the last suggestion out, then put it back, to show each one can be changed
       .then(function(){ return m.tap(0, lastProp(m)); })
       .then(function(){ return m.wait(1000); })
       .then(function(){ return m.tap(0, lastProp(m)); })
-      .then(function(){ return m.wait(1400); })
-      .then(function(){ return m.tap(0, '#screen [data-act="pebbleYes"]'); })
-      .then(function(){ step(2); return m.wait(2800); });
+      .then(function(){ return m.wait(1200); })
+      .then(function(){ return m.tap(0, '#screen [data-act="pebChatYes"]'); })
+      .then(function(){ step(2); return answered(m); })
+      .then(function(){ return m.wait(2600); });
   },
   still: function(m){
     var w = m.p[0].win;
     w.ACTIONS.tab({ to: 'pebble' });
-    w.ACTIONS.pebbleAsk();
-    w.PB().talk.text = said(w);
-    w.ACTIONS.pebbleHearIt();
-    w.ACTIONS.pebbleYes();
+    // The finished chat: what you said, and Pebble's "Done" with where each one went.
+    w.eval('(function(){ var T = PB().talk, said = PEB_SAMPLES[0][1]; PB().chat = []; T.text = "";' +
+      ' pebbleHear(said); var e = { said: said, stage: "review", props: T.props, skipped: T.skipped, shown: 3 }; PB().chat.push(e);' +
+      ' pebbleCommit(); e.done = T.done; e.stage = "done"; S.app.pebNew = null; render(); pebScroll(); })()');
     step(2);
   }
 });

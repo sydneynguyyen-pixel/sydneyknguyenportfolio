@@ -171,15 +171,18 @@ const guessSize = (n) => (SIZE_WORDS.find(([, re]) => re.test(n)) || [1])[0];
 // resting on the curved tops of the stones below (stones are treated as ellipses), and rolls until it
 // touches a neighbor or the glass. Ties lean to the middle, with a small fixed wobble so piles don't look ruled.
 // sizes: [[w, h], ...] in px. Returns the top-left of each stone, or null once the jar is full to the top.
-function packStones(sizes, { left = 6, right = 80, base = 104, top = 18 } = {}) {
+function packStones(sizes, { left = 6, right = 80, base = 104, top = 18, round = 24 } = {}) {
   const placed = [], mid = (left + right) / 2;
   const arc = (dx, a) => Math.sqrt(Math.max(0, 1 - (dx / a) ** 2));
+  // The jar's floor curves up into its rounded bottom corners, so stones near the glass sit a little higher.
+  const floor = (c) => { const d = Math.max(left + round - c, c - (right - round), 0); return base - round + Math.sqrt(Math.max(0, round * round - d * d)); };
   return sizes.map(([w, h], i) => {
     const a = w / 2, b = h / 2;
     let best = null;
     for (let x = left; x <= right - w; x++) {
       const cx = x + a;
       let cy = base - b;
+      for (let c = cx - a; c <= cx + a; c += 1) cy = Math.min(cy, floor(c) - b * arc(c - cx, a));
       for (const p of placed) {
         if (Math.abs(p.cx - cx) >= p.a + a) continue;
         // Where the two outlines would touch, sampled across their overlap.
@@ -398,7 +401,10 @@ function hoursOf(t) {
 }
 
 // Trusted circle only gets light tasks; kids and teens only get kid tasks.
-const canTake = (p, t) => (t.open ? t.open.includes(p.tier) : p.tier === "trusted" ? t.w === 1 : p.tier === "kid" ? t.y : true);
+const tierFits = (p, t) => (t.open ? t.open.includes(p.tier) : p.tier === "trusted" ? t.w === 1 : p.tier === "kid" ? t.y : true);
+// Driving, cooking and being there need someone close by.
+const nearTask = (t) => !t.remote && ["drive", "there", "cook"].includes(t.k);
+const canTake = (p, t) => tierFits(p, t) && !(nearTask(t) && p.remote);
 const TIER_NOTE = { main: "Invite sent by text", trusted: "Invite sent by text", kid: "Kid tasks only" };
 
 // Greedy fair split: heaviest first, to whoever has the most room left. Preferences nudge "You" toward or away.
@@ -580,7 +586,7 @@ SCREENS.about = () => `${topbar({ skip: false })}
     }).join("")}
     ${writeIns("cond", "Write your own")}
   </div>
-  ${footer("Next", { disabled: !S.lovedOne.trim() || !S.stage })}`;
+  ${footer("Next", { disabled: !S.lovedOne.trim() })}`;
 
 SCREENS.them = () => `${topbar()}
   <div class="content">
@@ -836,7 +842,7 @@ SCREENS.split = () => {
     ${unassigned.length ? `<div class="card helpcard">
         <b style="font-size:15px">${unassigned.length} stone${unassigned.length > 1 ? "s" : ""} still glow white</b>
         <p class="small" style="margin:4px 0 0">No one has room for ${unassigned.length > 1 ? "these" : "this"} yet. You can still share ${unassigned.length > 1 ? "them" : "it"}:</p>
-        <div class="chips"><button class="chip" data-act="toast" data-msg="Shared with the trusted circle">Ask trusted circle</button><button class="chip" data-act="toast" data-msg="Pebble will suggest local paid help">Find paid help</button></div>
+        <div class="chips"><button class="chip" data-act="toast" data-msg="Shared with the trusted circle">Ask trusted circle</button></div>
       </div>` : ""}
     ${picked().map((t) => `<div class="card task-card">
       <div class="head">${stone(!!t.who)}<span class="n">${esc(t.n)}</span>${weightPill(t.w)}</div>
@@ -1056,21 +1062,17 @@ function patchChildren(a, b) {
   old.forEach((o) => { if (!used.has(o)) o.remove(); });
 }
 
-// Screens that are one place on the phone (the lock screen, and the lock screen with a notification held open).
-// Moving between them patches the page in place, so only what changed moves, like iOS.
-const SAME_PLACE = {};
 function render() {
   const el = document.getElementById("screen");
   const prevScreen = el.dataset.s;
-  const samePlace = prevScreen === S.screen || (!!SAME_PLACE[S.screen] && SAME_PLACE[prevScreen] === SAME_PLACE[S.screen]);
-  const keepScroll = samePlace ? el.querySelector(".content")?.scrollTop : 0;
+  const keepScroll = prevScreen === S.screen ? el.querySelector(".content")?.scrollTop : 0;
   if (S.app) S.tasks.forEach(normTask);
   // A new screen is drawn fresh so it can animate in. The same screen is patched in place,
   // so a tab or toggle only moves what changed instead of replaying the whole page.
-  if (samePlace) patchChildren(el, Object.assign(document.createElement("template"), { innerHTML: SCREENS[S.screen]() }).content);
+  if (prevScreen === S.screen) patchChildren(el, Object.assign(document.createElement("template"), { innerHTML: SCREENS[S.screen]() }).content);
   else el.innerHTML = SCREENS[S.screen]();
   el.dataset.s = S.screen;
-  if (!samePlace) {
+  if (prevScreen !== S.screen) {
     el.classList.remove("enter-fwd", "enter-back", "enter-fade");
     void el.offsetWidth;
     el.classList.add(`enter-${lastDir}`);
@@ -1096,7 +1098,7 @@ function toast(msg) {
 
 const ACTIONS = {
   next, back,
-  begin: () => { S.flowKey = "onboard"; go("about"); },
+  begin: () => { S.flowKey = "onboard"; S.stage ??= "final"; go("about"); },
   start: (d) => {
     S.path = S.flowKey = d.path;
     if (!S.tasks.some((t) => t.on && t.cat)) clearLibrary();
@@ -1298,7 +1300,7 @@ function fit() {
   const s = Math.min(1, (window.innerHeight - 60) / 900);
   phone.style.transform = `scale(${s})`;
   document.getElementById("phoneFrame").style.transform = `scale(${s})`;
-  wrap.style.width = `${403 * s}px`;
+  wrap.style.width = `${402 * s}px`;
   wrap.style.height = `${874 * s}px`;
 }
 window.addEventListener("resize", fit);

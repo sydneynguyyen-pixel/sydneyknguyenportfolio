@@ -1,6 +1,6 @@
 :root {
   --navy: #13315d;
-  --muted: #6e737c;
+  --muted: #5a5f68;
   --ink: #22262e;
   --blue: #2070d9;
   --blue-label: #2f6fcb;
@@ -43,9 +43,9 @@ input { font: inherit; color: inherit; }
 .phone-wrap { flex: none; }
 .phone {
   position: relative;
-  width: 403px;
+  width: 402px;
   height: 874px;
-  border-radius: 55px; /* matches the frame's opening, so no gap shows at the corners */
+  border-radius: 64px;
   overflow: hidden;
   transform-origin: top left;
   background:
@@ -444,7 +444,7 @@ input { font: inherit; color: inherit; }
 .shelf-jars { display: flex; justify-content: center; gap: 0 1px; flex-wrap: wrap; }
 .rjar { position: relative; width: 84.26px; display: flex; flex-direction: column; align-items: center; }
 .rjar .glassbox { position: relative; width: 84.26px; height: 122.38px; }
-.rjar .glassbox > img.glass { position: absolute; inset: 0; width: 100%; height: 100%; object-position: bottom; pointer-events: none; }
+.rjar .glassbox > img.glass { position: absolute; inset: 0; width: 100%; height: 100%; object-position: bottom; pointer-events: none; border-radius: 8px 8px 38% 38% / 8px 8px 25% 25%; }
 .rjar .who { font-size: 13px; font-weight: 600; margin-top: 4px; }
 .rjar .cnt { font-size: 12px; color: var(--muted); }
 .pebble-btn { position: absolute; width: 36px; height: 28px; padding: 0; animation: drop 0.5s cubic-bezier(.3, 1.4, .5, 1) backwards; }
@@ -1152,7 +1152,7 @@ button, input, textarea { touch-action: manipulation; -webkit-tap-highlight-colo
 .rjar .glassbox::before {
   content: ""; position: absolute; left: 3px; right: 3px; top: 4px; bottom: 3px;
   border: 1.5px solid rgba(19, 49, 93, 0.16); border-top-color: rgba(19, 49, 93, 0.24);
-  border-radius: 5px 5px 9px 9px;
+  border-radius: 7px 7px 36% 36% / 7px 7px 24% 24%;
   background: linear-gradient(90deg, rgba(65, 142, 243, 0.07), rgba(65, 142, 243, 0.02) 30%, rgba(65, 142, 243, 0.02) 70%, rgba(65, 142, 243, 0.08));
   box-shadow: inset 0 -5px 0 rgba(19, 49, 93, 0.07), inset 2px 0 0 rgba(255, 255, 255, 0.7);
   pointer-events: none;
@@ -1583,6 +1583,8 @@ button, input, textarea { touch-action: manipulation; -webkit-tap-highlight-colo
     radial-gradient(110% 55% at 100% 100%, #1d3d70 0%, rgba(29, 61, 112, 0) 70%),
     linear-gradient(180deg, #142a4c 0%, #0b1730 100%); }
 .phone:has(.screen > .kit2) .statusbar { filter: invert(1); }
+/* The phone behind a dark screen is dark too, so no light rim shows at the rounded edge. */
+.phone:has(.screen > .kit2) { background: linear-gradient(180deg, #142a4c 0%, #0b1730 100%); box-shadow: 0 0 0 6px #0f1f3a; }
 .kit2 .navback img, .kit2 .chev { filter: brightness(0) invert(1); opacity: 0.7; }
 .kit2 .k-look { background: rgba(255, 255, 255, 0.1); color: var(--ink); }
 .kit2 .k-ring .trk { stroke: rgba(255, 255, 255, 0.12); }
@@ -1837,18 +1839,6 @@ button, input, textarea { touch-action: manipulation; -webkit-tap-highlight-colo
 .ty-themes em { font-style: normal; font-size: 12px; font-weight: 600; color: var(--muted); }
 .ty-themes button.on em { color: var(--blue-label); }
 .ty-how { margin: -4px 0 0; }
-
-/* Thanks wall: cards families sent to volunteers, newest first. */
-.wall { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
-.wall-post { border-radius: 22px; overflow: hidden; background: #fff; box-shadow: 0 12px 30px -18px rgba(19, 49, 93, 0.3), 0 1px 2px rgba(33, 38, 46, 0.06); }
-.wall-post.you { box-shadow: 0 12px 30px -18px rgba(19, 49, 93, 0.3), 0 0 0 2px var(--blue); }
-.wall-art { height: 96px; }
-.wall-art svg { display: block; width: 100%; height: 100%; }
-.wall-body { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 12px 16px 14px; }
-.wall-body .ty-to { font-size: 18px; }
-.wall-note { margin: 0; font-size: 15px; line-height: 1.45; color: var(--ink); }
-.wall-meta { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
-.wall-tag { position: absolute; top: 12px; right: 14px; padding: 3px 10px; border-radius: 99px; background: var(--blue); color: #fff; font-size: 12px; font-weight: 600; }
 
 /* iOS Messages, for anything that leaves Shoal by text. System font, iOS sheet motion. */
 .imsg { position: absolute; inset: 0; z-index: 26; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif; background: rgba(0, 0, 0, 0); transition: background 0.38s; }
@@ -2190,10 +2180,6 @@ div.cw-tile .cw-s { -webkit-line-clamp: 6; font-weight: 500; font-size: 14px; }
 /* A notification held open */
 .os-dim > .os-date, .os-dim > .os-clock, .os-dim > .os-lw { filter: blur(12px); opacity: 0.45; }
 .os-dim::after { content: ""; position: absolute; inset: 0; background: rgba(6, 14, 34, 0.35); pointer-events: none; }
-/* The lock screen stays put when a notification opens: the clock and widgets blur and the wallpaper dims in place. */
-.os-lock > .os-date, .os-lock > .os-clock, .os-lock > .os-lw { transition: filter 0.35s ease, opacity 0.35s ease; }
-.os-dim::after { animation: osDimIn 0.35s ease; }
-@keyframes osDimIn { from { opacity: 0; } }
 .os-expanded { position: relative; z-index: 1; margin-top: auto; width: 100%; padding: 0 14px; display: flex; flex-direction: column; gap: 10px; animation: osPop 0.35s cubic-bezier(.34, 1.4, .64, 1); }
 @keyframes osPop { from { transform: scale(0.92); opacity: 0; } }
 .os-x-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 18px; border-radius: 26px; color: #1c1f24;
@@ -2302,3 +2288,143 @@ div.cw-tile .cw-s { -webkit-line-clamp: 6; font-weight: 500; font-size: 14px; }
 .pg-know p + p { border-top: 1px solid rgba(19, 49, 93, 0.07); }
 .pf-cap { margin: 8px 0 14px; }
 .jl-req.held { width: 100%; text-align: left; }
+
+/* User testing: ?test=1 or any ?start= link hides the notes panel and centers the phone */
+body.test .notes, body.test .panel-toggle { display: none; }
+
+/* Add what needs doing (starter tasks) */
+.st-row { gap: 12px; width: 100%; text-align: left; }
+.st-row + .st-row { border-top: 1px solid var(--line); }
+.st-row .tl-txt { flex: 1; min-width: 0; }
+.st-own { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); }
+.st-own input { flex: 1; min-width: 0; border: 0; background: transparent; outline: none; font: inherit; font-size: 15px; color: var(--ink); }
+.st-own .linkish:disabled { opacity: 0.4; }
+.sc-next { font-size: 12px; font-weight: 600; color: var(--blue); margin-right: 4px; }
+
+/* Hand off and request review */
+.peb-wrote { margin: 6px 2px 0; color: #6b5a8e; }
+.sheet .actions .btn-ghost, .sheet .actions .btn-primary { flex: 1; justify-content: center; }
+.sheet .btn-text.center { color: var(--blue); font-weight: 600; font-size: 15px; margin-top: 8px; }
+
+/* Invite: phone is optional */
+.inv-form .field .eyebrow .opt { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--muted); margin-left: 4px; }
+
+/* Messages stand-in for Send invite */
+.msg-compose .mc-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; margin-bottom: 10px; }
+.msg-compose .mc-head .linkish { justify-self: start; }
+.msg-compose .mc-head b { font-size: 16px; }
+.msg-compose .mc-to { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); font-size: 15px; color: var(--muted); }
+.msg-compose .mc-chip { padding: 3px 10px; border-radius: 12px; background: rgba(47, 111, 214, 0.12); color: var(--blue); font-weight: 500; }
+.msg-compose .mc-body { display: flex; justify-content: flex-end; padding: 18px 0; min-height: 120px; align-items: flex-end; }
+.msg-compose .mc-bubble { max-width: 82%; padding: 9px 13px; border-radius: 18px; background: #e9e9eb; color: #111; font-size: 15px; line-height: 20px; }
+.msg-compose .mc-bar { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 14px; border: 1px solid #d6d6d9; border-radius: 20px; margin-bottom: 10px; }
+.msg-compose .mc-field { flex: 1; color: #a0a0a6; font-size: 15px; }
+.msg-compose .mc-send { width: 30px; height: 30px; border-radius: 15px; display: grid; place-items: center; background: #0a84ff; color: #fff; }
+
+/* Settings › Prototype */
+.proto-acct { padding: 12px 14px; }
+.proto-acct .small { margin: 8px 2px 0; }
+
+/* New account Home: one next step, nothing locked or empty around it. */
+.start-here .hsec-head { cursor: default; }
+.setup-card.sc-one { display: flex; align-items: center; gap: 12px; width: 100%; padding: 18px 16px; text-align: left; }
+.setup-card.sc-one .tl-txt { flex: 1; min-width: 0; }
+.setup-card.sc-one .n { font-size: 17px; font-weight: 600; }
+
+/* Home: the urgent task leads, under a smaller greeting. */
+.title.h-greet { font-size: 28px; line-height: 33px; margin-bottom: 14px; }
+.h-stack.hero .h-ios-main { padding: 14px 14px 14px 12px; }
+.h-stack.hero .h-ios .n { font-size: 16px; line-height: 21px; }
+.h-stack.hero .h-ios .m { font-size: 14px; line-height: 19px; }
+.h-stack.hero .h-ios-cta { padding: 8px 16px; font-size: 14px; color: #fff; background: var(--navy); box-shadow: none; }
+.h-day { margin: 14px 4px 2px; font-size: 13px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+
+/* My jar: requests in their own card, a segmented filter, Done as a section header. */
+.jar-req { display: flex; align-items: center; gap: 12px; padding: 14px 14px 14px 16px; margin-bottom: 12px; background: color-mix(in srgb, var(--blue, #418ef3) 9%, rgba(255, 255, 255, 0.8)); }
+.jar-req .eyebrow { margin: 0 0 3px; color: var(--navy); }
+.jar-req .n { font-size: 16px; font-weight: 600; color: var(--ink); }
+.jar-req-btn { flex: none; padding: 9px 16px; border-radius: 16px; font-size: 14px; font-weight: 600; color: #fff; background: var(--navy); }
+.jar-seg { margin-bottom: 12px; }
+.jar-seg button { font-size: 13.5px; white-space: nowrap; padding: 0 4px; }
+.jar-done { width: 100%; text-align: left; align-items: center; margin-bottom: 120px; }
+.jar-done:has(+ .card) { margin-bottom: 10px; }
+.jar-done img { width: 7px; height: 12px; transition: transform 0.2s; }
+.content.app:has(.jar-done + .card) { padding-bottom: 120px; }
+.jar-list .tick { padding: 8px 2px 8px 12px; }
+/* The jar shrinks and fades as it scrolls away, like an iOS large title. */
+@supports (animation-timeline: view()) {
+  .jar-free { animation: jarAway linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; transform-origin: 50% 100%; }
+  @keyframes jarAway { to { transform: scale(0.6); opacity: 0; } }
+}
+.section-h.ppl-first { margin-top: 6px; }
+
+/* Readability: meta text at 15px, one muted tone that clears 4.5:1. */
+.small, .tl-txt .m, .tl-txt .why, .person .m, .date-row .m, .cal-opt .m, .option .d, .path .d,
+.task-card .meta, .step small, .sheet-list button small, .glow-tile small, .stage-card .cap,
+.group-head .count, .private, .cond-name span, .loose, .more, .finished { font-size: 15px; line-height: 20px; }
+.linkish { font-size: 15px; }
+.proto-acct .btn-text { display: block; margin: 10px auto 0; }
+
+/* Task page: one meta line under the title (who · when · urgency). */
+.task-meta { margin: 6px 0 14px; font-size: 15px; line-height: 21px; color: var(--muted); }
+.task-meta .linkish { font-weight: 600; }
+.task-meta .st-urgent { color: #8a5a07; font-weight: 600; }
+/* The secondary action in a footer reads as a link, not a second button. */
+.footer .btn-text { color: var(--blue); font-weight: 600; }
+
+/* Task page: Steps and Notes always show, with add rows */
+.add-step { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; color: var(--blue); font-size: 15px; font-weight: 600; text-align: left; }
+.stp + .add-step { border-top: 1px solid var(--line); }
+.add-step svg { flex: none; }
+.stepsc .add-step { margin-bottom: 4px; }
+.notes-head { display: flex; align-items: center; justify-content: space-between; }
+.notes-head .linkish { font-size: 14px; font-weight: 600; color: var(--blue); }
+.notes-card .add-step { min-height: 36px; margin-top: 4px; }
+.sheet .sheet-field { margin-top: 14px; min-height: 0; }
+.sheet textarea.sheet-field { min-height: 110px; }
+.tline .done-check { flex: none; color: var(--blue); margin-left: auto; }
+
+/* Dad's profile: the card at the top of People and his page */
+.lv-av { flex: none; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(135deg, #f6d9b8, #e9b98c); color: #7a4a1e; border: 2px solid #fff; font-family: "Fraunces", serif; font-weight: 400; line-height: 1; }
+.lv-card { display: flex; align-items: center; gap: 14px; width: 100%; padding: 16px; text-align: left; margin-bottom: 8px; }
+.lv-card .tl-txt { flex: 1; min-width: 0; }
+.lv-card .n { font-size: 17px; }
+.lv-dots { display: flex; gap: 5px; margin-top: 6px; }
+.lv-dots i { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; }
+.lv-head { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 4px 0 14px; }
+.lv-head .title { margin: 0; font-size: 30px; }
+.lv-head .small { margin: 0; }
+.lv-lock { color: var(--muted); display: grid; place-items: center; }
+.lv-letter { font-size: 16px; font-weight: 600; }
+.lv-likes { display: flex; flex-direction: column; gap: 12px; width: 100%; padding: 16px; text-align: left; margin-bottom: 10px; }
+.lv-lh { display: flex; align-items: center; gap: 10px; }
+.lv-lh b { flex: 1; font-size: 16px; font-weight: 600; color: var(--ink); }
+.lv-sq { flex: none; width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; }
+.lv-big { font-family: "Fraunces", serif; font-size: 26px; line-height: 1; }
+.lv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.lv-chip { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 11px; border-radius: 15px; font-size: 13.5px; font-weight: 500; color: var(--ink); }
+.lv-chip.not { color: var(--muted); border: 1px solid #dde1e6; }
+.lv-chip.x svg { color: var(--muted); margin-left: 1px; }
+.lv-sh { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.lv-sh h3 { margin: 0; }
+.lv-gt { margin: 14px 0 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.lv-seg { display: flex; padding: 2px; margin-top: 18px; border-radius: 10px; background: rgba(118, 118, 128, 0.12); }
+.lv-seg button { flex: 1; height: 32px; border-radius: 8px; font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.lv-seg button.on { background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); }
+.lv-add { display: flex; gap: 8px; margin-top: 10px; }
+.lv-add input { flex: 1; min-width: 0; height: 44px; padding: 0 14px; border-radius: 14px; border: 1px solid #dde1e6; background: #fff; font: inherit; font-size: 15px; outline: none; }
+.lv-add input:focus { border-color: var(--blue); }
+.lv-add .pc-pill { height: 44px; border-radius: 22px; }
+.lv-done { margin-top: 20px; }
+
+/* Portfolio only (not in the prototype repo): the volunteer thanks wall. Keep it when syncing. */
+.wall { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+.wall-post { border-radius: 22px; overflow: hidden; background: #fff; box-shadow: 0 12px 30px -18px rgba(19, 49, 93, 0.3), 0 1px 2px rgba(33, 38, 46, 0.06); }
+.wall-post.you { box-shadow: 0 12px 30px -18px rgba(19, 49, 93, 0.3), 0 0 0 2px var(--blue); }
+.wall-art { height: 96px; }
+.wall-art svg { display: block; width: 100%; height: 100%; }
+.wall-body { position: relative; display: flex; flex-direction: column; gap: 2px; padding: 12px 16px 14px; }
+.wall-body .ty-to { font-size: 18px; }
+.wall-note { margin: 0; font-size: 15px; line-height: 1.45; color: var(--ink); }
+.wall-meta { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+.wall-tag { position: absolute; top: 12px; right: 14px; padding: 3px 10px; border-radius: 99px; background: var(--blue); color: #fff; font-size: 12px; font-weight: 600; }

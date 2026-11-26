@@ -1,8 +1,7 @@
 /* Shoal: Home as an overview, like a phone's home screen. A bright ombre, the family jars sitting
    straight on it, and a few widgets in different sizes that each open the screen with the detail.
-   The old Home stays one tap away (the "Old look" pill). Uses helpers from main-app.js and kit.js. */
+   Uses helpers from main-app.js and kit.js. */
 
-const homeOld = SCREENS.home;
 
 function homeNew() {
   const urgent = active().filter(isUrgent).sort((a, b) => a.date.localeCompare(b.date));
@@ -31,30 +30,30 @@ function homeNew() {
   return `<div class="home2">
   <div class="content app">
     <div class="apphead">${shoalMark(30)}<span class="head-btns">
-      <button class="k-look" data-act="homeLook">Old look</button>
       <button class="bell" data-act="go" data-to="notifications" aria-label="Notifications">${icon("bell")}${unread() ? `<i class="dot"></i>` : ""}</button></span></div>
-    ${notifStack(urgent, finished)}
     <p class="eyebrow grey">${TODAY.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
-    <h1 class="title">Good morning</h1>
+    <h1 class="title h-greet">Good morning</h1>
+    ${notifStack(urgent, null)}
     ${setupCard()}
-
-    <section class="h-jars" aria-label="Family jars">${familyJars()}</section>
+    ${S.tasks.length ? `<section class="h-jars" aria-label="Family jars">${familyJars()}</section>
 
     <div class="k-grid">${jarW}${kitW}</div>
 
     <section class="h-w wide" aria-label="This week">
       <div class="k-tile-top"><span class="k-lab">This week</span></div>
       ${active().length ? `${loadChart(week)}
+        <p class="h-day">${iso(day) === iso(TODAY) ? "Today" : DAY_FULL[dayKey(day)]}, ${day.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</p>
         <div class="tlist flat">${today.length ? today.slice(0, S.app.weekAll ? 99 : 3).map((t) => taskLine(t)).join("") : `<p class="small empty">Nothing on ${DAY_FULL[dayKey(day)]}.</p>`}</div>
         ${today.length > 3 ? `<button class="k-link" data-act="weekAll">${S.app.weekAll ? "Show less" : `${today.length - 3} more`}</button>` : ""}`
         : `<p class="small empty">No tasks yet. Once you add some, your family's week shows here.</p>`}
-    </section>
+    </section>` : ""}
   </div>
   ${tabbar()}</div>`;
 }
 
 /* ---------- Notifications: iOS banners at the top, not widgets ---------- */
 
+// Home shows only the urgent one, as the page's lead card; finished tasks wait in the bell.
 // Each one shows until you open it or clear it, then lives on in the bell. Two or more stack like iOS;
 // tap the stack to fan them out. They drop in once, the first time Home shows them.
 let notesSeen = new Set();
@@ -68,7 +67,7 @@ function notifStack(urgent, finished) {
   if (!items.length) return "";
   const open = S.app.stackOpen || items.length === 1, fresh = items.some((n) => !notesSeen.has(n.key));
   items.forEach((n) => notesSeen.add(n.key));
-  return `<div class="h-stack ${open ? "open" : "stacked"} ${fresh ? "fresh" : ""}" style="--n:${items.length}">
+  return `<div class="h-stack hero ${open ? "open" : "stacked"} ${fresh ? "fresh" : ""}" style="--n:${items.length}">
     ${!open ? `<button class="h-stack-hit" data-act="stackOpen" aria-label="Show ${items.length} notifications"></button>` : ""}
     ${items.map((n, i) => `<div class="h-ios ${n.cls}" style="--i:${i};${n.style || ""}" data-key="${n.key}">
       <button class="h-ios-main" data-act="${n.act}" data-id="${n.id}" ${!open && i ? 'tabindex="-1" aria-hidden="true"' : ""}>
@@ -122,15 +121,12 @@ document.addEventListener("pointerup", endNSwipe);
 document.addEventListener("pointercancel", endNSwipe);
 window.addEventListener("click", (e) => { if (nSwallow) { e.stopPropagation(); e.preventDefault(); nSwallow = false; } }, true);
 
-SCREENS.home = () => (S.app.homeLook === "old"
-  ? homeOld().replace(`<span class="head-btns">`, `<span class="head-btns"><button class="k-look" data-act="homeLook">New look</button>`)
-  : homeNew());
+SCREENS.home = homeNew;
 
 Object.assign(ACTIONS, {
   stackOpen: () => { S.app.stackOpen = !S.app.stackOpen; render(); },
   clearNote: (d) => clearNote(d.key),
   weekAll: () => { S.app.weekAll = !S.app.weekAll; render(); },
-  homeLook: () => { S.app.homeLook = S.app.homeLook === "old" ? "new" : "old"; render(); },
 });
 
 NOTES.home = ["Home", ["An overview, like a phone's home screen: a bright ombre, the family jars, and widgets that each open the screen with the detail.",
